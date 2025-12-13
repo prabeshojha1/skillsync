@@ -171,7 +171,9 @@ export default function ProfilePage() {
                   </Avatar>
                 </div>
                 <CardTitle className="text-xl">
-                  {profile.firstName} {profile.lastName}
+                  {profile.firstName && profile.lastName
+                    ? `${profile.firstName} ${profile.lastName}`
+                    : user.email.split('@')[0]}
                 </CardTitle>
                 <CardDescription>{user.email}</CardDescription>
                 <CardDescription className="mt-1">Software Developer</CardDescription>

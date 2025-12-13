@@ -47,13 +47,10 @@ const COMPANY_TYPES = [
 ]
 
 const COMPANY_SIZES = [
-  '1-5 employees',
-  '6-20 employees',
-  '21-50 employees',
-  '51-200 employees',
-  '201-500 employees',
-  '501-1000 employees',
-  '1000+ employees',
+  'Small startup (1-20 employees)',
+  'Medium company (21-100 employees)',
+  'Large company (101-1000 employees)',
+  'Enterprise (1001+ employees)',
 ]
 
 export default function ProfileSetupPage() {
@@ -65,8 +62,7 @@ export default function ProfileSetupPage() {
   const [firstName, setFirstName] = useState<string>('')
   const [lastName, setLastName] = useState<string>('')
   const [programmingLanguages, setProgrammingLanguages] = useState<string[]>([])
-  const [resumeFile, setResumeFile] = useState<File | null>(null)
-  const [resumePreview, setResumePreview] = useState<string | null>(null)
+  const [resumeFileName, setResumeFileName] = useState<string>('')
   const [companyTypes, setCompanyTypes] = useState<string[]>([])
   const [companySize, setCompanySize] = useState<string>('')
   const [submitting, setSubmitting] = useState(false)
@@ -115,18 +111,8 @@ export default function ProfileSetupPage() {
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setResumeFile(file)
-      
-      // Preview file name
-      setResumePreview(file.name)
-      
-      // Optional: Read file as base64 for storage
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        // File is available in reader.result as base64
-        // We'll use this when saving
-      }
-      reader.readAsDataURL(file)
+      // Just store the file name, not the actual file content
+      setResumeFileName(file.name)
     }
   }
 
@@ -136,7 +122,7 @@ export default function ProfileSetupPage() {
 
     if (!user) return
 
-    if (!firstName.trim() || !lastName.trim()) {
+    if (!firstName?.trim() || !lastName?.trim()) {
       setError('Please enter your first and last name')
       return
     }
@@ -159,33 +145,14 @@ export default function ProfileSetupPage() {
     setSubmitting(true)
 
     try {
-      // Convert resume file to base64 if present
-      let resumeBase64: string | null = null
-      let resumeFileName: string | null = null
-
-      if (resumeFile) {
-        resumeFileName = resumeFile.name
-        resumeBase64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onloadend = () => {
-            if (typeof reader.result === 'string') {
-              resolve(reader.result)
-            } else {
-              reject(new Error('Failed to read file'))
-            }
-          }
-          reader.onerror = reject
-          reader.readAsDataURL(resumeFile)
-        })
-      }
-
+      // Just store the file name, not the actual file content
+      // This prevents localStorage quota issues
       const profile: UserProfile = {
         userId: user.id,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+        firstName: firstName?.trim() || '',
+        lastName: lastName?.trim() || '',
         programmingLanguages,
-        resume: resumeBase64,
-        resumeFileName,
+        resumeFileName: resumeFileName || null,
         companyTypes,
         companySize,
         completedAt: new Date().toISOString(),
@@ -306,10 +273,10 @@ export default function ProfileSetupPage() {
                 {/* Resume Upload */}
                 <div className="space-y-3">
                   <Label htmlFor="resume" className="text-base font-semibold">
-                    Resume
+                    Resume (Optional)
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Upload your resume (PDF, DOC, DOCX)
+                    Upload your resume file name. The file itself will not be stored.
                   </p>
                   <div className="space-y-2">
                     <Input
@@ -317,11 +284,12 @@ export default function ProfileSetupPage() {
                       type="file"
                       accept=".pdf,.doc,.docx"
                       onChange={handleResumeChange}
+                      disabled={submitting}
                       className="cursor-pointer"
                     />
-                    {resumePreview && (
+                    {resumeFileName && (
                       <p className="text-sm text-muted-foreground">
-                        Selected: {resumePreview}
+                        File: {resumeFileName}
                       </p>
                     )}
                   </div>
