@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getCurrentUser, signOut, type User } from '@/lib/auth'
+import { hasCompletedProfile } from '@/lib/profile'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/logo'
 import Link from 'next/link'
@@ -22,6 +23,12 @@ export default function ApplicantDashboard() {
 
     if (currentUser.role !== 'applicant') {
       router.push('/dashboard/recruiter')
+      return
+    }
+
+    // Check if profile is completed, redirect to setup if not
+    if (!hasCompletedProfile(currentUser.id)) {
+      router.push('/profile-setup')
       return
     }
 
@@ -105,11 +112,13 @@ export default function ApplicantDashboard() {
             <div className="rounded-lg border p-6">
               <h2 className="text-xl font-semibold mb-2">Profile</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                Manage your profile and preferences
+                View your profile and preferences
               </p>
-              <Button variant="outline" size="sm">
-                Edit Profile
-              </Button>
+              <Link href="/profile">
+                <Button variant="outline" size="sm">
+                  View Profile
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
