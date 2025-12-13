@@ -13,16 +13,49 @@ import { Spotlight } from '@/components/motion-primitives/spotlight'
 import { Tilt } from '@/components/motion-primitives/tilt'
 import { GridPattern } from '@/components/ui/shadcn-io/grid-pattern'
 import { Logo } from '@/components/logo'
-import { Search, Mic, Clock, Building2, TrendingUp, Briefcase, CheckCircle2 } from 'lucide-react'
+import { Search, Mic, Clock, Building2, Briefcase, CheckCircle2, X } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { useMemo } from 'react'
+
+// Types
+type Challenge = {
+  id: number
+  title: string
+  company: string
+  tech: string
+  time: string
+  hasVoice: boolean
+  progress: string
+  category?: string
+}
+
+type Job = {
+  id: number
+  role: string
+  company: string
+  composition: string
+}
+
+type Company = {
+  id: number
+  name: string
+  logo: string
+  completed: number
+  total: number
+  status: string
+}
 
 // Mock data - replace with real data later
 const dailyChallenge = {
+  id: 0,
   title: 'Design a Distributed URL Shortener',
   type: 'System Design',
   duration: '45m',
   hasVoice: true,
+  company: 'Daily Challenge',
+  tech: 'System Design',
+  progress: '0/1',
 }
 
 const recommendedChallenges = [
@@ -59,6 +92,18 @@ const jobPostings = [
     company: 'Amazon',
     composition: 'Contains 5 Assessments: 2 System Design + 3 Algo',
   },
+  {
+    id: 4,
+    role: 'Front End Developer',
+    company: 'ClinIQ',
+    composition: 'Contains 3 Assessments: 1 System Design + 2 Algo',
+  },
+  {
+    id: 5,
+    role: 'Back End Developer',
+    company: 'ClinIQ',
+    composition: 'Contains 4 Assessments: 2 System Design + 2 Algo',
+  },
 ]
 
 const companyProgress = [
@@ -67,9 +112,10 @@ const companyProgress = [
   { id: 3, name: 'Amazon', logo: 'A', completed: 4, total: 5, status: 'Eligible for Interview' },
   { id: 4, name: 'Meta', logo: 'M', completed: 5, total: 20, status: 'In Progress' },
   { id: 5, name: 'Google', logo: 'G', completed: 1, total: 10, status: 'In Progress' },
+  { id: 6, name: 'ClinIQ', logo: 'C', completed: 0, total: 3, status: 'In Progress' },
 ]
 
-function ChallengeCard({ challenge, isQuickWin = false }: { challenge: any; isQuickWin?: boolean }) {
+function ChallengeCard({ challenge, isQuickWin = false }: { challenge: Challenge; isQuickWin?: boolean }) {
   return (
     <Card className="relative min-w-[320px] h-[200px] cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
       <Spotlight size={250} />
@@ -108,7 +154,7 @@ function ChallengeCard({ challenge, isQuickWin = false }: { challenge: any; isQu
   )
 }
 
-function JobCard({ job }: { job: any }) {
+function JobCard({ job }: { job: Job }) {
   return (
     <Card className="relative min-w-[420px] cursor-pointer border-border/50 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10">
       <Spotlight size={300} />
@@ -133,12 +179,20 @@ function JobCard({ job }: { job: any }) {
   )
 }
 
-function CompanyProgressCard({ company }: { company: any }) {
+function CompanyProgressCard({ company }: { company: Company }) {
   const progress = (company.completed / company.total) * 100
   const isEligible = company.status === 'Eligible for Interview' && company.name !== 'Amazon'
+  const isClinIQ = company.name === 'ClinIQ'
   
   return (
-    <Card className="relative min-w-[280px] cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
+    <Card 
+      className="relative min-w-[280px] cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+      onClick={() => {
+        if (isClinIQ) {
+          window.location.href = '/ClinIQ'
+        }
+      }}
+    >
       <Spotlight size={200} />
       <CardContent className="p-6 relative z-10">
         <div className="flex items-start justify-between mb-4">
@@ -177,8 +231,14 @@ function CompanyProgressCard({ company }: { company: any }) {
                 "text-xs h-7",
                 isEligible && "bg-green-500 hover:bg-green-600 text-white border-green-500 hover:border-green-600"
               )}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (isClinIQ) {
+                  window.location.href = '/ClinIQ'
+                }
+              }}
             >
-              View Progress
+              {isClinIQ ? 'View Company' : 'View Progress'}
             </Button>
           </div>
         </div>
@@ -191,28 +251,85 @@ export default function ApplicantDashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [favoriteCompanies] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      return JSON.parse(localStorage.getItem('favoriteCompanies') || '[]')
+    }
+    return []
+  })
   const router = useRouter()
 
+  // Combine all challenges including daily challenge
+  const allChallenges = useMemo(() => [
+    {
+      ...dailyChallenge,
+      time: dailyChallenge.duration,
+      category: 'daily',
+    },
+    ...recommendedChallenges.map(c => ({ ...c, category: 'recommended' })),
+    ...quickWins.map(c => ({ ...c, category: 'quickWin' })),
+  ], [])
+
+  // Filter search results
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return { challenges: [], companies: [], roles: [] }
+    }
+
+    const query = searchQuery.toLowerCase().trim()
+
+    // Filter challenges
+    const filteredChallenges = allChallenges.filter(challenge =>
+      challenge.title.toLowerCase().includes(query) ||
+      challenge.company.toLowerCase().includes(query) ||
+      challenge.tech.toLowerCase().includes(query)
+    )
+
+    // Filter companies
+    const filteredCompanies = companyProgress.filter(company =>
+      company.name.toLowerCase().includes(query)
+    )
+
+    // Filter roles
+    const filteredRoles = jobPostings.filter(job =>
+      job.role.toLowerCase().includes(query) ||
+      job.company.toLowerCase().includes(query)
+    )
+
+    return {
+      challenges: filteredChallenges,
+      companies: filteredCompanies,
+      roles: filteredRoles,
+    }
+  }, [searchQuery, allChallenges])
+
+  const hasResults = searchResults.challenges.length > 0 || searchResults.companies.length > 0 || searchResults.roles.length > 0
+  const showSearchOverlay = searchQuery.trim().length > 0
+
   useEffect(() => {
-    const currentUser = getCurrentUser()
-    
-    if (!currentUser) {
-      router.push('/login')
-      return
+    const checkAuth = () => {
+      const currentUser = getCurrentUser()
+      
+      if (!currentUser) {
+        router.push('/login')
+        return
+      }
+
+      if (currentUser.role !== 'applicant') {
+        router.push('/dashboard/recruiter')
+        return
+      }
+
+      if (!hasCompletedProfile(currentUser.id)) {
+        router.push('/profile-setup')
+        return
+      }
+
+      setUser(currentUser)
+      setLoading(false)
     }
 
-    if (currentUser.role !== 'applicant') {
-      router.push('/dashboard/recruiter')
-      return
-    }
-
-    if (!hasCompletedProfile(currentUser.id)) {
-      router.push('/profile-setup')
-      return
-    }
-
-    setUser(currentUser)
-    setLoading(false)
+    checkAuth()
   }, [router])
 
   if (loading) {
@@ -245,9 +362,25 @@ export default function ApplicantDashboard() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search challenges, companies, or roles..."
+                placeholder="Q Search challenges, companies, or roles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    // Keep focus on input
+                    e.currentTarget.focus()
+                  }
+                }}
+                onClick={(e) => {
+                  // Prevent closing when clicking the input
+                  e.stopPropagation()
+                }}
+                onFocus={(e) => {
+                  // Ensure overlay stays open when focusing
+                  e.stopPropagation()
+                }}
+                autoFocus={showSearchOverlay}
                 className="pl-10 bg-background/50 border-border/50 focus:border-primary/50"
               />
             </div>
@@ -261,6 +394,190 @@ export default function ApplicantDashboard() {
           </Link>
         </div>
       </header>
+
+      {/* Search Results Overlay */}
+      {showSearchOverlay && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm" 
+            onClick={(e) => {
+              // Only close if clicking the backdrop itself, not the modal
+              if (e.target === e.currentTarget) {
+                setSearchQuery('')
+              }
+            }} 
+          />
+          
+          {/* Search Results Modal */}
+          <div className="relative w-full max-w-4xl bg-card border border-border rounded-2xl shadow-2xl max-h-[80vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h2 className="text-xl font-semibold">
+                Results matching &quot;{searchQuery}&quot;
+              </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSearchQuery('')}
+                className="h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Results Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              {/* Challenges Section */}
+              {searchResults.challenges.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Challenges:</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {searchResults.challenges.map((challenge) => (
+                      <ChallengeCard 
+                        key={challenge.id} 
+                        challenge={challenge} 
+                        isQuickWin={challenge.category === 'quickWin'}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Companies Section */}
+              {searchResults.companies.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Companies:</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {searchResults.companies.map((company) => {
+                      const isClinIQ = company.name === 'ClinIQ'
+                      return (
+                        <Card
+                          key={company.id}
+                          className="relative cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+                          onClick={() => {
+                            if (isClinIQ) {
+                              window.location.href = '/ClinIQ'
+                            }
+                          }}
+                        >
+                          <Spotlight size={200} />
+                          <CardContent className="p-6 relative z-10">
+                            <div className="flex items-center gap-4 mb-4">
+                              <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10 text-lg font-bold text-primary">
+                                {company.logo}
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg">{company.name}</h4>
+                                {company.status && (
+                                  <p className="text-xs text-muted-foreground mt-1">{company.status}</p>
+                                )}
+                              </div>
+                            </div>
+                            {company.completed !== undefined && company.total !== undefined && (
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                  <span>{company.completed} of {company.total} challenges</span>
+                                  <span>{Math.round((company.completed / company.total) * 100)}%</span>
+                                </div>
+                                <div className="w-full bg-muted/30 rounded-md h-1.5 overflow-hidden">
+                                  <div
+                                    className={cn(
+                                      "h-full rounded-md transition-all",
+                                      company.status === 'Eligible for Interview'
+                                        ? "bg-gradient-to-r from-green-500 to-emerald-600"
+                                        : "bg-gradient-to-r from-primary to-primary/80"
+                                    )}
+                                    style={{ width: `${(company.completed / company.total) * 100}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full mt-4"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (isClinIQ) {
+                                  window.location.href = '/ClinIQ'
+                                }
+                              }}
+                            >
+                              {isClinIQ ? 'View Company' : 'View'}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Roles Section */}
+              {searchResults.roles.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Roles:</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {searchResults.roles.map((job) => {
+                      const isClinIQ = job.company === 'ClinIQ'
+                      return (
+                        <Card
+                          key={job.id}
+                          className="relative cursor-pointer border-border/50 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10"
+                          onClick={() => {
+                            if (isClinIQ) {
+                              window.location.href = '/ClinIQ'
+                            }
+                          }}
+                        >
+                          <Spotlight size={300} />
+                          <CardContent className="p-6 relative z-10">
+                            <div className="mb-5">
+                              <div className="mb-3">
+                                <h3 className="text-2xl font-bold mb-2">{job.role}</h3>
+                                <p className="text-muted-foreground flex items-center gap-2 font-medium">
+                                  <Building2 className="h-4 w-4" />
+                                  {job.company}
+                                </p>
+                              </div>
+                              <p className="text-sm text-muted-foreground leading-relaxed">{job.composition}</p>
+                            </div>
+                            <Button
+                              className="w-full hover:bg-secondary hover:text-secondary-foreground transition-colors"
+                              size="lg"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (isClinIQ) {
+                                  window.location.href = '/ClinIQ'
+                                }
+                              }}
+                            >
+                              {isClinIQ ? 'View Company' : 'Start Application Track'}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* No Results */}
+              {!hasResults && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">
+                    No results found for &quot;{searchQuery}&quot;
+                  </p>
+                  <p className="text-muted-foreground/60 text-sm mt-2">
+                    Try searching for challenges, companies, or roles
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="pb-16">
         {/* Hero Section */}
@@ -348,6 +665,23 @@ export default function ApplicantDashboard() {
             ))}
           </div>
         </section>
+
+        {/* Favorite Companies */}
+        {favoriteCompanies.length > 0 && (
+          <section className="container mx-auto px-6 mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold">Favorite Companies</h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
+            </div>
+            <div className="flex gap-5 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">
+              {companyProgress
+                .filter(company => favoriteCompanies.includes(company.name))
+                .map((company) => (
+                  <CompanyProgressCard key={company.id} company={company} />
+                ))}
+            </div>
+          </section>
+        )}
 
         {/* Company Progress */}
         <section className="container mx-auto px-6">
