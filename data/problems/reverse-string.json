@@ -1,0 +1,38 @@
+{
+  "id": "reverse-string",
+  "title": "Reverse String",
+  "difficulty": "Easy",
+  "functionName": "reverseString",
+  "description": "Write a function that reverses a string. The input string is given as an array of characters.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\nYou may assume all the characters consist of printable ascii characters.",
+  "boilerplate": "def reverseString(s):\n    # Your code here\n    pass",
+  "examples": [
+    {
+      "input": "s = [\"h\",\"e\",\"l\",\"l\",\"o\"]",
+      "output": "[\"o\",\"l\",\"l\",\"e\",\"h\"]",
+      "explanation": "The input array is reversed in-place."
+    },
+    {
+      "input": "s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]",
+      "output": "[\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]",
+      "explanation": "The input array is reversed in-place."
+    }
+  ],
+  "constraints": [
+    "1 ≤ s.length ≤ 10⁵",
+    "s[i] is a printable ascii character."
+  ],
+  "testCases": [
+    {
+      "id": "1",
+      "name": "Test Case 1",
+      "input": "s = [\"h\",\"e\",\"l\",\"l\",\"o\"]",
+      "expectedOutput": "[\"o\",\"l\",\"l\",\"e\",\"h\"]"
+    },
+    {
+      "id": "2",
+      "name": "Test Case 2",
+      "input": "s = [\"H\",\"a\",\"n\",\"n\",\"a\",\"h\"]",
+      "expectedOutput": "[\"h\",\"a\",\"n\",\"n\",\"a\",\"H\"]"
+    }
+  ]
+}
