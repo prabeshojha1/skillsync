@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Spotlight } from '@/components/motion-primitives/spotlight'
 import { Tilt } from '@/components/motion-primitives/tilt'
+import { GridPattern } from '@/components/ui/shadcn-io/grid-pattern'
 import { Logo } from '@/components/logo'
 import { Search, Mic, Clock, Building2, TrendingUp, Briefcase, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
@@ -267,6 +268,16 @@ export default function ApplicantDashboard() {
           <Tilt rotationFactor={2} isRevese>
             <Card className="relative overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
               <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-background/80" />
+              <GridPattern
+                width={40}
+                height={40}
+                x={-1}
+                y={-1}
+                className={cn(
+                  "[mask-image:radial-gradient(700px_circle_at_right,white,transparent)]",
+                  "opacity-40 dark:opacity-50"
+                )}
+              />
               <CardContent className="relative z-10 p-12 md:p-16">
                 <div className="max-w-4xl">
                   <div className="mb-8">
