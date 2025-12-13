@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Logo } from '@/components/logo'
+import { cn } from '@/lib/utils'
+import { Upload, File, X } from 'lucide-react'
 import Link from 'next/link'
 
 const PROGRAMMING_LANGUAGES = [
@@ -63,6 +65,7 @@ export default function ProfileSetupPage() {
   const [lastName, setLastName] = useState<string>('')
   const [programmingLanguages, setProgrammingLanguages] = useState<string[]>([])
   const [resumeFileName, setResumeFileName] = useState<string>('')
+  const [isDragging, setIsDragging] = useState(false)
   const [companyTypes, setCompanyTypes] = useState<string[]>([])
   const [companySize, setCompanySize] = useState<string>('')
   const [submitting, setSubmitting] = useState(false)
@@ -108,11 +111,43 @@ export default function ProfileSetupPage() {
     )
   }
 
-  const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleResumeChange = (file: File | null) => {
     if (file) {
       // Just store the file name, not the actual file content
       setResumeFileName(file.name)
+    }
+  }
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    handleResumeChange(file || null)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file && (file.type === 'application/pdf' || file.name.match(/\.(doc|docx)$/i))) {
+      handleResumeChange(file)
+    }
+  }
+
+  const handleRemoveFile = () => {
+    setResumeFileName('')
+    // Reset the file input
+    const fileInput = document.getElementById('resume') as HTMLInputElement
+    if (fileInput) {
+      fileInput.value = ''
     }
   }
 
@@ -272,27 +307,68 @@ export default function ProfileSetupPage() {
 
                 {/* Resume Upload */}
                 <div className="space-y-3">
-                  <Label htmlFor="resume" className="text-base font-semibold">
+                  <Label className="text-base font-semibold">
                     Resume (Optional)
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Upload your resume file name. The file itself will not be stored.
+                    Upload your resume file. PDF, DOC, or DOCX format.
                   </p>
-                  <div className="space-y-2">
-                    <Input
-                      id="resume"
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleResumeChange}
-                      disabled={submitting}
-                      className="cursor-pointer"
-                    />
-                    {resumeFileName && (
-                      <p className="text-sm text-muted-foreground">
-                        File: {resumeFileName}
-                      </p>
-                    )}
-                  </div>
+                  
+                  {!resumeFileName ? (
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={cn(
+                        "relative border-2 border-dashed rounded-lg p-8 text-center transition-colors",
+                        isDragging
+                          ? "border-primary bg-primary/5"
+                          : "border-muted-foreground/25 hover:border-muted-foreground/50 bg-muted/30"
+                      )}
+                    >
+                      <input
+                        id="resume"
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleFileInputChange}
+                        disabled={submitting}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="rounded-full bg-muted p-3">
+                          <Upload className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            PDF, DOC, or DOCX (max 10MB)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 rounded-lg border bg-card p-4">
+                      <div className="rounded-full bg-primary/10 p-2">
+                        <File className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{resumeFileName}</p>
+                        <p className="text-xs text-muted-foreground">Resume file selected</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={handleRemoveFile}
+                        disabled={submitting}
+                        className="shrink-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Company Types */}
