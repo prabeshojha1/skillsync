@@ -44,6 +44,7 @@ export default function EditorPage() {
   const [isPyodideReady, setIsPyodideReady] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [output, setOutput] = useState<{ type: 'output' | 'error'; content: string } | null>(null)
+  const testCasesRef = useRef<TestCase[]>([])
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -372,19 +373,46 @@ export default function EditorPage() {
   }, [parseTestCaseInput])
 
   // Handle running a single test case
-  const handleRunTestCase = useCallback(async (testCaseId: string) => {
+  const handleRunTestCase = useCallback(async (testCaseId: string, testCaseOverride?: TestCase) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:376',message:'handleRunTestCase entry',data:{testCaseId,hasOverride:!!testCaseOverride,hasEditor:!!editorRef.current,hasPyodide:!!pyodideRef.current,isPyodideReady},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'I'})}).catch(()=>{});
+    // #endregion
     if (!editorRef.current || !pyodideRef.current || !isPyodideReady) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:380',message:'handleRunTestCase early return',data:{testCaseId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'J'})}).catch(()=>{});
+      // #endregion
       return
     }
 
-    // Get test case from state
-    let testCase: TestCase | undefined
-    setTestCases(prev => {
-      testCase = prev.find(tc => tc.id === testCaseId)
-      return prev
-    })
+    // Get test case - use override if provided, otherwise look up from ref or state
+    let testCase: TestCase | undefined = testCaseOverride
+    
+    if (!testCase) {
+      // Try ref first (most up-to-date)
+      testCase = testCasesRef.current.find(tc => tc.id === testCaseId)
+      
+      // If not in ref, try state
+      if (!testCase) {
+        setTestCases(prev => {
+          testCase = prev.find(tc => tc.id === testCaseId)
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:392',message:'Looking for test case in state',data:{testCaseId,found:!!testCase,allIds:prev.map(tc=>tc.id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'K'})}).catch(()=>{});
+          // #endregion
+          return prev // Don't modify state here, just read it
+        })
+      } else {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:400',message:'Found test case in ref',data:{testCaseId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'K2'})}).catch(()=>{});
+        // #endregion
+      }
+    }
 
-    if (!testCase) return
+    if (!testCase) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:405',message:'Test case not found',data:{testCaseId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'L'})}).catch(()=>{});
+      // #endregion
+      return
+    }
 
     // Update status to running
     setTestCases(prev => prev.map(tc => 
@@ -418,14 +446,47 @@ export default function EditorPage() {
 
   // Handle running all test cases
   const handleRunAllTests = useCallback(async () => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:435',message:'handleRunAllTests entry',data:{hasEditor:!!editorRef.current,hasPyodide:!!pyodideRef.current,isPyodideReady},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     if (!editorRef.current || !pyodideRef.current || !isPyodideReady) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:437',message:'handleRunAllTests early return',data:{hasEditor:!!editorRef.current,hasPyodide:!!pyodideRef.current,isPyodideReady},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
       return
     }
 
-    // Reset all test cases to pending first and get current test cases
-    let currentTestCases: TestCase[] = []
+    // Get current test cases from ref (kept in sync via useEffect)
+    // The ref should always have the latest test cases
+    let currentTestCases: TestCase[] = testCasesRef.current.length > 0 
+      ? testCasesRef.current.map(tc => ({ ...tc }))
+      : []
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:448',message:'Got test cases from ref',data:{testCaseCount:currentTestCases.length,refCount:testCasesRef.current.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    
+    // If ref is empty, try to read from state one more time
+    if (currentTestCases.length === 0) {
+      let fallbackCases: TestCase[] = []
+      setTestCases(prev => {
+        fallbackCases = prev.map(tc => ({ ...tc }))
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:456',message:'Fallback: reading from state',data:{testCaseCount:prev.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C2'})}).catch(()=>{});
+        // #endregion
+        return prev
+      })
+      if (fallbackCases.length > 0) {
+        currentTestCases = fallbackCases
+        testCasesRef.current = fallbackCases // Update ref for next time
+      }
+    }
+    
+    // Reset all test cases to pending
     setTestCases(prev => {
-      currentTestCases = prev
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:466',message:'Resetting test cases to pending',data:{testCaseCount:prev.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C3'})}).catch(()=>{});
+      // #endregion
       return prev.map(tc => ({
         ...tc,
         status: 'pending',
@@ -434,12 +495,27 @@ export default function EditorPage() {
       }))
     })
 
-    // Run each test case sequentially
-    for (const testCase of currentTestCases) {
-      await handleRunTestCase(testCase.id)
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:485',message:'Starting test execution loop',data:{testCaseCount:currentTestCases.length,testCaseIds:currentTestCases.map(tc=>tc.id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+
+    // Run each test case sequentially using the captured array
+    // Pass the test case object directly to avoid state lookup issues
+    for (let i = 0; i < currentTestCases.length; i++) {
+      const testCase = currentTestCases[i]
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:490',message:'Running test case',data:{testCaseId:testCase.id,testCaseName:testCase.name,index:i,total:currentTestCases.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
+      await handleRunTestCase(testCase.id, testCase)
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:494',message:'Test case completed',data:{testCaseId:testCase.id,index:i},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+      // #endregion
       // Small delay between tests for better UX
       await new Promise(resolve => setTimeout(resolve, 100))
     }
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:452',message:'All tests completed',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+    // #endregion
   }, [handleRunTestCase, isPyodideReady])
 
   // Handle code execution
@@ -574,6 +650,18 @@ You can return the answer in any order.`,
 
   const [activeTestCase, setActiveTestCase] = useState('1')
 
+  // Keep ref in sync with state and initialize it
+  useEffect(() => {
+    testCasesRef.current = testCases
+  }, [testCases])
+  
+  // Initialize ref on mount
+  useEffect(() => {
+    if (testCasesRef.current.length === 0 && testCases.length > 0) {
+      testCasesRef.current = testCases
+    }
+  }, [])
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
@@ -700,7 +788,12 @@ You can return the answer in any order.`,
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  onClick={handleRunAllTests}
+                  onClick={() => {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/page.tsx:725',message:'Run All Tests button clicked',data:{isRunning,isLoadingPyodide,isPyodideReady,hasRunningTests:testCases.some(tc => tc.status === 'running')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+                    // #endregion
+                    handleRunAllTests()
+                  }}
                   disabled={isRunning || isLoadingPyodide || !isPyodideReady || testCases.some(tc => tc.status === 'running')}
                   size="sm"
                   variant="outline"
