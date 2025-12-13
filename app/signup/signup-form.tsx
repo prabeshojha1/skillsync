@@ -39,7 +39,8 @@ export default function SignupForm() {
       if (result.user.role === 'recruiter') {
         router.push('/dashboard/recruiter')
       } else {
-        router.push('/dashboard/applicant')
+        // Applicants go to profile setup first
+        router.push('/profile-setup')
       }
       router.refresh()
     } catch (err) {
