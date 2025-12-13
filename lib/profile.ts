@@ -4,11 +4,10 @@
 
 export interface UserProfile {
   userId: string
-  firstName: string
-  lastName: string
+  firstName?: string
+  lastName?: string
   programmingLanguages: string[]
-  resume: string | null // Base64 encoded file or URL
-  resumeFileName: string | null
+  resumeFileName: string | null // Just store the filename, not the file itself
   companyTypes: string[]
   companySize: string | null
   completedAt: string
@@ -35,9 +34,40 @@ function getProfiles(): Record<string, UserProfile> {
 function saveProfiles(profiles: Record<string, UserProfile>): void {
   if (typeof window === 'undefined') return
   try {
-    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profiles))
-  } catch (error) {
+    const serialized = JSON.stringify(profiles)
+    // Check if data is too large (localStorage limit is typically 5-10MB)
+    if (serialized.length > 4 * 1024 * 1024) { // 4MB limit
+      console.error('Profile data too large to save. Removing large fields.')
+      // Remove any large data and try again
+      const cleanedProfiles = Object.entries(profiles).reduce((acc, [key, profile]) => {
+        acc[key] = {
+          ...profile,
+          resumeFileName: profile.resumeFileName ? profile.resumeFileName : null,
+        }
+        return acc
+      }, {} as Record<string, UserProfile>)
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(cleanedProfiles))
+      return
+    }
+    localStorage.setItem(PROFILE_STORAGE_KEY, serialized)
+  } catch (error: any) {
     console.error('Failed to save profiles:', error)
+    // If quota exceeded, try to save without resume
+    if (error.name === 'QuotaExceededError' || error.code === 22) {
+      console.warn('LocalStorage quota exceeded. Attempting to save without resume data.')
+      try {
+        const cleanedProfiles = Object.entries(profiles).reduce((acc, [key, profile]) => {
+          acc[key] = {
+            ...profile,
+            resumeFileName: profile.resumeFileName ? profile.resumeFileName : null,
+          }
+          return acc
+        }, {} as Record<string, UserProfile>)
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(cleanedProfiles))
+      } catch (retryError) {
+        console.error('Failed to save even after cleanup:', retryError)
+      }
+    }
   }
 }
 
