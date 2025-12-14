@@ -1,0 +1,68 @@
+[
+  {
+    "id": "cliniq-frontend-dev",
+    "companyId": "cliniq",
+    "role": "Front End Developer",
+    "description": "We're looking for a talented Front End Developer to join our team. You'll work with React, TypeScript, and modern UI frameworks to create exceptional user experiences for healthcare professionals and patients.",
+    "skills": ["React", "TypeScript", "Next.js", "Tailwind CSS"],
+    "composition": "Contains 3 Assessments: 1 System Design + 2 Algo",
+    "postedAt": "2024-11-15",
+    "status": "active",
+    "applicantCount": 18
+  },
+  {
+    "id": "cliniq-backend-dev",
+    "companyId": "cliniq",
+    "role": "Back End Developer",
+    "description": "Join our backend team to build secure, HIPAA-compliant APIs and services that power our healthcare platform. Experience with Node.js, Python, or Go preferred.",
+    "skills": ["Node.js", "Python", "Go", "HIPAA"],
+    "composition": "Contains 4 Assessments: 2 System Design + 2 Algo",
+    "postedAt": "2024-11-20",
+    "status": "active",
+    "applicantCount": 22
+  },
+  {
+    "id": "cliniq-senior-frontend",
+    "companyId": "cliniq",
+    "role": "Senior Frontend Developer",
+    "description": "Build beautiful, performant user interfaces using React and TypeScript. Lead frontend architecture decisions and mentor junior developers.",
+    "skills": ["React", "TypeScript", "Tailwind CSS", "Next.js"],
+    "composition": "Contains 4 Assessments: 2 System Design + 2 Algo",
+    "postedAt": "2024-12-01",
+    "status": "active",
+    "applicantCount": 24
+  },
+  {
+    "id": "cliniq-backend-engineer",
+    "companyId": "cliniq",
+    "role": "Backend Engineer",
+    "description": "Design and implement scalable APIs and microservices for our healthcare platform.",
+    "skills": ["Node.js", "Python", "PostgreSQL", "Redis"],
+    "composition": "Contains 3 Assessments: 1 System Design + 2 Algo",
+    "postedAt": "2024-12-05",
+    "status": "active",
+    "applicantCount": 18
+  },
+  {
+    "id": "cliniq-fullstack",
+    "companyId": "cliniq",
+    "role": "Full Stack Developer",
+    "description": "Work across the entire stack to deliver end-to-end features for our healthcare applications.",
+    "skills": ["React", "Node.js", "TypeScript", "AWS"],
+    "composition": "Contains 5 Assessments: 2 System Design + 3 Algo",
+    "postedAt": "2024-12-10",
+    "status": "active",
+    "applicantCount": 31
+  },
+  {
+    "id": "cliniq-devops",
+    "companyId": "cliniq",
+    "role": "DevOps Engineer",
+    "description": "Manage cloud infrastructure and CI/CD pipelines. Ensure HIPAA compliance and security best practices.",
+    "skills": ["AWS", "Docker", "Kubernetes", "Terraform"],
+    "composition": "Contains 3 Assessments: 2 System Design + 1 Algo",
+    "postedAt": "2024-12-08",
+    "status": "active",
+    "applicantCount": 12
+  }
+]

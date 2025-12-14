@@ -18,6 +18,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { useMemo } from 'react'
 import { getCompanyBySlug, searchCompanies, getAllCompanies } from '@/lib/companies'
+import { getAllJobs } from '@/lib/jobs'
 
 // Types
 type Challenge = {
@@ -75,38 +76,6 @@ const quickWins = [
   { id: 9, title: 'String Permutations', company: 'Netflix', tech: 'JavaScript', time: '12m', hasVoice: false, progress: '4/18' },
 ]
 
-const jobPostings = [
-  {
-    id: 1,
-    role: 'Backend Engineer',
-    company: 'Atlassian',
-    composition: 'Contains 3 Assessments: 1 System Design + 2 Algo',
-  },
-  {
-    id: 2,
-    role: 'Senior Software Engineer',
-    company: 'Stripe',
-    composition: 'Contains 4 Assessments: 2 System Design + 2 Algo',
-  },
-  {
-    id: 3,
-    role: 'Full Stack Developer',
-    company: 'Amazon',
-    composition: 'Contains 5 Assessments: 2 System Design + 3 Algo',
-  },
-  {
-    id: 4,
-    role: 'Front End Developer',
-    company: 'ClinIQ',
-    composition: 'Contains 3 Assessments: 1 System Design + 2 Algo',
-  },
-  {
-    id: 5,
-    role: 'Back End Developer',
-    company: 'ClinIQ',
-    composition: 'Contains 4 Assessments: 2 System Design + 2 Algo',
-  },
-]
 
 const companyProgress = [
   { id: 1, name: 'Atlassian', logo: 'A', completed: 2, total: 5, status: 'In Progress' },
@@ -312,37 +281,18 @@ export default function ApplicantDashboard() {
     ...quickWins.map(c => ({ ...c, category: 'quickWin' })),
   ], [])
 
-  // Get all jobs from companies data
-  const allJobsFromCompanies = useMemo(() => {
-    const companies = getAllCompanies()
-    return companies.flatMap(comp => 
-      comp.jobs.map(job => ({
-        id: `company-${comp.id}-${job.id}`, // Unique ID based on company and job
-        role: job.role,
-        company: comp.name,
-        composition: job.composition || '',
-        companySlug: comp.id,
-      }))
-    )
-  }, [])
-
-  // Combine job postings, deduplicating by company and role (prefer company data)
+  // Get all jobs from centralized jobs data
   const allJobs = useMemo(() => {
-    const companyJobKeys = new Set(
-      allJobsFromCompanies.map(job => `${job.company}-${job.role}`)
-    )
-    
-    // Filter out hardcoded jobs that exist in company data
-    const uniqueHardcodedJobs = jobPostings
-      .map(j => ({ ...j, companySlug: j.company.toLowerCase().replace(/\s+/g, '-') }))
-      .filter(job => !companyJobKeys.has(`${job.company}-${job.role}`))
-    
-    // Combine with unique IDs
-    return [
-      ...uniqueHardcodedJobs.map(job => ({ ...job, id: `hardcoded-${job.id}` })),
-      ...allJobsFromCompanies,
-    ]
-  }, [allJobsFromCompanies])
+    const jobs = getAllJobs()
+    // Map to the format expected by the UI
+    return jobs.map(job => ({
+      id: job.id,
+      role: job.role,
+      company: job.companyId === 'cliniq' ? 'ClinIQ' : job.companyId.charAt(0).toUpperCase() + job.companyId.slice(1),
+      composition: job.composition || '',
+      companySlug: job.companyId,
+    }))
+  }, [])
 
   // Filter search results
   const searchResults = useMemo(() => {
