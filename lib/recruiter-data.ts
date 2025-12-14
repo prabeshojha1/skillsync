@@ -1,5 +1,8 @@
 // Recruiter dashboard data types and mock data
 
+import { getAllJobs } from '@/lib/jobs'
+import { JobPosting } from '@/data/jobs/types'
+
 export type CheatingFlagType = 'tab_switch' | 'copy_paste' | 'looked_away'
 
 export type CheatingFlag = {
@@ -28,55 +31,8 @@ export type RecruiterChallenge = {
   createdAt: string
 }
 
-export type RecruiterJob = {
-  id: string
-  role: string
-  description: string
-  skills: string[]
-  postedAt: string
-  applicantCount: number
-  status: 'active' | 'closed' | 'draft'
-}
-
-// Mock job postings for recruiter
-export const recruiterJobs: RecruiterJob[] = [
-  {
-    id: 'job-1',
-    role: 'Senior Frontend Developer',
-    description: 'Build beautiful, performant user interfaces using React and TypeScript.',
-    skills: ['React', 'TypeScript', 'Tailwind CSS', 'Next.js'],
-    postedAt: '2024-12-01',
-    applicantCount: 24,
-    status: 'active',
-  },
-  {
-    id: 'job-2',
-    role: 'Backend Engineer',
-    description: 'Design and implement scalable APIs and microservices.',
-    skills: ['Node.js', 'Python', 'PostgreSQL', 'Redis'],
-    postedAt: '2024-12-05',
-    applicantCount: 18,
-    status: 'active',
-  },
-  {
-    id: 'job-3',
-    role: 'Full Stack Developer',
-    description: 'Work across the entire stack to deliver end-to-end features.',
-    skills: ['React', 'Node.js', 'TypeScript', 'AWS'],
-    postedAt: '2024-12-10',
-    applicantCount: 31,
-    status: 'active',
-  },
-  {
-    id: 'job-4',
-    role: 'DevOps Engineer',
-    description: 'Manage cloud infrastructure and CI/CD pipelines.',
-    skills: ['AWS', 'Docker', 'Kubernetes', 'Terraform'],
-    postedAt: '2024-12-08',
-    applicantCount: 12,
-    status: 'active',
-  },
-]
+// Re-export JobPosting as RecruiterJob for backward compatibility
+export type RecruiterJob = JobPosting
 
 // Mock challenges for recruiter
 export const recruiterChallenges: RecruiterChallenge[] = [
@@ -325,7 +281,7 @@ const CUSTOM_PROBLEMS_KEY = 'custom_problems'
 
 // Helper functions
 export function getRecruiterJobs(): RecruiterJob[] {
-  return recruiterJobs
+  return getAllJobs()
 }
 
 export function getRecruiterChallenges(): RecruiterChallenge[] {

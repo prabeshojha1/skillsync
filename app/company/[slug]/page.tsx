@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { getCurrentUser, type User } from '@/lib/auth'
 import { getCompanyBySlug, searchCompanies, getAllCompanies, type Company } from '@/lib/companies'
 import { getProblemIdFromExerciseTitle } from '@/lib/problems'
+import { getAllJobs } from '@/lib/jobs'
 import { HeroHeader } from '@/components/header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -57,11 +58,6 @@ const quickWins = [
   { id: 9, title: 'String Permutations', company: 'Netflix', tech: 'JavaScript', time: '12m', hasVoice: false, progress: '4/18' },
 ]
 
-const jobPostings = [
-  { id: 1, role: 'Backend Engineer', company: 'Atlassian', composition: 'Contains 3 Assessments: 1 System Design + 2 Algo' },
-  { id: 2, role: 'Senior Software Engineer', company: 'Stripe', composition: 'Contains 4 Assessments: 2 System Design + 2 Algo' },
-  { id: 3, role: 'Full Stack Developer', company: 'Amazon', composition: 'Contains 5 Assessments: 2 System Design + 3 Algo' },
-]
 
 const companyProgress = [
   { id: 1, name: 'Atlassian', logo: 'A', completed: 2, total: 5, status: 'In Progress' },
@@ -171,13 +167,13 @@ export default function CompanyPage() {
       }
     })
 
-    // Filter roles
-    const allJobs = [...jobPostings, ...(company?.jobs.map(j => ({
-      id: j.id + 100,
-      role: j.role,
-      company: company.name,
-      composition: j.composition || '',
-    })) || [])]
+    // Filter roles from centralized jobs data
+    const allJobs = getAllJobs().map(job => ({
+      id: job.id,
+      role: job.role,
+      company: job.companyId === 'cliniq' ? 'ClinIQ' : job.companyId.charAt(0).toUpperCase() + job.companyId.slice(1),
+      composition: job.composition || '',
+    }))
     
     const filteredRoles = allJobs.filter(job =>
       job.role.toLowerCase().includes(query) ||

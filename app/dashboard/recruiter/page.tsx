@@ -249,13 +249,10 @@ export default function RecruiterDashboard() {
             <div className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
           </div>
           <div className="flex gap-5 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">
-            <AddCard 
-              label="Add New Job" 
-              icon={Plus} 
-              onClick={() => {
-                // TODO: Implement add job modal/page
-                console.log('Add new job')
-              }} 
+            <AddCard
+              label="Add New Job"
+              icon={Plus}
+              onClick={() => router.push('/dashboard/recruiter/job/new')}
             />
             {jobs.map((job) => (
               <JobCard key={job.id} job={job} />
