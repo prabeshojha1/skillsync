@@ -33,3 +33,4 @@ export function getAllProblemIds(): string[] {
 export function problemExists(id: string): boolean {
   return id in problemRegistry
 }
+

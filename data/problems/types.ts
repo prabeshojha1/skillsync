@@ -24,3 +24,4 @@ export interface ProblemData {
   constraints: string[]
   testCases: ProblemTestCase[]
 }
+
