@@ -3,6 +3,7 @@
   "title": "Reverse String",
   "difficulty": "Easy",
   "functionName": "reverseString",
+  "companyId": "cliniq",
   "description": "Write a function that reverses a string. The input string is given as an array of characters.\n\nYou must do this by modifying the input array in-place with O(1) extra memory.\n\nYou may assume all the characters consist of printable ascii characters.",
   "boilerplate": "def reverseString(s):\n    # Your code here\n    pass",
   "examples": [
@@ -36,4 +37,3 @@
     }
   ]
 }
-
