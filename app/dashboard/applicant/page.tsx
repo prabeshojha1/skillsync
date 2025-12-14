@@ -17,6 +17,7 @@ import { Search, Mic, Clock, Building2, Briefcase, CheckCircle2, X } from 'lucid
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { useMemo } from 'react'
+import { getCompanyBySlug, searchCompanies, getAllCompanies } from '@/lib/companies'
 
 // Types
 type Challenge = {
@@ -31,10 +32,11 @@ type Challenge = {
 }
 
 type Job = {
-  id: number
+  id: number | string
   role: string
   company: string
   composition: string
+  companySlug?: string
 }
 
 type Company = {
@@ -154,9 +156,25 @@ function ChallengeCard({ challenge, isQuickWin = false }: { challenge: Challenge
   )
 }
 
-function JobCard({ job }: { job: Job }) {
+function JobCard({ job }: { job: Job & { companySlug?: string } }) {
+  const router = useRouter()
+  const companySlug = (job as Job & { companySlug?: string }).companySlug || job.company.toLowerCase().replace(/\s+/g, '-')
+  const companyData = getCompanyBySlug(companySlug)
+  const hasCompanyPage = !!companyData || job.company === 'ClinIQ'
+  
   return (
-    <Card className="relative min-w-[420px] cursor-pointer border-border/50 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10">
+    <Card 
+      className="relative min-w-[420px] cursor-pointer border-border/50 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10"
+      onClick={() => {
+        if (hasCompanyPage) {
+          if (job.company === 'ClinIQ') {
+            router.push('/company/cliniq')
+          } else if (companyData) {
+            router.push(`/company/${companyData.id}`)
+          }
+        }
+      }}
+    >
       <Spotlight size={300} />
       <CardContent className="p-6 relative z-10">
         <div className="mb-5">
@@ -171,25 +189,45 @@ function JobCard({ job }: { job: Job }) {
           <p className="text-sm text-muted-foreground leading-relaxed">{job.composition}</p>
         </div>
         
-        <Button className="w-full hover:bg-secondary hover:text-secondary-foreground transition-colors" size="lg">
-          Start Application Track
+        <Button 
+          className="w-full hover:bg-secondary hover:text-secondary-foreground transition-colors" 
+          size="lg"
+          onClick={(e) => {
+            e.stopPropagation()
+            if (hasCompanyPage) {
+              if (job.company === 'ClinIQ') {
+                router.push('/company/cliniq')
+              } else if (companyData) {
+                router.push(`/company/${companyData.id}`)
+              }
+            }
+          }}
+        >
+          {hasCompanyPage ? 'View Company' : 'Start Application Track'}
         </Button>
       </CardContent>
     </Card>
   )
 }
 
-function CompanyProgressCard({ company }: { company: Company }) {
+function CompanyProgressCard({ company }: { company: Company & { slug?: string } }) {
+  const router = useRouter()
   const progress = (company.completed / company.total) * 100
   const isEligible = company.status === 'Eligible for Interview' && company.name !== 'Amazon'
-  const isClinIQ = company.name === 'ClinIQ'
+  const companySlug = (company as Company & { slug?: string }).slug || company.name.toLowerCase().replace(/\s+/g, '-')
+  const companyData = getCompanyBySlug(companySlug)
+  const hasCompanyPage = !!companyData || company.name === 'ClinIQ' // Support legacy ClinIQ route
   
   return (
     <Card 
       className="relative min-w-[280px] cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
       onClick={() => {
-        if (isClinIQ) {
-          window.location.href = '/ClinIQ'
+        if (hasCompanyPage) {
+          if (company.name === 'ClinIQ') {
+            router.push('/company/cliniq')
+          } else if (companyData) {
+            router.push(`/company/${companyData.id}`)
+          }
         }
       }}
     >
@@ -233,12 +271,16 @@ function CompanyProgressCard({ company }: { company: Company }) {
               )}
               onClick={(e) => {
                 e.stopPropagation()
-                if (isClinIQ) {
-                  window.location.href = '/ClinIQ'
+                if (hasCompanyPage) {
+                  if (company.name === 'ClinIQ') {
+                    router.push('/company/cliniq')
+                  } else if (companyData) {
+                    router.push(`/company/${companyData.id}`)
+                  }
                 }
               }}
             >
-              {isClinIQ ? 'View Company' : 'View Progress'}
+              {hasCompanyPage ? 'View Company' : 'View Progress'}
             </Button>
           </div>
         </div>
@@ -270,6 +312,38 @@ export default function ApplicantDashboard() {
     ...quickWins.map(c => ({ ...c, category: 'quickWin' })),
   ], [])
 
+  // Get all jobs from companies data
+  const allJobsFromCompanies = useMemo(() => {
+    const companies = getAllCompanies()
+    return companies.flatMap(comp => 
+      comp.jobs.map(job => ({
+        id: `company-${comp.id}-${job.id}`, // Unique ID based on company and job
+        role: job.role,
+        company: comp.name,
+        composition: job.composition || '',
+        companySlug: comp.id,
+      }))
+    )
+  }, [])
+
+  // Combine job postings, deduplicating by company and role (prefer company data)
+  const allJobs = useMemo(() => {
+    const companyJobKeys = new Set(
+      allJobsFromCompanies.map(job => `${job.company}-${job.role}`)
+    )
+    
+    // Filter out hardcoded jobs that exist in company data
+    const uniqueHardcodedJobs = jobPostings
+      .map(j => ({ ...j, companySlug: j.company.toLowerCase().replace(/\s+/g, '-') }))
+      .filter(job => !companyJobKeys.has(`${job.company}-${job.role}`))
+    
+    // Combine with unique IDs
+    return [
+      ...uniqueHardcodedJobs.map(job => ({ ...job, id: `hardcoded-${job.id}` })),
+      ...allJobsFromCompanies,
+    ]
+  }, [allJobsFromCompanies])
+
   // Filter search results
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -285,23 +359,44 @@ export default function ApplicantDashboard() {
       challenge.tech.toLowerCase().includes(query)
     )
 
-    // Filter companies
-    const filteredCompanies = companyProgress.filter(company =>
-      company.name.toLowerCase().includes(query)
-    )
+    // Filter companies (from both companyProgress and companies data)
+    const searchedCompanies = searchCompanies(query)
+    const filteredCompanies = searchedCompanies.map(comp => {
+      const progress = companyProgress.find(c => c.name === comp.name)
+      return {
+        id: progress?.id || 0,
+        name: comp.name,
+        logo: comp.logo,
+        completed: progress?.completed || 0,
+        total: progress?.total || 0,
+        status: progress?.status || 'In Progress',
+        slug: comp.id, // Add slug for navigation
+      }
+    })
+    
+    // Also include companies from companyProgress that match
+    const progressMatches = companyProgress.filter(company =>
+      company.name.toLowerCase().includes(query) &&
+      !searchedCompanies.some(c => c.name === company.name)
+    ).map(comp => ({
+      ...comp,
+      slug: comp.name.toLowerCase().replace(/\s+/g, '-'),
+    }))
+    
+    const allFilteredCompanies = [...filteredCompanies, ...progressMatches]
 
-    // Filter roles
-    const filteredRoles = jobPostings.filter(job =>
+    // Filter roles from combined jobs
+    const filteredRoles = allJobs.filter(job =>
       job.role.toLowerCase().includes(query) ||
       job.company.toLowerCase().includes(query)
     )
 
     return {
       challenges: filteredChallenges,
-      companies: filteredCompanies,
+      companies: allFilteredCompanies,
       roles: filteredRoles,
     }
-  }, [searchQuery, allChallenges])
+  }, [searchQuery, allChallenges, allJobs])
 
   const hasResults = searchResults.challenges.length > 0 || searchResults.companies.length > 0 || searchResults.roles.length > 0
   const showSearchOverlay = searchQuery.trim().length > 0
@@ -450,14 +545,21 @@ export default function ApplicantDashboard() {
                   <h3 className="text-lg font-semibold mb-4">Companies:</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {searchResults.companies.map((company) => {
-                      const isClinIQ = company.name === 'ClinIQ'
+                      const companySlug = (company as Company & { slug?: string }).slug || company.name.toLowerCase().replace(/\s+/g, '-')
+                      const companyData = getCompanyBySlug(companySlug)
+                      const hasCompanyPage = !!companyData || company.name === 'ClinIQ'
+                      
                       return (
                         <Card
                           key={company.id}
                           className="relative cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
                           onClick={() => {
-                            if (isClinIQ) {
-                              window.location.href = '/ClinIQ'
+                            if (hasCompanyPage) {
+                              if (company.name === 'ClinIQ') {
+                                router.push('/company/cliniq')
+                              } else if (companyData) {
+                                router.push(`/company/${companyData.id}`)
+                              }
                             }
                           }}
                         >
@@ -499,12 +601,16 @@ export default function ApplicantDashboard() {
                               className="w-full mt-4"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                if (isClinIQ) {
-                                  window.location.href = '/ClinIQ'
+                                if (hasCompanyPage) {
+                                  if (company.name === 'ClinIQ') {
+                                    router.push('/company/cliniq')
+                                  } else if (companyData) {
+                                    router.push(`/company/${companyData.id}`)
+                                  }
                                 }
                               }}
                             >
-                              {isClinIQ ? 'View Company' : 'View'}
+                              {hasCompanyPage ? 'View Company' : 'View'}
                             </Button>
                           </CardContent>
                         </Card>
@@ -520,14 +626,21 @@ export default function ApplicantDashboard() {
                   <h3 className="text-lg font-semibold mb-4">Roles:</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {searchResults.roles.map((job) => {
-                      const isClinIQ = job.company === 'ClinIQ'
+                      const jobCompanySlug = (job as Job & { companySlug?: string }).companySlug || job.company.toLowerCase().replace(/\s+/g, '-')
+                      const jobCompanyData = getCompanyBySlug(jobCompanySlug)
+                      const hasCompanyPage = !!jobCompanyData || job.company === 'ClinIQ'
+                      
                       return (
                         <Card
                           key={job.id}
                           className="relative cursor-pointer border-border/50 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10"
                           onClick={() => {
-                            if (isClinIQ) {
-                              window.location.href = '/ClinIQ'
+                            if (hasCompanyPage) {
+                              if (job.company === 'ClinIQ') {
+                                router.push('/company/cliniq')
+                              } else if (jobCompanyData) {
+                                router.push(`/company/${jobCompanyData.id}`)
+                              }
                             }
                           }}
                         >
@@ -548,12 +661,16 @@ export default function ApplicantDashboard() {
                               size="lg"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                if (isClinIQ) {
-                                  window.location.href = '/ClinIQ'
+                                if (hasCompanyPage) {
+                                  if (job.company === 'ClinIQ') {
+                                    router.push('/company/cliniq')
+                                  } else if (jobCompanyData) {
+                                    router.push(`/company/${jobCompanyData.id}`)
+                                  }
                                 }
                               }}
                             >
-                              {isClinIQ ? 'View Company' : 'Start Application Track'}
+                              {hasCompanyPage ? 'View Company' : 'Start Application Track'}
                             </Button>
                           </CardContent>
                         </Card>
@@ -660,7 +777,7 @@ export default function ApplicantDashboard() {
             <div className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
           </div>
           <div className="flex gap-5 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">
-            {jobPostings.map((job) => (
+            {allJobs.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
           </div>
