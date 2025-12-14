@@ -1,0 +1,75 @@
+{
+  "id": "patient-monitoring-system",
+  "title": "Patient Monitoring System",
+  "difficulty": "Hard",
+  "problemType": "system-design",
+  "functionName": "PatientSystem",
+  "companyId": "cliniq",
+  "description": "ClinIQ is building a lightweight in-memory service to track patients and their vital readings.\n\nYou are asked to design the following class:\n\n**class PatientSystem:**\n\nDesign a system that can register patients and track their vital readings over time as time-series data.\n\n## Requirements\n\n### Data Storage\n- Store vitals as time-series data per patient\n- Each vital reading should be associated with a timestamp\n- Support multiple vital types per patient (e.g., heart_rate, blood_pressure, temperature, etc.)\n\n### Data Tracking\n- Track vital readings as time-series data with timestamps\n- Support multiple vital types per patient\n\n### Risk Context\n- Family history should be stored with patient data but does not need to trigger flags\n\n### Constraints\n- Assume everything fits in memory\n- Single-threaded execution\n- No external databases\n- Focus on clean class design and efficient data structures",
+  "boilerplate": "class PatientSystem:\n    def __init__(self):\n        # initialize internal data structures\n        pass\n    \n    def new_patient(self, patient_id, vital_readings, timestamp, family_history):\n        \"\"\"\n        Registers a new patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value} (e.g., {\"heart_rate\": 72, \"blood_pressure\": 120})\n        - timestamp: timestamp of the reading (int or float)\n        - family_history: list of risk factors (e.g. [\"diabetes\", \"cardiac\"])\n        \"\"\"\n        pass\n    \n    def update_patient(self, patient_id, vital_readings, timestamp):\n        \"\"\"\n        Adds new vital readings for an existing patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value}\n        - timestamp: timestamp of the reading (int or float)\n        \"\"\"\n        pass\n    \n    def fetch_patient_data(self, patient_id):\n        \"\"\"\n        Returns the patient's stored data.\n        - patient_id: unique identifier for the patient (string)\n        \n        Returns a dict containing:\n        - patient_id: the patient's ID\n        - family_history: list of risk factors\n        - vital_history: dict of {vital_name: [(timestamp, value), ...]}\n        \"\"\"\n        pass",
+  "examples": [
+    {
+      "input": "system = PatientSystem()\nsystem.new_patient(\"P001\", {\"heart_rate\": 70, \"temperature\": 98.6}, 1000, [\"diabetes\"])\nsystem.update_patient(\"P001\", {\"heart_rate\": 75, \"temperature\": 98.8}, 2000)\nsystem.update_patient(\"P001\", {\"heart_rate\": 80, \"temperature\": 99.0}, 3000)\nresult = system.fetch_patient_data(\"P001\")",
+      "output": "{\n  \"patient_id\": \"P001\",\n  \"family_history\": [\"diabetes\"],\n  \"vital_history\": {\n    \"heart_rate\": [(1000, 70), (2000, 75), (3000, 80)],\n    \"temperature\": [(1000, 98.6), (2000, 98.8), (3000, 99.0)]\n  }\n}",
+      "explanation": "After three updates, the system tracks the increasing heart rate trend in the vital history."
+    },
+    {
+      "input": "system = PatientSystem()\nsystem.new_patient(\"P002\", {\"blood_pressure\": 120}, 1000, [])\nsystem.update_patient(\"P002\", {\"blood_pressure\": 115}, 2000)\nsystem.update_patient(\"P002\", {\"blood_pressure\": 110}, 3000)\nresult = system.fetch_patient_data(\"P002\")",
+      "output": "{\n  \"patient_id\": \"P002\",\n  \"family_history\": [],\n  \"vital_history\": {\n    \"blood_pressure\": [(1000, 120), (2000, 115), (3000, 110)]\n  }\n}",
+      "explanation": "Blood pressure showing a decreasing trend over multiple readings is tracked in the vital history."
+    },
+    {
+      "input": "system = PatientSystem()\nsystem.new_patient(\"P003\", {\"heart_rate\": 72, \"oxygen_saturation\": 98}, 1000, [\"cardiac\", \"respiratory\"])\nresult = system.fetch_patient_data(\"P003\")",
+      "output": "{\n  \"patient_id\": \"P003\",\n  \"family_history\": [\"cardiac\", \"respiratory\"],\n  \"vital_history\": {\n    \"heart_rate\": [(1000, 72)],\n    \"oxygen_saturation\": [(1000, 98)]\n  }\n}",
+      "explanation": "New patient with significant family history is registered with their initial vital readings."
+    }
+  ],
+  "constraints": [
+    "All data must fit in memory (no external databases)",
+    "Single-threaded execution (no concurrent access concerns)",
+    "Assume timestamps are provided and ordered",
+    "Patient IDs are unique strings",
+    "Vital readings are numeric values",
+    "Family history is a list of risk factor strings",
+    "Trend analysis should consider the last k updates (where k >= 2)",
+    "A monotonic increase or decrease in a vital over k consecutive readings should be flagged"
+  ],
+  "testCases": [
+    {
+      "id": "1",
+      "name": "Basic Patient Registration",
+      "input": "system = PatientSystem()\nsystem.new_patient(\"P001\", {\"heart_rate\": 70}, 1000, [\"diabetes\"])\nresult = system.fetch_patient_data(\"P001\")",
+      "expectedOutput": "result should contain patient_id=\"P001\", family_history=[\"diabetes\"], vital_history with heart_rate=[(1000, 70)]"
+    },
+    {
+      "id": "2",
+      "name": "Trend Detection - Increasing Heart Rate",
+      "input": "system = PatientSystem()\nsystem.new_patient(\"P002\", {\"heart_rate\": 70}, 1000, [])\nsystem.update_patient(\"P002\", {\"heart_rate\": 75}, 2000)\nsystem.update_patient(\"P002\", {\"heart_rate\": 80}, 3000)\nsystem.update_patient(\"P002\", {\"heart_rate\": 85}, 4000)\nresult = system.fetch_patient_data(\"P002\")",
+      "expectedOutput": "result should contain patient_id=\"P002\", vital_history with heart_rate containing [(1000, 70), (2000, 75), (3000, 80), (4000, 85)]"
+    },
+    {
+      "id": "3",
+      "name": "Trend Detection - Decreasing Vital",
+      "input": "system = PatientSystem()\nsystem.new_patient(\"P003\", {\"blood_pressure\": 130}, 1000, [])\nsystem.update_patient(\"P003\", {\"blood_pressure\": 125}, 2000)\nsystem.update_patient(\"P003\", {\"blood_pressure\": 120}, 3000)\nresult = system.fetch_patient_data(\"P003\")",
+      "expectedOutput": "result should contain patient_id=\"P003\", vital_history with blood_pressure containing [(1000, 130), (2000, 125), (3000, 120)]"
+    },
+    {
+      "id": "4",
+      "name": "Multiple Vitals Tracking",
+      "input": "system = PatientSystem()\nsystem.new_patient(\"P004\", {\"heart_rate\": 72, \"temperature\": 98.6, \"blood_pressure\": 120}, 1000, [])\nsystem.update_patient(\"P004\", {\"heart_rate\": 74, \"temperature\": 98.8}, 2000)\nresult = system.fetch_patient_data(\"P004\")",
+      "expectedOutput": "result.vital_history should contain all three vitals (heart_rate, temperature, blood_pressure) with their respective timestamps and values"
+    },
+    {
+      "id": "5",
+      "name": "Family History Priority Flag",
+      "input": "system = PatientSystem()\nsystem.new_patient(\"P005\", {\"heart_rate\": 70}, 1000, [\"cardiac\", \"diabetes\"])\nresult = system.fetch_patient_data(\"P005\")",
+      "expectedOutput": "result should contain patient_id=\"P005\", family_history=[\"cardiac\", \"diabetes\"], vital_history with heart_rate=[(1000, 70)]"
+    },
+    {
+      "id": "6",
+      "name": "No Trend - Stable Vitals",
+      "input": "system = PatientSystem()\nsystem.new_patient(\"P006\", {\"heart_rate\": 72}, 1000, [])\nsystem.update_patient(\"P006\", {\"heart_rate\": 73}, 2000)\nsystem.update_patient(\"P006\", {\"heart_rate\": 72}, 3000)\nsystem.update_patient(\"P006\", {\"heart_rate\": 71}, 4000)\nresult = system.fetch_patient_data(\"P006\")",
+      "expectedOutput": "result should contain patient_id=\"P006\", vital_history with heart_rate containing [(1000, 72), (2000, 73), (3000, 72), (4000, 71)]"
+    }
+  ]
+}

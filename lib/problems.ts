@@ -3,6 +3,7 @@ import twoSumData from '@/data/problems/two-sum.json'
 import reverseStringData from '@/data/problems/reverse-string.json'
 import mergeIntervalsData from '@/data/problems/merge-intervals.json'
 import binaryTreeMaxPathSumData from '@/data/problems/binary-tree-max-path-sum.json'
+import patientMonitoringSystemData from '@/data/problems/patient-monitoring-system.json'
 
 // Storage key for custom problems
 const CUSTOM_PROBLEMS_KEY = 'custom_problems'
@@ -13,6 +14,7 @@ const staticProblemRegistry: Record<string, ProblemData> = {
   'reverse-string': reverseStringData as ProblemData,
   'merge-intervals': mergeIntervalsData as ProblemData,
   'binary-tree-max-path-sum': binaryTreeMaxPathSumData as ProblemData,
+  'patient-monitoring-system': patientMonitoringSystemData as ProblemData,
 }
 
 /**

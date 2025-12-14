@@ -98,6 +98,12 @@ export const companies: Company[] = [
         description: 'Challenge yourself with advanced tree algorithms used in medical data structures.',
         difficulty: 'Hard',
       },
+      {
+        id: 4,
+        title: 'Patient Monitoring System',
+        description: 'Design a system to track patients and their vital readings over time. This system design problem tests your ability to structure data efficiently and handle time-series information.',
+        difficulty: 'Hard',
+      },
     ],
     roadmap: [
       {

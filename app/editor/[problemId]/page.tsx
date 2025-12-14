@@ -10,6 +10,62 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getProblemById } from '@/lib/problems'
 import { ProblemData } from '@/data/problems/types'
+import { getCompanyBySlug } from '@/lib/companies'
+
+// Simple markdown renderer for problem descriptions
+function renderMarkdown(text: string): string {
+  let html = text
+  // Convert headers
+  html = html.replace(/^### (.*$)/gim, '<h3 class="text-base font-semibold mt-4 mb-2 text-foreground">$1</h3>')
+  html = html.replace(/^## (.*$)/gim, '<h2 class="text-lg font-semibold mt-5 mb-3 text-foreground">$1</h2>')
+  html = html.replace(/^# (.*$)/gim, '<h1 class="text-xl font-semibold mt-6 mb-4 text-foreground">$1</h1>')
+  
+  // Convert bold
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
+  
+  // Convert inline code
+  html = html.replace(/`([^`]+)`/g, '<code class="text-xs bg-muted px-1.5 py-0.5 rounded text-primary font-mono">$1</code>')
+  
+  // Convert code blocks (triple backticks)
+  html = html.replace(/```[\s\S]*?```/g, (match) => {
+    const code = match.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim()
+    return `<pre class="bg-muted p-4 rounded-md overflow-x-auto border border-border/50 my-3"><code class="text-xs text-foreground font-mono whitespace-pre">${code}</code></pre>`
+  })
+  
+  // Convert lists - handle both - and *
+  const lines = html.split('\n')
+  let inList = false
+  let listItems: string[] = []
+  let result: string[] = []
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim()
+    if (line.match(/^[-*]\s/)) {
+      if (!inList) {
+        inList = true
+        listItems = []
+      }
+      listItems.push(line.replace(/^[-*]\s/, ''))
+    } else {
+      if (inList && listItems.length > 0) {
+        result.push(`<ul class="list-disc list-inside space-y-1 my-2 ml-4">${listItems.map(item => `<li class="text-muted-foreground">${item}</li>`).join('')}</ul>`)
+        listItems = []
+        inList = false
+      }
+      if (line) {
+        result.push(`<p class="mb-2 leading-relaxed text-muted-foreground">${line}</p>`)
+      } else {
+        result.push('<br/>')
+      }
+    }
+  }
+  
+  if (inList && listItems.length > 0) {
+    result.push(`<ul class="list-disc list-inside space-y-1 my-2 ml-4">${listItems.map(item => `<li class="text-muted-foreground">${item}</li>`).join('')}</ul>`)
+  }
+  
+  return result.join('')
+}
 
 // Type declarations for global Pyodide
 declare global {
@@ -39,6 +95,9 @@ export default function EditorPage() {
   
   // Load problem data
   const problemData = problemId ? getProblemById(problemId) : null
+  
+  // Get company information
+  const company = problemData?.companyId ? getCompanyBySlug(problemData.companyId) : null
 
   const [isRecording, setIsRecording] = useState(true)
   const [isReplaying, setIsReplaying] = useState(false)
@@ -492,8 +551,97 @@ export default function EditorPage() {
   }, [])
 
   // Compare outputs, handling formatting differences
-  const compareOutputs = useCallback((actual: string, expected: string): boolean => {
-    // Normalize whitespace in arrays/lists
+  const compareOutputs = useCallback((actual: string, expected: string, problemType?: string): boolean => {
+    // For system-design problems, validate JSON structure against descriptive expected output
+    if (problemType === 'system-design') {
+      try {
+        // Parse the actual JSON output
+        const actualObj = JSON.parse(actual)
+        
+        // Extract key assertions from the expected description
+        // Pattern: field="value" or field=[value] or field with condition
+        const assertions: Array<{ field: string; check: (value: any) => boolean }> = []
+        
+        // Check for patient_id="value"
+        const patientIdMatch = expected.match(/patient_id\s*=\s*"([^"]+)"/)
+        if (patientIdMatch) {
+          assertions.push({
+            field: 'patient_id',
+            check: (v) => v === patientIdMatch[1]
+          })
+        }
+        
+        // Check for family_history=[...]
+        const familyHistoryMatch = expected.match(/family_history\s*=\s*\[([^\]]+)\]/)
+        if (familyHistoryMatch) {
+          const items = familyHistoryMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, ''))
+          assertions.push({
+            field: 'family_history',
+            check: (v) => Array.isArray(v) && JSON.stringify(v.sort()) === JSON.stringify(items.sort())
+          })
+        }
+        
+        // Check for vital_history with specific vital
+        // Pattern: "vital_history with heart_rate=[(1000, 70)]" or "vital_history.*heart_rate=[(1000, 70)]"
+        // Match: vital_history (optional text) vital_name=[(tuple1), (tuple2), ...]
+        // Use a pattern that finds the last word before =[ to avoid matching "with"
+        // Strategy: match vital_history, then any chars, then capture word before =[
+        const vitalMatch = expected.match(/vital_history[^=]*?([a-z_][a-z0-9_]*)\s*=\s*\[(\([^)]+\)(?:,\s*\([^)]+\))*)\]/i)
+        
+        if (vitalMatch) {
+          const vitalName = vitalMatch[1]
+          const tuplesStr = vitalMatch[2]
+          // Parse tuples like (1000, 70) - note these become arrays in JSON
+          const tuples = tuplesStr.match(/\(([^)]+)\)/g)?.map(t => {
+            const values = t.slice(1, -1).split(',').map(v => {
+              const trimmed = v.trim()
+              return trimmed.startsWith('"') ? trimmed.slice(1, -1) : parseFloat(trimmed)
+            })
+            return values
+          }) || []
+          
+          assertions.push({
+            field: 'vital_history',
+            check: (v) => {
+              if (!v || typeof v !== 'object' || !v[vitalName]) {
+                return false
+              }
+              const actualTuples = v[vitalName]
+              if (!Array.isArray(actualTuples)) {
+                return false
+              }
+              // Compare arrays (JSON converts tuples to arrays)
+              // Normalize: ensure each element is an array (tuple -> array conversion)
+              const normalizedActual = actualTuples.map((t: any) => Array.isArray(t) ? t : [t])
+              const normalizedExpected = tuples
+              const actualStr = JSON.stringify(normalizedActual)
+              const expectedStr = JSON.stringify(normalizedExpected)
+              
+              return actualStr === expectedStr
+            }
+          })
+        }
+        
+        // Note: risk_flags validation removed per user request
+        
+        // Validate all assertions
+        for (const assertion of assertions) {
+          const value = assertion.field === 'vital_history' ? actualObj[assertion.field] : actualObj[assertion.field]
+          const checkResult = assertion.check(value)
+          
+          if (!checkResult) {
+            return false
+          }
+        }
+        
+        return assertions.length > 0 // At least some assertions were validated
+      } catch (e) {
+        // If JSON parsing fails, fall back to string comparison
+        return false
+      }
+    }
+    
+    // Original logic for coding problems: normalize whitespace in arrays/lists
     const normalize = (str: string) => {
       return str
         .replace(/\s+/g, ' ')
@@ -509,16 +657,14 @@ export default function EditorPage() {
   const executeTestCase = useCallback(async (
     code: string,
     input: string,
-    functionName: string
+    functionName: string,
+    problemType?: string
   ): Promise<{ output: string | null; error: string | null }> => {
     if (!pyodideRef.current) {
       return { output: null, error: 'Pyodide not loaded' }
     }
 
     try {
-      // Parse input to get argument values
-      const args = parseTestCaseInput(input)
-      
       // Capture stdout and stderr
       let stdout = ''
       let stderr = ''
@@ -537,6 +683,61 @@ export default function EditorPage() {
 
       // Execute the user's code first
       await pyodideRef.current.runPythonAsync(code)
+
+      // For system-design problems, execute the test input as raw Python code
+      if (problemType === 'system-design') {
+        // Execute the test input as raw Python code
+        // Append code to format and capture the result if it exists
+        const testCodeWithCapture = input + `
+# Capture result for system-design problems
+import json
+try:
+    if 'result' in locals() or 'result' in globals():
+        if isinstance(result, dict):
+            _test_output = json.dumps(result, indent=2, default=str)
+        elif isinstance(result, (list, tuple)):
+            _test_output = json.dumps(list(result), indent=2, default=str)
+        else:
+            _test_output = str(result)
+    else:
+        _test_output = None
+except:
+    _test_output = None
+`
+        try {
+          await pyodideRef.current.runPythonAsync(testCodeWithCapture)
+          
+          // Try to get the captured output
+          let output: string | null = null
+          try {
+            const capturedOutput = pyodideRef.current.runPython('_test_output if "_test_output" in globals() else None')
+            if (capturedOutput !== null && capturedOutput !== undefined) {
+              output = String(capturedOutput)
+            }
+          } catch (e) {
+            // _test_output might not exist, that's okay
+          }
+          
+          if (!output && stdout) {
+            output = stdout.trim()
+          }
+
+          if (stderr) {
+            return { output: null, error: stderr }
+          }
+
+          return { output, error: null }
+        } catch (execError: any) {
+          return {
+            output: null,
+            error: stderr || execError.message || String(execError),
+          }
+        }
+      }
+
+      // Original logic for coding problems (function-based)
+      // Parse input to get argument values
+      const args = parseTestCaseInput(input)
 
       // Build function call with parsed arguments
       const argString = args.map(arg => {
@@ -613,7 +814,7 @@ export default function EditorPage() {
 
     try {
       const code = editorRef.current.getValue()
-      const result = await executeTestCase(code, testCase.input, problemData.functionName)
+      const result = await executeTestCase(code, testCase.input, problemData.functionName, problemData.problemType)
       
       // Check if there's an error first
       if (result.error) {
@@ -642,7 +843,7 @@ export default function EditorPage() {
       }
       
       // Compare outputs if both exist
-      const passed = result.output ? compareOutputs(result.output, testCase.expectedOutput) : false
+      const passed = result.output ? compareOutputs(result.output, testCase.expectedOutput, problemData.problemType) : false
       
       setTestCases(prev => prev.map(tc => 
         tc.id === testCaseId ? {
@@ -815,7 +1016,15 @@ export default function EditorPage() {
     <div className="flex h-screen flex-col bg-background">
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between">
-          <h1 className="text-lg font-semibold">Code Editor</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-semibold">Code Editor</h1>
+            {company && (
+              <>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-sm text-muted-foreground">{company.name}</span>
+              </>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             {isRecording && !isReplaying && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -914,34 +1123,37 @@ export default function EditorPage() {
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold mb-2">Description</h3>
-                <div className="text-sm text-muted-foreground whitespace-pre-line">
-                  {problemData.description}
-                </div>
+                <div 
+                  className="text-sm"
+                  dangerouslySetInnerHTML={{ 
+                    __html: renderMarkdown(problemData.description)
+                  }}
+                />
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold mb-2">Examples</h3>
                 <div className="space-y-4">
                   {problemData.examples.map((example, idx) => (
-                    <div key={idx} className="bg-muted p-4 rounded-md space-y-2">
+                    <div key={idx} className="bg-muted p-4 rounded-md space-y-3 border border-border/50">
                       <div>
-                        <span className="font-semibold">Input: </span>
-                        <code className="text-sm bg-background px-2 py-1 rounded">
-                          {example.input}
-                        </code>
+                        <span className="font-semibold text-sm mb-2 block">Input:</span>
+                        <pre className="text-xs bg-background p-3 rounded-md overflow-x-auto border border-border/50">
+                          <code className="text-primary">{example.input}</code>
+                        </pre>
                       </div>
                       <div>
-                        <span className="font-semibold">Output: </span>
-                        <code className="text-sm bg-background px-2 py-1 rounded">
-                          {example.output}
-                        </code>
+                        <span className="font-semibold text-sm mb-2 block">Output:</span>
+                        <pre className="text-xs bg-background p-3 rounded-md overflow-x-auto border border-border/50">
+                          <code className="text-primary whitespace-pre-wrap">{example.output}</code>
+                        </pre>
                       </div>
                       {example.explanation && (
-                        <div>
-                          <span className="font-semibold">Explanation: </span>
-                          <span className="text-sm text-muted-foreground">
+                        <div className="pt-2 border-t border-border/50">
+                          <span className="font-semibold text-sm mb-1 block">Explanation:</span>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
                             {example.explanation}
-                          </span>
+                          </p>
                         </div>
                       )}
                     </div>
