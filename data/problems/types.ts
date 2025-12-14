@@ -25,5 +25,6 @@ export interface ProblemData {
   testCases: ProblemTestCase[]
   companyId: string // The company that created this problem
   jobId?: string // Optional: linked job posting
+  problemType?: 'coding' | 'system-design' // Optional: problem type, defaults to 'coding'
 }
 
