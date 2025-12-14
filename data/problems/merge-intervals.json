@@ -3,6 +3,7 @@
   "title": "Merge Intervals",
   "difficulty": "Medium",
   "functionName": "merge",
+  "companyId": "cliniq",
   "description": "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
   "boilerplate": "def merge(intervals):\n    # Your code here\n    pass",
   "examples": [

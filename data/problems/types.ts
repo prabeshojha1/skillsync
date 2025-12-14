@@ -23,5 +23,7 @@ export interface ProblemData {
   examples: ProblemExample[]
   constraints: string[]
   testCases: ProblemTestCase[]
+  companyId: string // The company that created this problem
+  jobId?: string // Optional: linked job posting
 }
 
