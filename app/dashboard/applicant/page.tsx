@@ -407,7 +407,7 @@ export default function ApplicantDashboard() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Q Search challenges, companies, or roles..."
+                placeholder="Search challenges, companies, or roles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -753,7 +753,7 @@ export default function ApplicantDashboard() {
         {/* Company Progress */}
         <section className="container mx-auto px-6">
           <div className="flex items-center gap-3 mb-6">
-            <h2 className="text-3xl font-bold">Your Target Companies</h2>
+            <h2 className="text-3xl font-bold">Explore Companies</h2>
             <div className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
           </div>
           <div className="flex gap-5 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">

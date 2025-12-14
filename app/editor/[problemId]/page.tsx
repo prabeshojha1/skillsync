@@ -1,16 +1,19 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Editor from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import { Button } from '@/components/ui/button'
-import { Square, Play, Loader2, CheckCircle2, XCircle, Circle, Pause } from 'lucide-react'
+import { Play, Loader2, CheckCircle2, XCircle, Circle, Pause, ArrowLeft } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getProblemById } from '@/lib/problems'
 import { ProblemData } from '@/data/problems/types'
 import { getCompanyBySlug } from '@/lib/companies'
+import { getCurrentUser } from '@/lib/auth'
+import { getUserProfile } from '@/lib/profile'
+import { addChallengeSubmission, type ApplicantSubmission, type CheatingFlag } from '@/lib/recruiter-data'
 
 // Simple markdown renderer for problem descriptions
 function renderMarkdown(text: string): string {
@@ -91,6 +94,7 @@ interface TestCase {
 
 export default function EditorPage() {
   const params = useParams()
+  const router = useRouter()
   const problemId = params?.problemId as string
   
   // Load problem data
@@ -118,6 +122,11 @@ export default function EditorPage() {
   const isRecordingRef = useRef(true)
   const isReplayingRef = useRef(false)
   const pyodideRef = useRef<any>(null)
+  // Audio recording refs and state
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
+  const audioStreamRef = useRef<MediaStream | null>(null)
+  const hasAudioRecordingStartedRef = useRef(false)
   const [isLoadingPyodide, setIsLoadingPyodide] = useState(false)
   const [isPyodideReady, setIsPyodideReady] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
@@ -169,6 +178,18 @@ export default function EditorPage() {
       replayPauseDurationRef.current = 0
       lastAppliedChangeTimeRef.current = 0
       
+      // Reset audio recording
+      hasAudioRecordingStartedRef.current = false
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop()
+      }
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach(track => track.stop())
+        audioStreamRef.current = null
+      }
+      mediaRecorderRef.current = null
+      audioChunksRef.current = []
+      
       // Clear any replay timeouts
       replayTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout))
       replayTimeoutsRef.current = []
@@ -187,6 +208,111 @@ export default function EditorPage() {
   useEffect(() => {
     isReplayingRef.current = isReplaying
   }, [isReplaying])
+
+  // Start audio recording function
+  const startAudioRecording = useCallback(async () => {
+    // Only start once
+    if (hasAudioRecordingStartedRef.current) {
+      return
+    }
+
+    // Only record for patient-monitoring-system
+    if (problemId !== 'patient-monitoring-system') {
+      return
+    }
+
+    try {
+      // Request microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      audioStreamRef.current = stream
+
+      // Create MediaRecorder with WebM format
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm',
+      })
+      mediaRecorderRef.current = mediaRecorder
+      audioChunksRef.current = []
+
+      // Collect audio chunks
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
+        }
+      }
+
+      // Start recording
+      mediaRecorder.start()
+      hasAudioRecordingStartedRef.current = true
+      console.log('Audio recording started')
+    } catch (error) {
+      console.error('Error starting audio recording:', error)
+      // Continue without audio if permission denied or other error
+    }
+  }, [problemId])
+
+  // Stop audio recording and upload
+  const stopAudioRecordingAndUpload = useCallback(async (submissionId: string, challengeId: string): Promise<string | null> => {
+    if (!mediaRecorderRef.current || !hasAudioRecordingStartedRef.current) {
+      return null
+    }
+
+    return new Promise((resolve) => {
+      const mediaRecorder = mediaRecorderRef.current
+      if (!mediaRecorder) {
+        resolve(null)
+        return
+      }
+
+      // Stop recording
+      mediaRecorder.onstop = async () => {
+        try {
+          // Combine audio chunks into a single Blob
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+
+          // Upload audio file
+          const formData = new FormData()
+          formData.append('audio', audioBlob, `${submissionId}.webm`)
+
+          const response = await fetch(`/api/submissions/${challengeId}/audio?submissionId=${submissionId}`, {
+            method: 'POST',
+            body: formData,
+          })
+
+          if (response.ok) {
+            const result = await response.json()
+            console.log('Audio uploaded successfully:', result.audioFileName)
+            resolve(result.audioFileName || `${submissionId}.webm`)
+          } else {
+            console.error('Error uploading audio:', await response.text())
+            resolve(null)
+          }
+        } catch (error) {
+          console.error('Error processing audio upload:', error)
+          resolve(null)
+        } finally {
+          // Clean up MediaStream
+          if (audioStreamRef.current) {
+            audioStreamRef.current.getTracks().forEach(track => track.stop())
+            audioStreamRef.current = null
+          }
+          mediaRecorderRef.current = null
+          audioChunksRef.current = []
+        }
+      }
+
+      // Stop the recorder
+      if (mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop()
+      } else {
+        // Already stopped, clean up
+        if (audioStreamRef.current) {
+          audioStreamRef.current.getTracks().forEach(track => track.stop())
+          audioStreamRef.current = null
+        }
+        resolve(null)
+      }
+    })
+  }, [])
 
   const handleEditorDidMount = useCallback((editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor
@@ -208,6 +334,11 @@ export default function EditorPage() {
       const disposable = model.onDidChangeContent((e) => {
         // Check current state via refs to avoid closure issues
         if (isRecordingRef.current && !isReplayingRef.current) {
+          // Start audio recording on first keystroke
+          if (!hasAudioRecordingStartedRef.current) {
+            startAudioRecording()
+          }
+
           const timestamp = Date.now()
           setRecordedChanges((prev) => [
             ...prev,
@@ -221,7 +352,7 @@ export default function EditorPage() {
 
       disposableRef.current = disposable
     }
-  }, [problemData])
+  }, [problemData, startAudioRecording])
 
   // Format time in seconds to MM:SS format
   const formatTime = useCallback((seconds: number): string => {
@@ -271,28 +402,49 @@ export default function EditorPage() {
       lastAppliedChangeTimeRef.current = 0
     }
 
-    // Set total duration
-    setReplayProgress({ elapsed: startFromElapsed, total: totalDuration / 1000 })
+    // Set total duration (add a small amount for the initial boilerplate display)
+    const initialDelay = 100 // 100ms delay for showing boilerplate before first change
+    const totalReplayDuration = startFromElapsed === 0 
+      ? (totalDuration / 1000) + (initialDelay / 1000)
+      : totalDuration / 1000
+    setReplayProgress({ elapsed: startFromElapsed, total: totalReplayDuration })
 
     // Start progress tracking
     // Calculate initial elapsed time from original timeline position
     const initialElapsed = startTimeInOriginalTimeline / speed / 1000
-    replayStartTimeRef.current = Date.now() - (initialElapsed * 1000)
-    replayProgressElapsedRef.current = initialElapsed
+    // If starting from beginning, account for initial delay
+    const adjustedInitialElapsed = startFromElapsed === 0 ? initialDelay / 1000 : initialElapsed
+    replayStartTimeRef.current = Date.now() - (adjustedInitialElapsed * 1000)
+    replayProgressElapsedRef.current = adjustedInitialElapsed
     replayProgressIntervalRef.current = setInterval(() => {
       if (!isReplayPaused) {
         // Calculate elapsed based on original timeline position, not wall-clock time
-        const elapsed = lastAppliedChangeTimeRef.current > 0 
-          ? lastAppliedChangeTimeRef.current / speed / 1000
-          : (Date.now() - replayStartTimeRef.current) / 1000
+        let elapsed: number
+        if (lastAppliedChangeTimeRef.current > 0) {
+          // A change has been applied, use its position
+          elapsed = startFromElapsed === 0
+            ? (initialDelay / 1000) + (lastAppliedChangeTimeRef.current / speed / 1000)
+            : startFromElapsed + (lastAppliedChangeTimeRef.current / speed / 1000)
+        } else {
+          // No changes applied yet, use wall-clock time
+          elapsed = (Date.now() - replayStartTimeRef.current) / 1000
+        }
         replayProgressElapsedRef.current = elapsed
         setReplayProgress(prev => ({ ...prev, elapsed: Math.min(elapsed, prev.total) }))
       }
     }, 100)
 
+    // If starting from the beginning (startFromElapsed === 0), first show the boilerplate code immediately
+    if (startFromElapsed === 0 && problemData && modelRef.current) {
+      // Set the boilerplate code as the first "change" immediately
+      modelRef.current.setValue(problemData.boilerplate)
+    }
+
     // Replay remaining changes with speed-adjusted timing
     remainingChanges.forEach((change, index) => {
-      const adjustedDelay = (change.relativeTime - startTimeInOriginalTimeline) / speed
+      // Add initial delay to the first change if starting from beginning
+      const baseDelay = startFromElapsed === 0 ? initialDelay : 0
+      const adjustedDelay = baseDelay + (change.relativeTime - startTimeInOriginalTimeline) / speed
       const timeout = setTimeout(() => {
         if (modelRef.current && editorRef.current) {
           // Apply the changes using applyEdits
@@ -308,7 +460,11 @@ export default function EditorPage() {
 
           // Update progress based on actual elapsed time
           // Calculate elapsed replay time from original timeline position
-          const currentElapsed = change.relativeTime / speed / 1000
+          // Add initial delay only if we started from the beginning
+          const baseElapsed = change.relativeTime / speed / 1000
+          const currentElapsed = startFromElapsed === 0 
+            ? (initialDelay / 1000) + baseElapsed
+            : startFromElapsed + baseElapsed
           replayProgressElapsedRef.current = currentElapsed
           setReplayProgress(prev => ({ ...prev, elapsed: Math.min(currentElapsed, prev.total) }))
 
@@ -336,7 +492,7 @@ export default function EditorPage() {
 
       replayTimeoutsRef.current.push(timeout)
     })
-  }, [recordedChanges])
+  }, [recordedChanges, problemData])
 
   const handleStopAndReplay = useCallback(() => {
     if (!editorRef.current || !modelRef.current || recordedChanges.length === 0) {
@@ -430,6 +586,101 @@ export default function EditorPage() {
       modelRef.current.setValue('')
     }
   }, [problemData])
+
+  const handleCompleteAssessment = useCallback(async () => {
+    if (!problemData) {
+      console.error('Cannot complete assessment: problemData is not available')
+      return
+    }
+
+    const user = getCurrentUser()
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
+    // Get user profile for name
+    const profile = getUserProfile(user.id)
+    let applicantName: string
+    if (profile && profile.firstName && profile.lastName) {
+      applicantName = `${profile.firstName} ${profile.lastName}`
+    } else {
+      applicantName = user.email
+    }
+
+    // Get final code state
+    const finalCode = editorRef.current?.getValue() || ''
+
+    // Generate submission ID first (needed for audio upload)
+    const submissionId = `sub-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
+
+    // Convert recorded changes to serializable format
+    const serializedChanges = recordedChanges.map(change => ({
+      changes: change.changes.map(delta => ({
+        range: {
+          startLineNumber: delta.range.startLineNumber,
+          startColumn: delta.range.startColumn,
+          endLineNumber: delta.range.endLineNumber,
+          endColumn: delta.range.endColumn,
+        },
+        text: delta.text,
+      })),
+      timestamp: change.timestamp,
+    }))
+
+    // Create submission with hardcoded flags
+    const currentTime = new Date().toISOString()
+    const cheatingFlags: CheatingFlag[] = [
+      {
+        type: 'tab_switch',
+        timestamp: currentTime,
+        details: 'Switched to another browser tab during the assessment.',
+      },
+      {
+        type: 'looked_away',
+        timestamp: currentTime,
+        details: 'Face not detected in webcam for more than 10 seconds.',
+      },
+      {
+        type: 'copy_paste',
+        timestamp: currentTime,
+        details: 'Large amount of code was copy pasted.',
+      },
+    ]
+
+    // Stop audio recording and upload
+    let audioFileName: string | null = null
+    if (hasAudioRecordingStartedRef.current) {
+      audioFileName = await stopAudioRecordingAndUpload(submissionId, problemData.id)
+    }
+
+    const submission: ApplicantSubmission = {
+      id: submissionId,
+      applicantName,
+      applicantEmail: user.email,
+      score: 10.0,
+      submittedAt: currentTime,
+      timeSpent: '<1m',
+      cheatingFlags,
+      recordedChanges: serializedChanges,
+      finalCode,
+      audioFileName: audioFileName || undefined,
+    }
+
+    console.log('Creating submission for challenge:', problemData.id, submission)
+
+    // Store submission via API
+    try {
+      await addChallengeSubmission(problemData.id, submission)
+      console.log('Submission stored successfully')
+    } catch (error) {
+      console.error('Error storing submission:', error)
+      // Still navigate even if there's an error (user can try again)
+    }
+
+    // Navigate to dashboard
+    router.push('/dashboard/applicant')
+  }, [problemData, router, recordedChanges, stopAudioRecordingAndUpload])
 
   // Suppress Pyodide stackframe loading errors (non-critical)
   useEffect(() => {
@@ -982,6 +1233,14 @@ except:
       if (disposableRef.current) {
         disposableRef.current.dispose()
       }
+      // Clean up audio recording
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop()
+      }
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach(track => track.stop())
+        audioStreamRef.current = null
+      }
     }
   }, [])
 
@@ -1015,8 +1274,17 @@ except:
   return (
     <div className="flex h-screen flex-col bg-background">
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="w-full flex h-14 items-center px-4">
+          {/* Left section */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push('/dashboard/applicant')}
+              className="h-8 w-8"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <h1 className="text-lg font-semibold">Code Editor</h1>
             {company && (
               <>
@@ -1025,7 +1293,9 @@ except:
               </>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          
+          {/* Center section - Recording status */}
+          <div className="flex-1 flex items-center justify-center">
             {isRecording && !isReplaying && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
@@ -1091,17 +1361,17 @@ except:
                 </Button>
               </div>
             )}
-            <Button
-              onClick={handleStopAndReplay}
-              disabled={isReplaying || recordedChanges.length === 0}
+          </div>
+          
+          {/* Right section - Complete Assessment button */}
+          <div className="flex items-center justify-end flex-shrink-0">
+            <Button 
+              onClick={handleCompleteAssessment} 
               size="sm"
-              className="gap-2"
+              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
             >
-              <Square className="h-4 w-4" />
-              Stop & Replay
-            </Button>
-            <Button onClick={handleReset} variant="outline" size="sm">
-              Reset
+              <CheckCircle2 className="h-4 w-4" />
+              Complete assessment
             </Button>
           </div>
         </div>
@@ -1235,8 +1505,8 @@ except:
           {/* Bottom Right - Test Cases and Output */}
           <div className="h-64 border-t bg-card">
             <Tabs value={activeTestCase} onValueChange={setActiveTestCase} className="h-full flex flex-col">
-              <div className="border-b px-4 pt-2">
-                <TabsList>
+              <div className="border-b px-4 pt-2 overflow-x-auto">
+                <TabsList className="flex-nowrap">
                   {testCases.map((testCase) => {
                     const getStatusIcon = () => {
                       switch (testCase.status) {
