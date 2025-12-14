@@ -4,6 +4,7 @@ import { useState, useLayoutEffect, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { getCurrentUser, type User } from '@/lib/auth'
 import { getCompanyBySlug, searchCompanies, getAllCompanies, type Company } from '@/lib/companies'
+import { getProblemIdFromExerciseTitle } from '@/lib/problems'
 import { HeroHeader } from '@/components/header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -631,7 +632,19 @@ export default function CompanyPage() {
                                   <p className="text-sm text-muted-foreground mb-3">
                                     {exercise.description}
                                   </p>
-                                  <Button variant="outline" size="sm" className="w-full">Go</Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="w-full"
+                                    onClick={() => {
+                                      const problemId = getProblemIdFromExerciseTitle(exercise.title)
+                                      if (problemId) {
+                                        router.push(`/editor/${problemId}`)
+                                      }
+                                    }}
+                                  >
+                                    Go
+                                  </Button>
                                 </CardContent>
                               </Card>
                             ))}
