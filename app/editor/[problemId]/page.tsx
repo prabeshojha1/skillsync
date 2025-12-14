@@ -54,6 +54,7 @@ export default function EditorPage() {
   const replayPauseDurationRef = useRef<number>(0)
   const replayProgressIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const replayProgressElapsedRef = useRef<number>(0)
+  const lastAppliedChangeTimeRef = useRef<number>(0) // Track position in original timeline
   const disposableRef = useRef<{ dispose: () => void } | null>(null)
   const isRecordingRef = useRef(true)
   const isReplayingRef = useRef(false)
@@ -107,6 +108,7 @@ export default function EditorPage() {
       setReplayProgress({ elapsed: 0, total: 0 })
       replayProgressElapsedRef.current = 0
       replayPauseDurationRef.current = 0
+      lastAppliedChangeTimeRef.current = 0
       
       // Clear any replay timeouts
       replayTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout))
@@ -171,9 +173,6 @@ export default function EditorPage() {
 
   // Start replay with current speed
   const startReplay = useCallback((speed: number, startFromElapsed: number = 0) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/[problemId]/page.tsx:171',message:'startReplay called',data:{speed,startFromElapsed,hasEditor:!!editorRef.current,hasModel:!!modelRef.current,changesCount:recordedChanges.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     if (!editorRef.current || !modelRef.current || recordedChanges.length === 0) {
       return
     }
@@ -196,26 +195,38 @@ export default function EditorPage() {
     }))
 
     // Filter changes that haven't been applied yet
-    // startFromElapsed is in seconds of replay time, convert to original timeline
-    const startTimeInOriginalTimeline = startFromElapsed * 1000 * speed
+    // When speed changes mid-replay, use the tracked position in original timeline
+    // Otherwise, calculate from elapsed replay time
+    let startTimeInOriginalTimeline: number
+    if (startFromElapsed > 0 && lastAppliedChangeTimeRef.current > 0) {
+      // Speed change: use the actual position in original timeline
+      startTimeInOriginalTimeline = lastAppliedChangeTimeRef.current
+    } else {
+      // Initial replay: calculate from elapsed time
+      startTimeInOriginalTimeline = startFromElapsed * 1000 * speed
+    }
     const remainingChanges = relativeChanges.filter(change => change.relativeTime >= startTimeInOriginalTimeline)
+    
+    // Update tracked position if we're starting fresh
+    if (startFromElapsed === 0) {
+      lastAppliedChangeTimeRef.current = 0
+    }
 
     // Set total duration
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/[problemId]/page.tsx:199',message:'setReplayProgress called in startReplay',data:{elapsed:startFromElapsed,total:totalDuration/1000},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     setReplayProgress({ elapsed: startFromElapsed, total: totalDuration / 1000 })
 
     // Start progress tracking
-    replayStartTimeRef.current = Date.now() - (startFromElapsed * 1000)
-    replayProgressElapsedRef.current = startFromElapsed
+    // Calculate initial elapsed time from original timeline position
+    const initialElapsed = startTimeInOriginalTimeline / speed / 1000
+    replayStartTimeRef.current = Date.now() - (initialElapsed * 1000)
+    replayProgressElapsedRef.current = initialElapsed
     replayProgressIntervalRef.current = setInterval(() => {
       if (!isReplayPaused) {
-        const elapsed = (Date.now() - replayStartTimeRef.current) / 1000
+        // Calculate elapsed based on original timeline position, not wall-clock time
+        const elapsed = lastAppliedChangeTimeRef.current > 0 
+          ? lastAppliedChangeTimeRef.current / speed / 1000
+          : (Date.now() - replayStartTimeRef.current) / 1000
         replayProgressElapsedRef.current = elapsed
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/[problemId]/page.tsx:203',message:'progress interval updating replayProgress',data:{elapsed,prevTotal:replayProgress.total},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
         setReplayProgress(prev => ({ ...prev, elapsed: Math.min(elapsed, prev.total) }))
       }
     }, 100)
@@ -232,9 +243,13 @@ export default function EditorPage() {
           }))
 
           modelRef.current.applyEdits(edits)
+          
+          // Track the position in original timeline
+          lastAppliedChangeTimeRef.current = change.relativeTime
 
           // Update progress based on actual elapsed time
-          const currentElapsed = startFromElapsed + (change.relativeTime - startTimeInOriginalTimeline) / speed / 1000
+          // Calculate elapsed replay time from original timeline position
+          const currentElapsed = change.relativeTime / speed / 1000
           replayProgressElapsedRef.current = currentElapsed
           setReplayProgress(prev => ({ ...prev, elapsed: Math.min(currentElapsed, prev.total) }))
 
@@ -250,6 +265,7 @@ export default function EditorPage() {
                 setReplayProgress({ elapsed: 0, total: 0 })
                 replayProgressElapsedRef.current = 0
                 replayPauseDurationRef.current = 0
+                lastAppliedChangeTimeRef.current = 0
                 // Reset recording state for next session
                 setRecordedChanges([])
                 setIsRecording(true)
@@ -264,9 +280,6 @@ export default function EditorPage() {
   }, [recordedChanges])
 
   const handleStopAndReplay = useCallback(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/[problemId]/page.tsx:250',message:'handleStopAndReplay called',data:{hasEditor:!!editorRef.current,hasModel:!!modelRef.current,changesCount:recordedChanges.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-    // #endregion
     if (!editorRef.current || !modelRef.current || recordedChanges.length === 0) {
       return
     }
@@ -285,9 +298,6 @@ export default function EditorPage() {
 
     // Start replay with current speed
     const speed = parseFloat(replaySpeed)
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/[problemId]/page.tsx:270',message:'calling startReplay from handleStopAndReplay',data:{speed},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
-    // #endregion
     startReplay(speed)
   }, [recordedChanges, replaySpeed, startReplay])
 
@@ -296,9 +306,13 @@ export default function EditorPage() {
     if (!isReplaying) return
 
     if (isReplayPaused) {
-      // Resume - restart from current progress using ref to avoid dependency
+      // Resume - restart from current position in original timeline
       const speed = parseFloat(replaySpeed)
-      startReplay(speed, replayProgressElapsedRef.current)
+      // Calculate elapsed replay time from tracked original timeline position
+      const elapsedReplayTime = lastAppliedChangeTimeRef.current > 0
+        ? lastAppliedChangeTimeRef.current / speed / 1000
+        : replayProgressElapsedRef.current
+      startReplay(speed, elapsedReplayTime)
       setIsReplayPaused(false)
     } else {
       // Pause - clear timeouts and stop progress tracking
@@ -311,17 +325,14 @@ export default function EditorPage() {
 
   // Handle speed change during replay
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/[problemId]/page.tsx:292',message:'speed change useEffect triggered',data:{isReplaying,isReplayPaused,replaySpeed},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
     if (isReplaying && !isReplayPaused) {
-      // Restart replay with new speed from current progress
-      // Use ref to get current progress without triggering re-renders
+      // Restart replay with new speed from current position in original timeline
       const speed = parseFloat(replaySpeed)
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/dec71052-97df-49d2-96cc-8de4a0fbb3c4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/editor/[problemId]/page.tsx:296',message:'calling startReplay from speed change effect',data:{speed,elapsed:replayProgressElapsedRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
-      startReplay(speed, replayProgressElapsedRef.current)
+      // Calculate elapsed replay time from tracked original timeline position
+      const elapsedReplayTime = lastAppliedChangeTimeRef.current > 0
+        ? lastAppliedChangeTimeRef.current / speed / 1000
+        : replayProgressElapsedRef.current
+      startReplay(speed, elapsedReplayTime)
     }
     // Only depend on replaySpeed, isReplaying, and isReplayPaused - NOT replayProgress or startReplay
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -346,6 +357,7 @@ export default function EditorPage() {
       setReplayProgress({ elapsed: 0, total: 0 })
       replayProgressElapsedRef.current = 0
       replayPauseDurationRef.current = 0
+      lastAppliedChangeTimeRef.current = 0
 
     // Re-enable editing
     if (editorRef.current) {
