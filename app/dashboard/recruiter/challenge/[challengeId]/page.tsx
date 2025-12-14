@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation'
 import { getCurrentUser, type User } from '@/lib/auth'
 import { 
   getChallengeById, 
-  getChallengeSubmissions, 
+  getChallengeSubmissions,
+  deleteChallengeSubmission,
   type RecruiterChallenge, 
   type ApplicantSubmission 
 } from '@/lib/recruiter-data'
@@ -23,7 +24,9 @@ import {
   Calendar,
   Mail,
   Timer,
-  BarChart3
+  BarChart3,
+  Trash2,
+  RefreshCw
 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -46,11 +49,17 @@ function ScoreBadge({ score }: { score: number }) {
 function ApplicantRow({ 
   submission, 
   rank, 
-  onFlagClick 
+  onFlagClick,
+  onDelete,
+  challengeId,
+  router
 }: { 
   submission: ApplicantSubmission
   rank: number
   onFlagClick: () => void
+  onDelete: () => void
+  challengeId: string
+  router: ReturnType<typeof useRouter>
 }) {
   const hasCheatingFlags = submission.cheatingFlags.length > 0
   const initials = submission.applicantName
@@ -98,6 +107,38 @@ function ApplicantRow({
                 {submission.applicantEmail}
               </span>
             </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs"
+              onClick={(e) => {
+                e.stopPropagation()
+                // Navigate to review page for patient-monitoring-system
+                if (challengeId === 'patient-monitoring-system') {
+                  router.push(`/dashboard/recruiter/challenge/${challengeId}/review?submissionId=${submission.id}`)
+                } else {
+                  // Placeholder for other challenges
+                  console.log('Review not yet implemented for this challenge')
+                }
+              }}
+            >
+              Review submission
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete()
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
 
           {/* Stats */}
@@ -157,9 +198,58 @@ export default function ChallengeDetailPage() {
 
     setUser(currentUser)
     setChallenge(challengeData)
-    setSubmissions(getChallengeSubmissions(challengeId))
-    setLoading(false)
+    
+    // Load submissions from API
+    const loadSubmissions = async () => {
+      try {
+        const subs = await getChallengeSubmissions(challengeId)
+        console.log('Loading submissions for', challengeId, ':', subs)
+        setSubmissions(subs)
+      } catch (error) {
+        console.error('Error loading submissions:', error)
+      }
+    }
+    
+    loadSubmissions().then(() => setLoading(false))
+    
+    // Listen for custom event when submission is added (same window)
+    const handleSubmissionAdded = (e: CustomEvent) => {
+      if (e.detail?.challengeId === challengeId) {
+        console.log('Submission added event received, refreshing submissions')
+        loadSubmissions()
+      }
+    }
+    
+    // Poll for changes every 2 seconds (for cross-browser scenarios)
+    const pollInterval = setInterval(() => {
+      loadSubmissions()
+    }, 2000)
+    
+    window.addEventListener('submissionAdded', handleSubmissionAdded as EventListener)
+    
+    // Also refresh on focus
+    const handleFocus = () => {
+      loadSubmissions()
+    }
+    window.addEventListener('focus', handleFocus)
+    
+    return () => {
+      clearInterval(pollInterval)
+      window.removeEventListener('submissionAdded', handleSubmissionAdded as EventListener)
+      window.removeEventListener('focus', handleFocus)
+    }
   }, [router, challengeId])
+
+  const handleDeleteSubmission = async (submissionId: string) => {
+    try {
+      await deleteChallengeSubmission(challengeId, submissionId)
+      // Refresh submissions
+      const subs = await getChallengeSubmissions(challengeId)
+      setSubmissions(subs)
+    } catch (error) {
+      console.error('Error deleting submission:', error)
+    }
+  }
 
   if (loading) {
     return (
@@ -274,10 +364,31 @@ export default function ChallengeDetailPage() {
 
         {/* Applicant Rankings */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">Applicant Rankings</h2>
-          <p className="text-muted-foreground">
-            Candidates ranked by their performance score. Click on red flags to view integrity concerns.
-          </p>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Applicant Rankings</h2>
+              <p className="text-muted-foreground">
+                Candidates ranked by their performance score. Click on red flags to view integrity concerns.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  const subs = await getChallengeSubmissions(challengeId)
+                  console.log('Manual refresh - submissions:', subs)
+                  setSubmissions(subs)
+                } catch (error) {
+                  console.error('Error refreshing submissions:', error)
+                }
+              }}
+              className="gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-3">
@@ -287,6 +398,9 @@ export default function ChallengeDetailPage() {
               submission={submission}
               rank={index + 1}
               onFlagClick={() => openModal(submission.applicantName, submission.cheatingFlags)}
+              onDelete={() => handleDeleteSubmission(submission.id)}
+              challengeId={challengeId}
+              router={router}
             />
           ))}
         </div>

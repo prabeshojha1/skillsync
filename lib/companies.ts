@@ -65,8 +65,8 @@ export const companies: Company[] = [
       {
         id: 2,
         role: 'Back End Developer',
-        description: 'Join our backend team to build secure, HIPAA-compliant APIs and services that power our healthcare platform. Experience with Node.js, Python, or Go preferred.',
-        skills: ['Node.js', 'Python', 'Go', 'HIPAA'],
+        description: 'Join our backend team to build secure, HIPAA-compliant APIs and services that power our healthcare platform. Experience with Node.js, Python, or Go preferred. Experience with AWS is a plus.',
+        skills: ['Node.js', 'Python', 'Go', 'HIPAA', 'AWS'],
         composition: 'Contains 4 Assessments: 2 System Design + 2 Algo',
       },
     ],
@@ -77,6 +77,13 @@ export const companies: Company[] = [
         description: 'Build a patient portal dashboard using React, TypeScript, and Tailwind CSS. This project will help you understand our frontend architecture and design patterns.',
         dueDate: 'March 15, 2025',
         skills: ['React', 'TypeScript', 'Tailwind CSS'],
+      },
+      {
+        id: 2,
+        title: 'Medical Records API Service',
+        description: 'Develop a secure, HIPAA-compliant REST API for managing patient medical records using Python, FastAPI, and PostgreSQL. This backend project will help you understand our data architecture and security practices.',
+        dueDate: 'March 30, 2025',
+        skills: ['Python', 'FastAPI', 'PostgreSQL', 'HIPAA Compliance'],
       },
     ],
     exercises: [

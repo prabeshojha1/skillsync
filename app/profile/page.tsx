@@ -19,19 +19,19 @@ import { cn } from '@/lib/utils'
 const EXPERIENCE = [
   {
     title: 'Senior Software Engineer',
-    company: 'Tech Corp',
+    company: 'Canva',
     duration: '2020 - Present',
     description: 'Led development of scalable web applications using React and Node.js. Managed a team of 5 developers.',
   },
   {
     title: 'Software Engineer',
-    company: 'StartupXYZ',
+    company: 'Atlassian',
     duration: '2018 - 2020',
     description: 'Built and maintained multiple features for a SaaS platform. Collaborated with cross-functional teams.',
   },
   {
     title: 'Junior Developer',
-    company: 'Digital Agency',
+    company: 'DuckDuckGo',
     duration: '2016 - 2018',
     description: 'Developed responsive websites and web applications for clients using modern JavaScript frameworks.',
   },
@@ -65,19 +65,19 @@ const CHALLENGES = [
     name: 'Algorithm Challenge: Path Finding',
     difficulty: 'Hard',
     completed: '2024-01-15',
-    score: 95,
+    score: 80,
   },
   {
     name: 'Data Structure Challenge: Binary Trees',
     difficulty: 'Medium',
     completed: '2024-01-10',
-    score: 88,
+    score: 80,
   },
   {
     name: 'Frontend Challenge: Responsive Design',
     difficulty: 'Easy',
     completed: '2024-01-05',
-    score: 92,
+    score: 100,
   },
   {
     name: 'Backend Challenge: API Design',
@@ -315,6 +315,9 @@ export default function ProfilePage() {
                         </CardContent>
                       </Card>
                     ))}
+                    <Button variant="outline" className="w-full">
+                      + Add Projects
+                    </Button>
                   </TabsContent>
 
                   <TabsContent value="challenges" className="mt-6 space-y-4">

@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Spotlight } from '@/components/motion-primitives/spotlight'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Logo } from '@/components/logo'
-import { Code, Map, Target, Calendar, Briefcase, Heart, Search, X, Building2, Clock, Mic } from 'lucide-react'
+import { Code, Calendar, Briefcase, Heart, Search, X, Building2, Clock, Mic } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { notFound } from 'next/navigation'
@@ -234,7 +234,7 @@ export default function CompanyPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Q Search challenges, companies, or roles..."
+                  placeholder="Search challenges, companies, or roles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -461,8 +461,8 @@ export default function CompanyPage() {
             <Card className="relative overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
               <Spotlight size={400} />
               <CardContent className="relative z-10 p-8">
-                <div className="flex items-center gap-6">
-                  <div className="flex size-20 items-center justify-center rounded-2xl bg-primary text-3xl font-bold text-primary-foreground shadow-lg">
+                <div className="flex items-start gap-6">
+                  <div className="flex size-20 items-center justify-center rounded-2xl bg-primary text-3xl font-bold text-primary-foreground shadow-lg -mt-2">
                     {company.logo}
                   </div>
                   <div className="flex-1">
@@ -545,7 +545,7 @@ export default function CompanyPage() {
           )}
 
           {/* Get Ready Section with Carousel */}
-          {(company.projects || company.exercises || company.roadmap) && (
+          {(company.projects || company.exercises) && (
             <section className="mb-12">
               <h2 className="text-2xl font-bold mb-4">Get {company.name} Ready...</h2>
               <div className="relative">
@@ -579,17 +579,17 @@ export default function CompanyPage() {
                                       </div>
                                     </div>
                                   )}
-                                  <div className="flex flex-wrap gap-2">
+                                  <div className="flex flex-wrap gap-2 mb-4">
                                     {project.skills.map((skill, index) => (
                                       <Badge key={index} variant="outline" className="text-xs">
                                         {skill}
                                       </Badge>
                                     ))}
                                   </div>
+                                  <Button className="w-full" size="lg">Work on Project</Button>
                                 </CardContent>
                               </Card>
                             ))}
-                            <Button className="w-full" size="lg">Work on Project</Button>
                           </CardContent>
                         </Card>
                       </CarouselItem>
@@ -639,7 +639,7 @@ export default function CompanyPage() {
                                       }
                                     }}
                                   >
-                                    Go
+                                    Start Challenge
                                   </Button>
                                 </CardContent>
                               </Card>
@@ -649,68 +649,6 @@ export default function CompanyPage() {
                       </CarouselItem>
                     )}
 
-                    {/* Roadmap Slide */}
-                    {company.roadmap && company.roadmap.length > 0 && (
-                      <CarouselItem>
-                        <Card className="relative min-h-[450px] border-border/50 bg-card/50 backdrop-blur-sm">
-                          <Spotlight size={350} />
-                          <CardHeader className="relative z-10">
-                            <div className="flex items-center gap-2">
-                              <Map className="size-5" />
-                              <CardTitle>Roadmap</CardTitle>
-                            </div>
-                            <CardDescription>Get {company.name} ready with these modules of topics</CardDescription>
-                          </CardHeader>
-                          <CardContent className="relative z-10">
-                            <div className="space-y-4">
-                              {company.roadmap.map((item) => (
-                                <div key={item.id} className="space-y-3">
-                                  <Card className="border-border/50 bg-card/80">
-                                    <CardContent className="p-4">
-                                      <div className="flex items-center gap-3">
-                                        <div className="flex size-8 items-center justify-center rounded-full border-2 border-primary bg-primary/10">
-                                          <Target className="size-4 text-primary" />
-                                        </div>
-                                        <div className="flex-1">
-                                          <h4 className="font-semibold text-sm">{item.title}</h4>
-                                          <p className="text-xs text-muted-foreground">{item.description}</p>
-                                        </div>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                  
-                                  {item.children && item.children.length > 0 && (
-                                    <div className="ml-4 border-l-2 border-primary/30 pl-4 space-y-3">
-                                      {item.children.map((child) => (
-                                        <Card key={child.id} className="border-border/50 bg-card/80">
-                                          <CardContent className="p-4">
-                                            <div className="flex items-center gap-3">
-                                              <div className="flex size-6 items-center justify-center rounded-full border border-primary/50 bg-background">
-                                                <div className="size-2 rounded-full bg-primary" />
-                                              </div>
-                                              <div className="flex-1">
-                                                <h4 className="font-semibold text-sm">{child.title}</h4>
-                                                <p className="text-xs text-muted-foreground">{child.description}</p>
-                                              </div>
-                                            </div>
-                                          </CardContent>
-                                        </Card>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-
-                            <p className="text-sm text-muted-foreground mt-6 text-center">
-                              Get {company.name} ready with these modules of topics
-                            </p>
-
-                            <Button className="w-full mt-4" size="lg">Start</Button>
-                          </CardContent>
-                        </Card>
-                      </CarouselItem>
-                    )}
                   </CarouselContent>
                   <CarouselPrevious className="left-4" />
                   <CarouselNext className="right-4" />

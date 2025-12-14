@@ -1,0 +1,1062 @@
+[
+  {
+    "id": "sub-1765719544084-1b5aznqtj",
+    "applicantName": "John Smith",
+    "applicantEmail": "hi@gmail.com",
+    "score": 10,
+    "submittedAt": "2025-12-14T13:39:04.084Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [
+      {
+        "type": "tab_switch",
+        "timestamp": "2025-12-14T13:39:04.084Z",
+        "details": "Switched to another browser tab during the assessment."
+      },
+      {
+        "type": "looked_away",
+        "timestamp": "2025-12-14T13:39:04.084Z",
+        "details": "Face not detected in webcam for more than 10 seconds."
+      },
+      {
+        "type": "copy_paste",
+        "timestamp": "2025-12-14T13:39:04.084Z",
+        "details": "Large amount of code was copy pasted."
+      }
+    ],
+    "recordedChanges": [
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 4,
+              "startColumn": 13,
+              "endLineNumber": 4,
+              "endColumn": 13
+            },
+            "text": "\n        "
+          }
+        ],
+        "timestamp": 1765719528900
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 5,
+              "startColumn": 9,
+              "endLineNumber": 5,
+              "endColumn": 9
+            },
+            "text": "\n        "
+          },
+          {
+            "range": {
+              "startLineNumber": 5,
+              "startColumn": 1,
+              "endLineNumber": 5,
+              "endColumn": 9
+            },
+            "text": ""
+          }
+        ],
+        "timestamp": 1765719529010
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 9,
+              "endLineNumber": 6,
+              "endColumn": 9
+            },
+            "text": "a"
+          }
+        ],
+        "timestamp": 1765719529313
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 10,
+              "endLineNumber": 6,
+              "endColumn": 10
+            },
+            "text": "l"
+          }
+        ],
+        "timestamp": 1765719529468
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 11,
+              "endLineNumber": 6,
+              "endColumn": 11
+            },
+            "text": "r"
+          }
+        ],
+        "timestamp": 1765719529776
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 12,
+              "endLineNumber": 6,
+              "endColumn": 12
+            },
+            "text": "i"
+          }
+        ],
+        "timestamp": 1765719529907
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 13,
+              "endLineNumber": 6,
+              "endColumn": 13
+            },
+            "text": "g"
+          }
+        ],
+        "timestamp": 1765719530012
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 14,
+              "endLineNumber": 6,
+              "endColumn": 14
+            },
+            "text": "h"
+          }
+        ],
+        "timestamp": 1765719530126
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 15,
+              "endLineNumber": 6,
+              "endColumn": 15
+            },
+            "text": "t"
+          }
+        ],
+        "timestamp": 1765719530217
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 16,
+              "endLineNumber": 6,
+              "endColumn": 16
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719530359
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 17,
+              "endLineNumber": 6,
+              "endColumn": 17
+            },
+            "text": "t"
+          }
+        ],
+        "timestamp": 1765719530596
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 18,
+              "endLineNumber": 6,
+              "endColumn": 18
+            },
+            "text": "h"
+          }
+        ],
+        "timestamp": 1765719530643
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 19,
+              "endLineNumber": 6,
+              "endColumn": 19
+            },
+            "text": "e"
+          }
+        ],
+        "timestamp": 1765719530751
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 20,
+              "endLineNumber": 6,
+              "endColumn": 20
+            },
+            "text": "n"
+          }
+        ],
+        "timestamp": 1765719530846
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 21,
+              "endLineNumber": 6,
+              "endColumn": 21
+            },
+            "text": ","
+          }
+        ],
+        "timestamp": 1765719531147
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 22,
+              "endLineNumber": 6,
+              "endColumn": 22
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719531264
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 23,
+              "endLineNumber": 6,
+              "endColumn": 23
+            },
+            "text": "w"
+          }
+        ],
+        "timestamp": 1765719531843
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 24,
+              "endLineNumber": 6,
+              "endColumn": 24
+            },
+            "text": "e"
+          }
+        ],
+        "timestamp": 1765719531881
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 25,
+              "endLineNumber": 6,
+              "endColumn": 25
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719531993
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 26,
+              "endLineNumber": 6,
+              "endColumn": 26
+            },
+            "text": "w"
+          }
+        ],
+        "timestamp": 1765719532118
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 27,
+              "endLineNumber": 6,
+              "endColumn": 27
+            },
+            "text": "i"
+          }
+        ],
+        "timestamp": 1765719532188
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 28,
+              "endLineNumber": 6,
+              "endColumn": 28
+            },
+            "text": "l"
+          }
+        ],
+        "timestamp": 1765719532324
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 29,
+              "endLineNumber": 6,
+              "endColumn": 29
+            },
+            "text": "l"
+          }
+        ],
+        "timestamp": 1765719532457
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 30,
+              "endLineNumber": 6,
+              "endColumn": 30
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719532531
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 31,
+              "endLineNumber": 6,
+              "endColumn": 31
+            },
+            "text": "n"
+          }
+        ],
+        "timestamp": 1765719532672
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 32,
+              "endLineNumber": 6,
+              "endColumn": 32
+            },
+            "text": "o"
+          }
+        ],
+        "timestamp": 1765719532718
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 33,
+              "endLineNumber": 6,
+              "endColumn": 33
+            },
+            "text": "w"
+          }
+        ],
+        "timestamp": 1765719532818
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 34,
+              "endLineNumber": 6,
+              "endColumn": 34
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719532927
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 35,
+              "endLineNumber": 6,
+              "endColumn": 35
+            },
+            "text": "s"
+          }
+        ],
+        "timestamp": 1765719533156
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 36,
+              "endLineNumber": 6,
+              "endColumn": 36
+            },
+            "text": "t"
+          }
+        ],
+        "timestamp": 1765719533251
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 37,
+              "endLineNumber": 6,
+              "endColumn": 37
+            },
+            "text": "a"
+          }
+        ],
+        "timestamp": 1765719533381
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 38,
+              "endLineNumber": 6,
+              "endColumn": 38
+            },
+            "text": "r"
+          }
+        ],
+        "timestamp": 1765719533463
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 39,
+              "endLineNumber": 6,
+              "endColumn": 39
+            },
+            "text": "t"
+          }
+        ],
+        "timestamp": 1765719533631
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 40,
+              "endLineNumber": 6,
+              "endColumn": 40
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719533757
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 41,
+              "endLineNumber": 6,
+              "endColumn": 41
+            },
+            "text": "r"
+          }
+        ],
+        "timestamp": 1765719534558
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 42,
+              "endLineNumber": 6,
+              "endColumn": 42
+            },
+            "text": "e"
+          }
+        ],
+        "timestamp": 1765719534624
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 43,
+              "endLineNumber": 6,
+              "endColumn": 43
+            },
+            "text": "c"
+          }
+        ],
+        "timestamp": 1765719534814
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 44,
+              "endLineNumber": 6,
+              "endColumn": 44
+            },
+            "text": "o"
+          }
+        ],
+        "timestamp": 1765719534905
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 45,
+              "endLineNumber": 6,
+              "endColumn": 45
+            },
+            "text": "r"
+          }
+        ],
+        "timestamp": 1765719535106
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 46,
+              "endLineNumber": 6,
+              "endColumn": 46
+            },
+            "text": "d"
+          }
+        ],
+        "timestamp": 1765719535272
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 47,
+              "endLineNumber": 6,
+              "endColumn": 47
+            },
+            "text": "i"
+          }
+        ],
+        "timestamp": 1765719535368
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 48,
+              "endLineNumber": 6,
+              "endColumn": 48
+            },
+            "text": "n"
+          }
+        ],
+        "timestamp": 1765719535431
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 49,
+              "endLineNumber": 6,
+              "endColumn": 49
+            },
+            "text": "g"
+          }
+        ],
+        "timestamp": 1765719535539
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 50,
+              "endLineNumber": 6,
+              "endColumn": 50
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719535618
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 51,
+              "endLineNumber": 6,
+              "endColumn": 51
+            },
+            "text": "m"
+          }
+        ],
+        "timestamp": 1765719535772
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 52,
+              "endLineNumber": 6,
+              "endColumn": 52
+            },
+            "text": "y"
+          }
+        ],
+        "timestamp": 1765719535939
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 53,
+              "endLineNumber": 6,
+              "endColumn": 53
+            },
+            "text": "v"
+          }
+        ],
+        "timestamp": 1765719536194
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 53,
+              "endLineNumber": 6,
+              "endColumn": 54
+            },
+            "text": ""
+          }
+        ],
+        "timestamp": 1765719536394
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 53,
+              "endLineNumber": 6,
+              "endColumn": 53
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719536472
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 54,
+              "endLineNumber": 6,
+              "endColumn": 54
+            },
+            "text": "v"
+          }
+        ],
+        "timestamp": 1765719536597
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 55,
+              "endLineNumber": 6,
+              "endColumn": 55
+            },
+            "text": "o"
+          }
+        ],
+        "timestamp": 1765719536688
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 56,
+              "endLineNumber": 6,
+              "endColumn": 56
+            },
+            "text": "i"
+          }
+        ],
+        "timestamp": 1765719536717
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 57,
+              "endLineNumber": 6,
+              "endColumn": 57
+            },
+            "text": "c"
+          }
+        ],
+        "timestamp": 1765719536801
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 58,
+              "endLineNumber": 6,
+              "endColumn": 58
+            },
+            "text": "e"
+          }
+        ],
+        "timestamp": 1765719536956
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 59,
+              "endLineNumber": 6,
+              "endColumn": 59
+            },
+            "text": "!"
+          }
+        ],
+        "timestamp": 1765719537392
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 60,
+              "endLineNumber": 6,
+              "endColumn": 60
+            },
+            "text": "\n        "
+          }
+        ],
+        "timestamp": 1765719537916
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 9,
+              "endLineNumber": 7,
+              "endColumn": 9
+            },
+            "text": "L"
+          }
+        ],
+        "timestamp": 1765719538313
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 10,
+              "endLineNumber": 7,
+              "endColumn": 10
+            },
+            "text": "e"
+          }
+        ],
+        "timestamp": 1765719538487
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 11,
+              "endLineNumber": 7,
+              "endColumn": 11
+            },
+            "text": "t"
+          }
+        ],
+        "timestamp": 1765719538773
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 12,
+              "endLineNumber": 7,
+              "endColumn": 12
+            },
+            "text": "'"
+          }
+        ],
+        "timestamp": 1765719538893
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 13,
+              "endLineNumber": 7,
+              "endColumn": 13
+            },
+            "text": "s"
+          }
+        ],
+        "timestamp": 1765719539033
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 14,
+              "endLineNumber": 7,
+              "endColumn": 14
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719539109
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 15,
+              "endLineNumber": 7,
+              "endColumn": 15
+            },
+            "text": "e"
+          }
+        ],
+        "timestamp": 1765719539246
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 16,
+              "endLineNumber": 7,
+              "endColumn": 16
+            },
+            "text": "n"
+          }
+        ],
+        "timestamp": 1765719539334
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 17,
+              "endLineNumber": 7,
+              "endColumn": 17
+            },
+            "text": "d"
+          }
+        ],
+        "timestamp": 1765719539415
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 18,
+              "endLineNumber": 7,
+              "endColumn": 18
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719539493
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 19,
+              "endLineNumber": 7,
+              "endColumn": 19
+            },
+            "text": "i"
+          }
+        ],
+        "timestamp": 1765719539576
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 20,
+              "endLineNumber": 7,
+              "endColumn": 20
+            },
+            "text": "t"
+          }
+        ],
+        "timestamp": 1765719539663
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 21,
+              "endLineNumber": 7,
+              "endColumn": 21
+            },
+            "text": " "
+          }
+        ],
+        "timestamp": 1765719539734
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 22,
+              "endLineNumber": 7,
+              "endColumn": 22
+            },
+            "text": "h"
+          }
+        ],
+        "timestamp": 1765719539890
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 23,
+              "endLineNumber": 7,
+              "endColumn": 23
+            },
+            "text": "e"
+          }
+        ],
+        "timestamp": 1765719539948
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 24,
+              "endLineNumber": 7,
+              "endColumn": 24
+            },
+            "text": "r"
+          }
+        ],
+        "timestamp": 1765719540010
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 7,
+              "startColumn": 25,
+              "endLineNumber": 7,
+              "endColumn": 25
+            },
+            "text": "e"
+          }
+        ],
+        "timestamp": 1765719540093
+      }
+    ],
+    "finalCode": "class PatientSystem:\n    def __init__(self):\n        # initialize internal data structures\n        pass\n\n        alright then, we will now start recording my voice!\n        Let's end it here\n    \n    def new_patient(self, patient_id, vital_readings, timestamp, family_history):\n        \"\"\"\n        Registers a new patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value} (e.g., {\"heart_rate\": 72, \"blood_pressure\": 120})\n        - timestamp: timestamp of the reading (int or float)\n        - family_history: list of risk factors (e.g. [\"diabetes\", \"cardiac\"])\n        \"\"\"\n        pass\n    \n    def update_patient(self, patient_id, vital_readings, timestamp):\n        \"\"\"\n        Adds new vital readings for an existing patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value}\n        - timestamp: timestamp of the reading (int or float)\n        \"\"\"\n        pass\n    \n    def fetch_patient_data(self, patient_id):\n        \"\"\"\n        Returns the patient's stored data.\n        - patient_id: unique identifier for the patient (string)\n        \n        Returns a dict containing:\n        - patient_id: the patient's ID\n        - family_history: list of risk factors\n        - vital_history: dict of {vital_name: [(timestamp, value), ...]}\n        \"\"\"\n        pass",
+    "audioFileName": "sub-1765719544084-1b5aznqtj.webm"
+  }
+]

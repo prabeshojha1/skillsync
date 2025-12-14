@@ -87,11 +87,11 @@ function ChallengeCard({ challenge, onClick }: { challenge: RecruiterChallenge; 
 
   return (
     <Card 
-      className="relative min-w-[320px] h-[200px] cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+      className="relative min-w-[380px] cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
       onClick={onClick}
     >
       <Spotlight size={250} />
-      <CardContent className="p-5 h-full flex flex-col justify-between relative z-10">
+      <CardContent className="p-6 h-full flex flex-col justify-between relative z-10">
         <div className="flex items-start justify-between mb-3">
           <Badge 
             variant="outline" 
@@ -105,12 +105,12 @@ function ChallengeCard({ challenge, onClick }: { challenge: RecruiterChallenge; 
           </div>
         </div>
         
-        <div className="flex-1 flex flex-col justify-center mb-3">
+        <div className="flex-1 flex flex-col justify-center mb-4">
           <h3 className="font-bold text-lg leading-tight mb-1">{challenge.title}</h3>
           <p className="text-sm text-muted-foreground line-clamp-2">{challenge.description}</p>
         </div>
         
-        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+        <div className="flex items-center justify-between pt-4 border-t border-border/50">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Users className="h-4 w-4" />
             <span>{challenge.applicantCount} submissions</span>
