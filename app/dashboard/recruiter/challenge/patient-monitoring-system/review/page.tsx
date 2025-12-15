@@ -11,6 +11,7 @@ import { getProblemById } from '@/lib/problems'
 import { getCompanyBySlug } from '@/lib/companies'
 import { getCurrentUser } from '@/lib/auth'
 import { getChallengeSubmissions, type ApplicantSubmission, type ChangeEvent } from '@/lib/recruiter-data'
+import { IntegrityWarningPopup } from '@/components/integrity-warning-popup'
 
 // Simple markdown renderer for problem descriptions
 function renderMarkdown(text: string): string {
@@ -96,6 +97,12 @@ export default function ReviewPage() {
   // Audio playback refs
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  
+  // Integrity warning popup states
+  const [lookedAwayVisible, setLookedAwayVisible] = useState(false)
+  const [tabSwitchVisible, setTabSwitchVisible] = useState(false)
+  const [codePasteVisible, setCodePasteVisible] = useState(false)
+  const warningTimersRef = useRef<NodeJS.Timeout[]>([])
 
   // Load submission data
   useEffect(() => {
@@ -465,8 +472,43 @@ export default function ReviewPage() {
         // Note: We're using a direct API URL, so no need to revoke object URL
         setAudioUrl(null)
       }
+      // Clean up warning timers
+      warningTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+      warningTimersRef.current = []
     }
   }, [audioUrl])
+
+  // Integrity warning popup timing logic
+  useEffect(() => {
+    if (loading) return
+
+    // Clear any existing timers
+    warningTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+    warningTimersRef.current = []
+
+    // 10 seconds: Show "Looked Away" popup (auto-dismisses after 3 seconds)
+    const lookedAwayTimer = setTimeout(() => {
+      setLookedAwayVisible(true)
+    }, 10000)
+    warningTimersRef.current.push(lookedAwayTimer)
+
+    // 13 seconds: Show "Tab Switching" popup (appears when first one disappears)
+    const tabSwitchTimer = setTimeout(() => {
+      setTabSwitchVisible(true)
+    }, 13000)
+    warningTimersRef.current.push(tabSwitchTimer)
+
+    // 20 seconds: Show "Code Pasted" popup
+    const codePasteTimer = setTimeout(() => {
+      setCodePasteVisible(true)
+    }, 20000)
+    warningTimersRef.current.push(codePasteTimer)
+
+    return () => {
+      warningTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+      warningTimersRef.current = []
+    }
+  }, [loading])
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -722,6 +764,29 @@ export default function ReviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Integrity Warning Popups */}
+      <IntegrityWarningPopup
+        type="looked_away"
+        message="Face not detected in webcam."
+        isVisible={lookedAwayVisible}
+        onDismiss={() => setLookedAwayVisible(false)}
+        autoDismissMs={2000}
+      />
+      <IntegrityWarningPopup
+        type="tab_switch"
+        message="Switched to another browser tab during the assessment."
+        isVisible={tabSwitchVisible}
+        onDismiss={() => setTabSwitchVisible(false)}
+        autoDismissMs={2000}
+      />
+      <IntegrityWarningPopup
+        type="copy_paste"
+        message="Large amount of code was copy pasted."
+        isVisible={codePasteVisible}
+        onDismiss={() => setCodePasteVisible(false)}
+        autoDismissMs={2000}
+      />
     </div>
   )
 }

@@ -70,7 +70,7 @@ const recommendedChallenges = [
 ]
 
 const quickWins = [
-  { id: 6, title: 'Two Sum Variant', company: 'Meta', tech: 'Python', time: '15m', hasVoice: false, progress: '5/20' },
+  { id: 6, title: 'Two Sum', company: 'Meta', tech: 'Python', time: '15m', hasVoice: false, progress: '5/20' },
   { id: 7, title: 'Binary Tree Traversal', company: 'Apple', tech: 'Swift', time: '20m', hasVoice: false, progress: '3/15' },
   { id: 8, title: 'Array Rotation', company: 'Microsoft', tech: 'C#', time: '10m', hasVoice: false, progress: '7/25' },
   { id: 9, title: 'String Permutations', company: 'Netflix', tech: 'JavaScript', time: '12m', hasVoice: false, progress: '4/18' },
@@ -83,12 +83,23 @@ const companyProgress = [
   { id: 3, name: 'Amazon', logo: 'A', completed: 4, total: 5, status: 'Eligible for Interview' },
   { id: 4, name: 'Meta', logo: 'M', completed: 5, total: 20, status: 'In Progress' },
   { id: 5, name: 'Google', logo: 'G', completed: 1, total: 10, status: 'In Progress' },
-  { id: 6, name: 'ClinIQ', logo: 'C', completed: 0, total: 3, status: 'In Progress' },
+  { id: 6, name: 'ClinIQ', logo: 'C', completed: 0, total: 4, status: 'In Progress' },
 ]
 
 function ChallengeCard({ challenge, isQuickWin = false }: { challenge: Challenge; isQuickWin?: boolean }) {
+  const router = useRouter()
+  
+  const handleClick = () => {
+    if (challenge.title === 'Two Sum') {
+      router.push('/editor/two-sum')
+    }
+  }
+  
   return (
-    <Card className="relative min-w-[320px] h-[200px] cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10">
+    <Card 
+      className="relative min-w-[320px] h-[200px] cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+      onClick={handleClick}
+    >
       <Spotlight size={250} />
       <CardContent className="p-5 h-full flex flex-col justify-between relative z-10">
         <div className="flex items-start justify-between mb-3">
@@ -115,7 +126,15 @@ function ChallengeCard({ challenge, isQuickWin = false }: { challenge: Challenge
             <Badge variant="outline" className="text-xs font-normal">
               {challenge.tech}
             </Badge>
-            <Button size="sm" variant="ghost" className="ml-auto text-xs h-7 text-primary hover:text-primary/80 transition-colors">
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="ml-auto text-xs h-7 text-primary hover:text-primary/80 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleClick()
+              }}
+            >
               Start →
             </Button>
           </div>
