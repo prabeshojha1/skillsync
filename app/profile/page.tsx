@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Logo } from '@/components/logo'
-import { User as UserIcon, Mail, Briefcase, Building2, Users } from 'lucide-react'
+import { User as UserIcon, Mail, Briefcase, Building2, Users, Github } from 'lucide-react'
 import Link from 'next/link'
 import { getLanguageColor, getCompanyTypeColor, getTechnologyColor } from '@/lib/badge-colors'
 import { cn } from '@/lib/utils'
@@ -20,19 +20,19 @@ const EXPERIENCE = [
   {
     title: 'Senior Software Engineer',
     company: 'Canva',
-    duration: '2020 - Present',
+    duration: '2022 - Present',
     description: 'Led development of scalable web applications using React and Node.js. Managed a team of 5 developers.',
   },
   {
     title: 'Software Engineer',
     company: 'Atlassian',
-    duration: '2018 - 2020',
+    duration: '2020 - 2022',
     description: 'Built and maintained multiple features for a SaaS platform. Collaborated with cross-functional teams.',
   },
   {
     title: 'Junior Developer',
     company: 'DuckDuckGo',
-    duration: '2016 - 2018',
+    duration: '2018 - 2020',
     description: 'Developed responsive websites and web applications for clients using modern JavaScript frameworks.',
   },
 ]
@@ -43,19 +43,22 @@ const PROJECTS = [
     name: 'E-Commerce Platform',
     description: 'Full-stack e-commerce solution with payment integration',
     technologies: ['React', 'Node.js', 'PostgreSQL', 'Stripe'],
-    year: '2023',
+    year: '2024',
+    githubUrl: 'https://github.com/username/ecommerce-platform',
   },
   {
     name: 'Task Management App',
     description: 'Collaborative task management tool with real-time updates',
     technologies: ['Next.js', 'TypeScript', 'MongoDB', 'Socket.io'],
-    year: '2022',
+    year: '2024',
+    githubUrl: 'https://github.com/username/task-management-app',
   },
   {
     name: 'Weather Dashboard',
     description: 'Real-time weather dashboard with interactive maps',
     technologies: ['Vue.js', 'Python', 'OpenWeather API'],
-    year: '2021',
+    year: '2023',
+    githubUrl: 'https://github.com/username/weather-dashboard',
   },
 ]
 
@@ -64,25 +67,25 @@ const CHALLENGES = [
   {
     name: 'Algorithm Challenge: Path Finding',
     difficulty: 'Hard',
-    completed: '2024-01-15',
+    completed: '2024-12-15',
     score: 80,
   },
   {
     name: 'Data Structure Challenge: Binary Trees',
     difficulty: 'Medium',
-    completed: '2024-01-10',
+    completed: '2024-12-10',
     score: 80,
   },
   {
     name: 'Frontend Challenge: Responsive Design',
     difficulty: 'Easy',
-    completed: '2024-01-05',
+    completed: '2024-11-25',
     score: 100,
   },
   {
     name: 'Backend Challenge: API Design',
     difficulty: 'Medium',
-    completed: '2023-12-20',
+    completed: '2024-11-20',
     score: 90,
   },
 ]
@@ -297,6 +300,16 @@ export default function ProfilePage() {
                               <CardTitle className="text-lg">{project.name}</CardTitle>
                               <CardDescription>{project.year}</CardDescription>
                             </div>
+                            {project.githubUrl && (
+                              <Link
+                                href={project.githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                <Github className="h-5 w-5" />
+                              </Link>
+                            )}
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-3">

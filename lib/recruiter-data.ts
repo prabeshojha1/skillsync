@@ -50,6 +50,19 @@ export type RecruiterChallenge = {
 // Re-export JobPosting as RecruiterJob for backward compatibility
 export type RecruiterJob = JobPosting
 
+// Job applicant data structure
+export type JobApplicant = {
+  id: string
+  name: string
+  email: string
+  resumeFitness: number // 0-10 score
+  submissions: {
+    challengeId: string
+    score: number
+    violations: number
+  }[]
+}
+
 // Mock challenges for recruiter
 export const recruiterChallenges: RecruiterChallenge[] = [
   {
@@ -920,4 +933,107 @@ export function getCheatingFlagLabel(type: CheatingFlagType): string {
     default:
       return 'Unknown'
   }
+}
+
+/**
+ * Get required challenge IDs for a job
+ */
+export function getJobRequiredChallenges(jobId: string): string[] {
+  const mapping: Record<string, string[]> = {
+    'cliniq-frontend-dev': ['two-sum', 'merge-intervals', 'patient-monitoring-system'],
+    'cliniq-backend-dev': ['two-sum', 'merge-intervals', 'binary-tree-max-path-sum', 'patient-monitoring-system'],
+    'cliniq-senior-frontend': ['two-sum', 'merge-intervals', 'binary-tree-max-path-sum', 'patient-monitoring-system'],
+    'cliniq-backend-engineer': ['two-sum', 'merge-intervals', 'patient-monitoring-system'],
+    'cliniq-fullstack': ['two-sum', 'merge-intervals', 'binary-tree-max-path-sum', 'patient-monitoring-system', 'two-sum'],
+    'cliniq-devops': ['two-sum', 'merge-intervals', 'patient-monitoring-system'],
+  }
+  return mapping[jobId] || []
+}
+
+// Generate dummy applicant data for all jobs
+function generateDummyApplicants(jobId: string): JobApplicant[] {
+  const requiredChallenges = getJobRequiredChallenges(jobId)
+  const totalChallenges = requiredChallenges.length
+  
+  // Generate 15-20 applicants with varied data
+  const applicantNames = [
+    'Alex Thompson', 'Sarah Chen', 'Michael Rodriguez', 'Emily Johnson', 'David Kim',
+    'Jessica Martinez', 'Ryan Patel', 'Olivia Brown', 'James Wilson', 'Sophia Lee',
+    'Daniel Garcia', 'Emma Davis', 'Matthew Taylor', 'Isabella Anderson', 'Christopher Moore',
+    'Ava Jackson', 'Andrew White', 'Mia Harris', 'Joshua Martin', 'Charlotte Thompson'
+  ]
+  
+  const applicants: JobApplicant[] = []
+  
+  for (let i = 0; i < Math.min(applicantNames.length, 18); i++) {
+    const name = applicantNames[i]
+    const email = name.toLowerCase().replace(' ', '.') + '@email.com'
+    
+    // Varied completion rates (some complete all, some partial)
+    const completionRate = Math.random()
+    const numCompleted = completionRate > 0.3 
+      ? totalChallenges 
+      : Math.floor(Math.random() * (totalChallenges - 1)) + 1
+    
+    // Varied violation counts (0-5 per applicant total)
+    const totalViolations = Math.floor(Math.random() * 6)
+    
+    // Varied scores (5.0-10.0)
+    const baseScore = 5 + Math.random() * 5
+    
+    // Varied resume fitness (4-10)
+    const resumeFitness = 4 + Math.random() * 6
+    
+    // Create submissions for completed challenges
+    let violationsRemaining = totalViolations
+    const submissions = requiredChallenges.slice(0, numCompleted).map((challengeId, idx) => {
+      // Distribute violations across submissions (randomly assign)
+      let violationsForThis = 0
+      if (violationsRemaining > 0 && Math.random() > 0.5) {
+        violationsForThis = Math.min(violationsRemaining, Math.floor(Math.random() * 3) + 1)
+        violationsRemaining -= violationsForThis
+      }
+      // Slight score variation per challenge
+      const score = Math.max(5, Math.min(10, baseScore + (Math.random() - 0.5) * 2))
+      
+      return {
+        challengeId,
+        score: Math.round(score * 10) / 10,
+        violations: violationsForThis,
+      }
+    })
+    
+    // Ensure total violations match (distribute any remaining)
+    const actualTotal = submissions.reduce((sum, sub) => sum + sub.violations, 0)
+    if (actualTotal < totalViolations && submissions.length > 0) {
+      const diff = totalViolations - actualTotal
+      for (let i = 0; i < diff && i < submissions.length; i++) {
+        submissions[i].violations += 1
+      }
+    }
+    
+    applicants.push({
+      id: `applicant-${jobId}-${i + 1}`,
+      name,
+      email,
+      resumeFitness: Math.round(resumeFitness * 10) / 10,
+      submissions,
+    })
+  }
+  
+  return applicants
+}
+
+// Cache for job applicants (same data for all jobs as specified)
+const jobApplicantsCache: Record<string, JobApplicant[]> = {}
+
+/**
+ * Get all applicants for a job
+ */
+export function getJobApplicants(jobId: string): JobApplicant[] {
+  // Use the same dummy data for all jobs as specified
+  if (!jobApplicantsCache['default']) {
+    jobApplicantsCache['default'] = generateDummyApplicants('cliniq-frontend-dev')
+  }
+  return jobApplicantsCache['default']
 }

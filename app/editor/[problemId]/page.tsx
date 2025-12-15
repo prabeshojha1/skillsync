@@ -200,6 +200,21 @@ export default function EditorPage() {
     }
   }, [problemId, problemData])
 
+  // Request camera permission for patient-monitoring-system (but don't use it)
+  useEffect(() => {
+    if (problemId === 'patient-monitoring-system' && typeof window !== 'undefined' && navigator.mediaDevices) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+          // Immediately stop all tracks - we just wanted permission
+          stream.getTracks().forEach(track => track.stop())
+        })
+        .catch((error) => {
+          // Permission denied or error - that's okay, we're not using it anyway
+          console.log('Camera permission not granted:', error)
+        })
+    }
+  }, [problemId])
+
   // Keep refs in sync with state
   useEffect(() => {
     isRecordingRef.current = isRecording

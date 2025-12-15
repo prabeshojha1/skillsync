@@ -22,7 +22,7 @@ import {
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
-function JobCard({ job }: { job: RecruiterJob }) {
+function JobCard({ job, onViewApplicants }: { job: RecruiterJob; onViewApplicants: (jobId: string) => void }) {
   const statusColors = {
     active: 'bg-green-500/10 text-green-500 border-green-500/20',
     closed: 'bg-red-500/10 text-red-500 border-red-500/20',
@@ -69,8 +69,16 @@ function JobCard({ job }: { job: RecruiterJob }) {
             <Users className="h-4 w-4" />
             <span>{job.applicantCount} applicants</span>
           </div>
-          <Button size="sm" variant="ghost" className="text-xs h-7 text-primary hover:text-primary/80">
-            View Details <ChevronRight className="h-3 w-3 ml-1" />
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="text-xs h-7 text-primary hover:text-primary/80"
+            onClick={(e) => {
+              e.stopPropagation()
+              onViewApplicants(job.id)
+            }}
+          >
+            View Applicants <ChevronRight className="h-3 w-3 ml-1" />
           </Button>
         </div>
       </CardContent>
@@ -255,7 +263,11 @@ export default function RecruiterDashboard() {
               onClick={() => router.push('/dashboard/recruiter/job/new')}
             />
             {jobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard 
+                key={job.id} 
+                job={job} 
+                onViewApplicants={(jobId) => router.push(`/dashboard/recruiter/job/${jobId}/applicants`)}
+              />
             ))}
           </div>
         </section>

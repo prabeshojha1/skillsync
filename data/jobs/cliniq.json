@@ -1,7 +1,7 @@
 [
   {
     "id": "cliniq-frontend-dev",
-    "companyId": "cliniq",
+    "companyId": "Meta",
     "role": "Front End Developer",
     "description": "We're looking for a talented Front End Developer to join our team. You'll work with React, TypeScript, and modern UI frameworks to create exceptional user experiences for healthcare professionals and patients.",
     "skills": ["React", "TypeScript", "Next.js", "Tailwind CSS"],
@@ -12,7 +12,7 @@
   },
   {
     "id": "cliniq-backend-dev",
-    "companyId": "cliniq",
+    "companyId": "Microsoft",
     "role": "Back End Developer",
     "description": "Join our backend team to build secure, HIPAA-compliant APIs and services that power our healthcare platform. Experience with Node.js, Python, or Go preferred. Experience with AWS is a plus.",
     "skills": ["Node.js", "Python", "Go", "HIPAA", "AWS"],
@@ -23,7 +23,7 @@
   },
   {
     "id": "cliniq-senior-frontend",
-    "companyId": "cliniq",
+    "companyId": "Netflix",
     "role": "Senior Frontend Developer",
     "description": "Build beautiful, performant user interfaces using React and TypeScript. Lead frontend architecture decisions and mentor junior developers.",
     "skills": ["React", "TypeScript", "Tailwind CSS", "Next.js"],
