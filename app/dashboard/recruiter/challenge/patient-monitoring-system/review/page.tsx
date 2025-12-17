@@ -103,6 +103,11 @@ export default function ReviewPage() {
   const [tabSwitchVisible, setTabSwitchVisible] = useState(false)
   const [codePasteVisible, setCodePasteVisible] = useState(false)
   const warningTimersRef = useRef<NodeJS.Timeout[]>([])
+  
+  // Look-away event timestamps (relative to first recorded change, in ms)
+  const [lookedAwayEvents, setLookedAwayEvents] = useState<number[]>([])
+  const [currentLookAwayIndex, setCurrentLookAwayIndex] = useState(0)
+  const lookAwayTimersRef = useRef<NodeJS.Timeout[]>([])
 
   // Load submission data
   useEffect(() => {
@@ -158,6 +163,21 @@ export default function ReviewPage() {
           const audioUrl = `/api/submissions/${challengeId}/audio/${foundSubmission.id}`
           setAudioUrl(audioUrl)
         }
+        
+        // Extract look-away event timestamps from cheatingFlags
+        const lookAwayFlags = foundSubmission.cheatingFlags.filter(flag => flag.type === 'looked_away')
+        const lookAwayTimestamps: number[] = []
+        
+        lookAwayFlags.forEach(flag => {
+          // Extract relative_ms from details field (format: "... (relative_ms:12345)")
+          const match = flag.details.match(/relative_ms:(\d+)/)
+          if (match) {
+            lookAwayTimestamps.push(parseInt(match[1], 10))
+          }
+        })
+        
+        setLookedAwayEvents(lookAwayTimestamps)
+        console.log(`Loaded ${lookAwayTimestamps.length} look-away events:`, lookAwayTimestamps)
         
         setLoading(false)
       } catch (error) {
@@ -251,7 +271,14 @@ export default function ReviewPage() {
     // Calculate relative timings from the first change
     const firstTimestamp = recordedChanges[0].timestamp
     const lastTimestamp = recordedChanges[recordedChanges.length - 1].timestamp
-    const totalDuration = lastTimestamp - firstTimestamp
+    const lastChangeDuration = lastTimestamp - firstTimestamp
+    
+    // Calculate extended duration to include look-away events that occur after the last Monaco change
+    const lastLookAwayTime = lookedAwayEvents.length > 0 
+      ? Math.max(...lookedAwayEvents) 
+      : 0
+    const totalDuration = Math.max(lastChangeDuration, lastLookAwayTime)
+    
     const relativeChanges = recordedChanges.map((change) => ({
       ...change,
       relativeTime: change.timestamp - firstTimestamp,
@@ -270,28 +297,25 @@ export default function ReviewPage() {
       lastAppliedChangeTimeRef.current = 0
     }
 
-    // Set total duration
+    // Set total duration (extended to include look-away events)
     const initialDelay = 100
     const totalReplayDuration = startFromElapsed === 0 
       ? (totalDuration / 1000) + (initialDelay / 1000)
       : totalDuration / 1000
     setReplayProgress({ elapsed: startFromElapsed, total: totalReplayDuration })
 
-    // Start progress tracking
+    // Start progress tracking using wall-clock time
+    // This ensures progress continues to update even after all Monaco changes are applied,
+    // allowing time for look-away popups that occur after the last keystroke
     const initialElapsed = startTimeInOriginalTimeline / speed / 1000
     const adjustedInitialElapsed = startFromElapsed === 0 ? initialDelay / 1000 : initialElapsed
     replayStartTimeRef.current = Date.now() - (adjustedInitialElapsed * 1000)
     replayProgressElapsedRef.current = adjustedInitialElapsed
     replayProgressIntervalRef.current = setInterval(() => {
       if (!isReplayPaused) {
-        let elapsed: number
-        if (lastAppliedChangeTimeRef.current > 0) {
-          elapsed = startFromElapsed === 0
-            ? (initialDelay / 1000) + (lastAppliedChangeTimeRef.current / speed / 1000)
-            : startFromElapsed + (lastAppliedChangeTimeRef.current / speed / 1000)
-        } else {
-          elapsed = (Date.now() - replayStartTimeRef.current) / 1000
-        }
+        // Always use wall-clock time for progress tracking
+        // This ensures the progress bar continues updating after all Monaco changes
+        const elapsed = (Date.now() - replayStartTimeRef.current) / 1000
         replayProgressElapsedRef.current = elapsed
         setReplayProgress(prev => ({ ...prev, elapsed: Math.min(elapsed, prev.total) }))
       }
@@ -322,32 +346,34 @@ export default function ReviewPage() {
             : startFromElapsed + baseElapsed
           replayProgressElapsedRef.current = currentElapsed
           setReplayProgress(prev => ({ ...prev, elapsed: Math.min(currentElapsed, prev.total) }))
-
-          // If this is the last change, finish replay
-          if (index === remainingChanges.length - 1) {
-            setTimeout(() => {
-              if (editorRef.current && replayProgressIntervalRef.current) {
-                clearInterval(replayProgressIntervalRef.current)
-                replayProgressIntervalRef.current = null
-                setIsReplaying(false)
-                setIsReplayPaused(false)
-                setReplayProgress({ elapsed: 0, total: 0 })
-                replayProgressElapsedRef.current = 0
-                replayPauseDurationRef.current = 0
-                lastAppliedChangeTimeRef.current = 0
-                // Pause audio when replay finishes
-                if (audioRef.current) {
-                  audioRef.current.pause()
-                }
-              }
-            }, (100 / speed))
-          }
         }
       }, adjustedDelay)
 
       replayTimeoutsRef.current.push(timeout)
     })
-  }, [recordedChanges, problemData, submission, audioUrl])
+
+    // Schedule replay end based on extended duration (after all look-away events have had time to fire)
+    // Calculate delay from current position to end of extended duration
+    const baseDelay = startFromElapsed === 0 ? initialDelay : 0
+    const endDelay = baseDelay + (totalDuration - startTimeInOriginalTimeline) / speed + 100 // Add 100ms buffer
+    const endTimeout = setTimeout(() => {
+      if (editorRef.current && replayProgressIntervalRef.current) {
+        clearInterval(replayProgressIntervalRef.current)
+        replayProgressIntervalRef.current = null
+        setIsReplaying(false)
+        setIsReplayPaused(false)
+        setReplayProgress({ elapsed: 0, total: 0 })
+        replayProgressElapsedRef.current = 0
+        replayPauseDurationRef.current = 0
+        lastAppliedChangeTimeRef.current = 0
+        // Pause audio when replay finishes
+        if (audioRef.current) {
+          audioRef.current.pause()
+        }
+      }
+    }, endDelay)
+    replayTimeoutsRef.current.push(endTimeout)
+  }, [recordedChanges, problemData, submission, audioUrl, lookedAwayEvents])
 
   // Ensure audio element is ready when audioUrl is set
   useEffect(() => {
@@ -381,27 +407,26 @@ export default function ReviewPage() {
   useEffect(() => {
     if (!loading && recordedChanges.length > 0 && !isReplaying && problemData) {
       setIsReplaying(true)
-      const speed = parseFloat(replaySpeed)
+      setCurrentLookAwayIndex(0) // Reset look-away index when replay starts
       // Small delay to ensure editor and audio are mounted
       setTimeout(() => {
-        startReplay(speed)
+        startReplay(1) // Always use 1x (real-time) speed
       }, 500)
     } else if (!loading && !recordedChanges.length && submission?.finalCode && modelRef.current) {
       // Fallback: just show final code if no replay data
       modelRef.current.setValue(submission.finalCode)
     }
-  }, [loading, recordedChanges, isReplaying, problemData, submission, replaySpeed, startReplay])
+  }, [loading, recordedChanges, isReplaying, problemData, submission, startReplay])
 
   // Handle pause/resume replay
   const handlePauseResumeReplay = useCallback(() => {
     if (!isReplaying) return
 
     if (isReplayPaused) {
-      const speed = parseFloat(replaySpeed)
       const elapsedReplayTime = lastAppliedChangeTimeRef.current > 0
-        ? lastAppliedChangeTimeRef.current / speed / 1000
+        ? lastAppliedChangeTimeRef.current / 1000 // Always 1x speed
         : replayProgressElapsedRef.current
-      startReplay(speed, elapsedReplayTime)
+      startReplay(1, elapsedReplayTime) // Always use 1x speed
       setIsReplayPaused(false)
       // Resume audio
       if (audioRef.current) {
@@ -424,23 +449,7 @@ export default function ReviewPage() {
         audioRef.current.pause()
       }
     }
-  }, [isReplaying, isReplayPaused, replaySpeed, startReplay])
-
-  // Handle speed change during replay
-  useEffect(() => {
-    if (isReplaying && !isReplayPaused) {
-      const speed = parseFloat(replaySpeed)
-      const elapsedReplayTime = lastAppliedChangeTimeRef.current > 0
-        ? lastAppliedChangeTimeRef.current / speed / 1000
-        : replayProgressElapsedRef.current
-      startReplay(speed, elapsedReplayTime)
-    }
-    // Update audio playback rate when speed changes
-    if (audioRef.current) {
-      audioRef.current.playbackRate = parseFloat(replaySpeed)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [replaySpeed, isReplaying, isReplayPaused])
+  }, [isReplaying, isReplayPaused, startReplay])
 
   const handleEditorDidMount = useCallback((editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor
@@ -478,37 +487,72 @@ export default function ReviewPage() {
     }
   }, [audioUrl])
 
-  // Integrity warning popup timing logic
+  // Schedule look-away popups based on actual event timestamps
+  const scheduleLookAwayPopups = useCallback((speed: number, startFromMs: number = 0) => {
+    // Clear any existing look-away timers
+    lookAwayTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+    lookAwayTimersRef.current = []
+    
+    if (lookedAwayEvents.length === 0) return
+    
+    // Schedule popups for events that haven't occurred yet
+    lookedAwayEvents.forEach((relativeMs, index) => {
+      // Skip events that have already passed based on current replay position
+      if (relativeMs <= startFromMs) return
+      
+      // Calculate delay: (eventTime - currentPosition) / speed
+      const delay = (relativeMs - startFromMs) / speed
+      
+      const timer = setTimeout(() => {
+        setCurrentLookAwayIndex(index)
+        setLookedAwayVisible(true)
+        console.log(`Showing look-away popup #${index + 1} at ${relativeMs}ms`)
+      }, delay)
+      
+      lookAwayTimersRef.current.push(timer)
+    })
+    
+    console.log(`Scheduled ${lookAwayTimersRef.current.length} look-away popups (speed: ${speed}x, startFrom: ${startFromMs}ms)`)
+  }, [lookedAwayEvents])
+  
+  // Clear look-away timers when replay is paused
+  const clearLookAwayTimers = useCallback(() => {
+    lookAwayTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+    lookAwayTimersRef.current = []
+  }, [])
+  
+  // Schedule look-away popups when replay starts
   useEffect(() => {
-    if (loading) return
-
-    // Clear any existing timers
-    warningTimersRef.current.forEach((timeout) => clearTimeout(timeout))
-    warningTimersRef.current = []
-
-    // 10 seconds: Show "Looked Away" popup (auto-dismisses after 3 seconds)
-    const lookedAwayTimer = setTimeout(() => {
-      setLookedAwayVisible(true)
-    }, 10000)
-    warningTimersRef.current.push(lookedAwayTimer)
-
-    // 13 seconds: Show "Tab Switching" popup (appears when first one disappears)
-    const tabSwitchTimer = setTimeout(() => {
-      setTabSwitchVisible(true)
-    }, 13000)
-    warningTimersRef.current.push(tabSwitchTimer)
-
-    // 20 seconds: Show "Code Pasted" popup
-    const codePasteTimer = setTimeout(() => {
-      setCodePasteVisible(true)
-    }, 20000)
-    warningTimersRef.current.push(codePasteTimer)
-
-    return () => {
-      warningTimersRef.current.forEach((timeout) => clearTimeout(timeout))
-      warningTimersRef.current = []
+    if (!isReplaying || isReplayPaused || loading || lookedAwayEvents.length === 0) {
+      return
     }
-  }, [loading])
+    
+    // Calculate current position in original timeline (in ms)
+    const currentPositionMs = lastAppliedChangeTimeRef.current
+    
+    scheduleLookAwayPopups(1, currentPositionMs) // Always use 1x speed
+    
+    return () => {
+      clearLookAwayTimers()
+    }
+  }, [isReplaying, isReplayPaused, loading, lookedAwayEvents, scheduleLookAwayPopups, clearLookAwayTimers])
+  
+  // Handle pause/resume for look-away popups
+  useEffect(() => {
+    if (isReplayPaused) {
+      // Pause: clear all timers
+      clearLookAwayTimers()
+    }
+    // Resume is handled by the main effect above which re-schedules when isReplayPaused becomes false
+  }, [isReplayPaused, clearLookAwayTimers])
+  
+  // Cleanup look-away timers on unmount
+  useEffect(() => {
+    return () => {
+      lookAwayTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+      lookAwayTimersRef.current = []
+    }
+  }, [])
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -634,8 +678,8 @@ export default function ReviewPage() {
               <Button
                 onClick={() => {
                   setIsReplaying(true)
-                  const speed = parseFloat(replaySpeed)
-                  startReplay(speed)
+                  setCurrentLookAwayIndex(0) // Reset look-away index
+                  startReplay(1) // Always use 1x (real-time) speed
                 }}
                 size="sm"
                 className="gap-2"
@@ -768,7 +812,7 @@ export default function ReviewPage() {
       {/* Integrity Warning Popups */}
       <IntegrityWarningPopup
         type="looked_away"
-        message="Face not detected in webcam."
+        message={`Face not detected in webcam (${currentLookAwayIndex + 1}/${lookedAwayEvents.length} events)`}
         isVisible={lookedAwayVisible}
         onDismiss={() => setLookedAwayVisible(false)}
         autoDismissMs={2000}

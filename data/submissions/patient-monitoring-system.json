@@ -1,26 +1,21 @@
 [
   {
-    "id": "sub-1765736324101-lk6w834eq",
+    "id": "sub-1765958315139-ju0x0hj0f",
     "applicantName": "Prabesh Ojha",
     "applicantEmail": "yo@gmail.com",
     "score": 10,
-    "submittedAt": "2025-12-14T18:18:44.101Z",
+    "submittedAt": "2025-12-17T07:58:35.139Z",
     "timeSpent": "<1m",
     "cheatingFlags": [
       {
-        "type": "tab_switch",
-        "timestamp": "2025-12-14T18:18:44.101Z",
-        "details": "Switched to another browser tab during the assessment."
+        "type": "looked_away",
+        "timestamp": "2025-12-17T07:58:24.170Z",
+        "details": "Face not detected in webcam at 0:06 (relative_ms:6541)"
       },
       {
         "type": "looked_away",
-        "timestamp": "2025-12-14T18:18:44.101Z",
-        "details": "Face not detected in webcam."
-      },
-      {
-        "type": "copy_paste",
-        "timestamp": "2025-12-14T18:18:44.101Z",
-        "details": "Large amount of code was copy pasted."
+        "timestamp": "2025-12-17T07:58:32.180Z",
+        "details": "Face not detected in webcam at 0:14 (relative_ms:14551)"
       }
     ],
     "recordedChanges": [
@@ -28,15 +23,52 @@
         "changes": [
           {
             "range": {
-              "startLineNumber": 5,
-              "startColumn": 5,
-              "endLineNumber": 5,
-              "endColumn": 5
+              "startLineNumber": 4,
+              "startColumn": 13,
+              "endLineNumber": 4,
+              "endColumn": 13
             },
-            "text": "\n    "
+            "text": "\n        "
           }
         ],
-        "timestamp": 1765736286597
+        "timestamp": 1765958299433
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 5,
+              "startColumn": 9,
+              "endLineNumber": 5,
+              "endColumn": 9
+            },
+            "text": "\n        "
+          },
+          {
+            "range": {
+              "startLineNumber": 5,
+              "startColumn": 1,
+              "endLineNumber": 5,
+              "endColumn": 9
+            },
+            "text": ""
+          }
+        ],
+        "timestamp": 1765958299593
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 5,
+              "endLineNumber": 6,
+              "endColumn": 9
+            },
+            "text": ""
+          }
+        ],
+        "timestamp": 1765958300002
       },
       {
         "changes": [
@@ -47,10 +79,10 @@
               "endLineNumber": 6,
               "endColumn": 5
             },
-            "text": "I"
+            "text": "i"
           }
         ],
-        "timestamp": 1765736287355
+        "timestamp": 1765958301544
       },
       {
         "changes": [
@@ -61,10 +93,10 @@
               "endLineNumber": 6,
               "endColumn": 6
             },
-            "text": "'"
+            "text": "m"
           }
         ],
-        "timestamp": 1765736287569
+        "timestamp": 1765958301715
       },
       {
         "changes": [
@@ -75,10 +107,10 @@
               "endLineNumber": 6,
               "endColumn": 7
             },
-            "text": "m"
+            "text": " "
           }
         ],
-        "timestamp": 1765736287744
+        "timestamp": 1765958301936
       },
       {
         "changes": [
@@ -89,10 +121,38 @@
               "endLineNumber": 6,
               "endColumn": 8
             },
-            "text": " "
+            "text": "l"
           }
         ],
-        "timestamp": 1765736287869
+        "timestamp": 1765958302274
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 8,
+              "endLineNumber": 6,
+              "endColumn": 9
+            },
+            "text": ""
+          }
+        ],
+        "timestamp": 1765958302602
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 8,
+              "endLineNumber": 6,
+              "endColumn": 8
+            },
+            "text": "g"
+          }
+        ],
+        "timestamp": 1765958302668
       },
       {
         "changes": [
@@ -103,10 +163,10 @@
               "endLineNumber": 6,
               "endColumn": 9
             },
-            "text": "g"
+            "text": "o"
           }
         ],
-        "timestamp": 1765736288453
+        "timestamp": 1765958302811
       },
       {
         "changes": [
@@ -117,10 +177,10 @@
               "endLineNumber": 6,
               "endColumn": 10
             },
-            "text": "o"
+            "text": "n"
           }
         ],
-        "timestamp": 1765736288519
+        "timestamp": 1765958302867
       },
       {
         "changes": [
@@ -134,7 +194,7 @@
             "text": "n"
           }
         ],
-        "timestamp": 1765736288561
+        "timestamp": 1765958302992
       },
       {
         "changes": [
@@ -145,10 +205,10 @@
               "endLineNumber": 6,
               "endColumn": 12
             },
-            "text": "n"
+            "text": "a"
           }
         ],
-        "timestamp": 1765736288702
+        "timestamp": 1765958303095
       },
       {
         "changes": [
@@ -159,10 +219,10 @@
               "endLineNumber": 6,
               "endColumn": 13
             },
-            "text": "a"
+            "text": " "
           }
         ],
-        "timestamp": 1765736288852
+        "timestamp": 1765958303136
       },
       {
         "changes": [
@@ -173,10 +233,10 @@
               "endLineNumber": 6,
               "endColumn": 14
             },
-            "text": " "
+            "text": "l"
           }
         ],
-        "timestamp": 1765736288883
+        "timestamp": 1765958303248
       },
       {
         "changes": [
@@ -187,10 +247,10 @@
               "endLineNumber": 6,
               "endColumn": 15
             },
-            "text": "c"
+            "text": "o"
           }
         ],
-        "timestamp": 1765736289203
+        "timestamp": 1765958303406
       },
       {
         "changes": [
@@ -201,10 +261,10 @@
               "endLineNumber": 6,
               "endColumn": 16
             },
-            "text": "h"
+            "text": "o"
           }
         ],
-        "timestamp": 1765736289277
+        "timestamp": 1765958303562
       },
       {
         "changes": [
@@ -215,10 +275,10 @@
               "endLineNumber": 6,
               "endColumn": 17
             },
-            "text": "e"
+            "text": "k"
           }
         ],
-        "timestamp": 1765736289394
+        "timestamp": 1765958303589
       },
       {
         "changes": [
@@ -229,10 +289,10 @@
               "endLineNumber": 6,
               "endColumn": 18
             },
-            "text": "a"
+            "text": " "
           }
         ],
-        "timestamp": 1765736289466
+        "timestamp": 1765958303697
       },
       {
         "changes": [
@@ -243,10 +303,38 @@
               "endLineNumber": 6,
               "endColumn": 19
             },
-            "text": "t"
+            "text": "w"
           }
         ],
-        "timestamp": 1765736289686
+        "timestamp": 1765958303852
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 19,
+              "endLineNumber": 6,
+              "endColumn": 20
+            },
+            "text": ""
+          }
+        ],
+        "timestamp": 1765958304193
+      },
+      {
+        "changes": [
+          {
+            "range": {
+              "startLineNumber": 6,
+              "startColumn": 19,
+              "endLineNumber": 6,
+              "endColumn": 19
+            },
+            "text": "a"
+          }
+        ],
+        "timestamp": 1765958304267
       },
       {
         "changes": [
@@ -257,10 +345,10 @@
               "endLineNumber": 6,
               "endColumn": 20
             },
-            "text": "!"
+            "text": "w"
           }
         ],
-        "timestamp": 1765736289944
+        "timestamp": 1765958304334
       },
       {
         "changes": [
@@ -271,10 +359,10 @@
               "endLineNumber": 6,
               "endColumn": 21
             },
-            "text": "!"
+            "text": "a"
           }
         ],
-        "timestamp": 1765736290086
+        "timestamp": 1765958304440
       },
       {
         "changes": [
@@ -285,10 +373,10 @@
               "endLineNumber": 6,
               "endColumn": 22
             },
-            "text": " "
+            "text": "y"
           }
         ],
-        "timestamp": 1765736290312
+        "timestamp": 1765958304527
       },
       {
         "changes": [
@@ -299,10 +387,10 @@
               "endLineNumber": 6,
               "endColumn": 23
             },
-            "text": "N"
+            "text": " "
           }
         ],
-        "timestamp": 1765736290528
+        "timestamp": 1765958304665
       },
       {
         "changes": [
@@ -313,248 +401,10 @@
               "endLineNumber": 6,
               "endColumn": 24
             },
-            "text": "o"
-          }
-        ],
-        "timestamp": 1765736290620
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 25,
-              "endLineNumber": 6,
-              "endColumn": 25
-            },
-            "text": "b"
-          }
-        ],
-        "timestamp": 1765736290761
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 26,
-              "endLineNumber": 6,
-              "endColumn": 26
-            },
-            "text": "o"
-          }
-        ],
-        "timestamp": 1765736290852
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 27,
-              "endLineNumber": 6,
-              "endColumn": 27
-            },
-            "text": "d"
-          }
-        ],
-        "timestamp": 1765736290941
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 28,
-              "endLineNumber": 6,
-              "endColumn": 28
-            },
-            "text": "y"
-          }
-        ],
-        "timestamp": 1765736291035
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 29,
-              "endLineNumber": 6,
-              "endColumn": 29
-            },
-            "text": " "
-          }
-        ],
-        "timestamp": 1765736291110
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 30,
-              "endLineNumber": 6,
-              "endColumn": 30
-            },
-            "text": "w"
-          }
-        ],
-        "timestamp": 1765736291177
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 31,
-              "endLineNumber": 6,
-              "endColumn": 31
-            },
-            "text": "i"
-          }
-        ],
-        "timestamp": 1765736291275
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 32,
-              "endLineNumber": 6,
-              "endColumn": 32
-            },
-            "text": "l"
-          }
-        ],
-        "timestamp": 1765736291419
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 33,
-              "endLineNumber": 6,
-              "endColumn": 33
-            },
-            "text": " "
-          }
-        ],
-        "timestamp": 1765736291603
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 34,
-              "endLineNumber": 6,
-              "endColumn": 34
-            },
-            "text": "k"
-          }
-        ],
-        "timestamp": 1765736291719
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 35,
-              "endLineNumber": 6,
-              "endColumn": 35
-            },
-            "text": "n"
-          }
-        ],
-        "timestamp": 1765736291794
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 36,
-              "endLineNumber": 6,
-              "endColumn": 36
-            },
-            "text": "o"
-          }
-        ],
-        "timestamp": 1765736291911
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 37,
-              "endLineNumber": 6,
-              "endColumn": 37
-            },
-            "text": "w"
-          }
-        ],
-        "timestamp": 1765736292069
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 38,
-              "endLineNumber": 6,
-              "endColumn": 38
-            },
-            "text": "!"
-          }
-        ],
-        "timestamp": 1765736292636
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 39,
-              "endLineNumber": 6,
-              "endColumn": 39
-            },
-            "text": "!"
-          }
-        ],
-        "timestamp": 1765736292788
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 40,
-              "endLineNumber": 6,
-              "endColumn": 40
-            },
-            "text": "!"
-          }
-        ],
-        "timestamp": 1765736292920
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 41,
-              "endLineNumber": 6,
-              "endColumn": 41
-            },
             "text": "\n    "
           }
         ],
-        "timestamp": 1765736293101
+        "timestamp": 1765958305305
       },
       {
         "changes": [
@@ -577,243 +427,10 @@
             "text": ""
           }
         ],
-        "timestamp": 1765736293321
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 2,
-              "startColumn": 5,
-              "endLineNumber": 38,
-              "endColumn": 13
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765736305996
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 2,
-              "startColumn": 1,
-              "endLineNumber": 2,
-              "endColumn": 5
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765736307394
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 2,
-              "startColumn": 1,
-              "endLineNumber": 2,
-              "endColumn": 1
-            },
-            "text": "    def __init__(self):\n        # initialize internal data structures\n        self.patients = dict()\n        pass\n    \n    def new_patient(self, patient_id, vital_readings, timestamp, family_history):\n        \"\"\"\n        Registers a new patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value} (e.g., {\"heart_rate\": 72, \"blood_pressure\": 120})\n        - timestamp: timestamp of the reading (int or float)\n        - family_history: list of risk factors (e.g. [\"diabetes\", \"cardiac\"])\n        \"\"\"\n        vital_history = {}\n        for vital_name, value in vital_readings.items():\n            vital_history[vital_name] = [(timestamp, value)]\n        \n        self.patients[patient_id] = {\n            'patient_id': patient_id,\n            'vital_history': vital_history,\n            'family_history': family_history\n        }\n\n        pass\n    \n    def update_patient(self, patient_id, vital_readings, timestamp):\n        \"\"\"\n        Adds new vital readings for an existing patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value}\n        - timestamp: timestamp of the reading (int or float)\n        \"\"\"\n        for vital_name, value in vital_readings.items():\n            self.patients[patient_id]['vital_history'][vital_name].append((timestamp, value))\n        pass\n    \n    def fetch_patient_data(self, patient_id):\n        \"\"\"\n        Returns the patient's stored data and any risk flags.\n        - patient_id: unique identifier for the patient (string)\n        \n        Returns a dict containing:\n        - patient_id: the patient's ID\n        - family_history: list of risk factors\n        - vital_history: dict of {vital_name: [(timestamp, value), ...]}\n        - risk_flags: list of concerning trends or flags (e.g., [\"heart_rate_increasing\", \"high_priority_family_history\"])\n        \"\"\"\n        return self.patients[patient_id]\n        pass"
-          }
-        ],
-        "timestamp": 1765736307957
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 5,
-              "startColumn": 13,
-              "endLineNumber": 5,
-              "endColumn": 13
-            },
-            "text": "\n        "
-          }
-        ],
-        "timestamp": 1765736310314
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 9,
-              "endLineNumber": 6,
-              "endColumn": 9
-            },
-            "text": "\n        "
-          },
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 1,
-              "endLineNumber": 6,
-              "endColumn": 9
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765736310478
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 9,
-              "endLineNumber": 7,
-              "endColumn": 9
-            },
-            "text": "h"
-          }
-        ],
-        "timestamp": 1765736310821
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 10,
-              "endLineNumber": 7,
-              "endColumn": 10
-            },
-            "text": "a"
-          }
-        ],
-        "timestamp": 1765736310989
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 11,
-              "endLineNumber": 7,
-              "endColumn": 11
-            },
-            "text": "h"
-          }
-        ],
-        "timestamp": 1765736311044
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 12,
-              "endLineNumber": 7,
-              "endColumn": 12
-            },
-            "text": "a"
-          }
-        ],
-        "timestamp": 1765736311170
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 13,
-              "endLineNumber": 7,
-              "endColumn": 13
-            },
-            "text": "h"
-          }
-        ],
-        "timestamp": 1765736311269
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 14,
-              "endLineNumber": 7,
-              "endColumn": 14
-            },
-            "text": "a"
-          }
-        ],
-        "timestamp": 1765736311352
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 15,
-              "endLineNumber": 7,
-              "endColumn": 15
-            },
-            "text": "h"
-          }
-        ],
-        "timestamp": 1765736311458
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 16,
-              "endLineNumber": 7,
-              "endColumn": 16
-            },
-            "text": "a"
-          }
-        ],
-        "timestamp": 1765736311544
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 1,
-              "endLineNumber": 7,
-              "endColumn": 17
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765736313854
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 1,
-              "endLineNumber": 7,
-              "endColumn": 1
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765736314244
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 5,
-              "startColumn": 13,
-              "endLineNumber": 6,
-              "endColumn": 1
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765736314452
+        "timestamp": 1765958305482
       }
     ],
-    "finalCode": "class PatientSystem:\n    def __init__(self):\n        # initialize internal data structures\n        self.patients = dict()\n        pass\n    \n    def new_patient(self, patient_id, vital_readings, timestamp, family_history):\n        \"\"\"\n        Registers a new patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value} (e.g., {\"heart_rate\": 72, \"blood_pressure\": 120})\n        - timestamp: timestamp of the reading (int or float)\n        - family_history: list of risk factors (e.g. [\"diabetes\", \"cardiac\"])\n        \"\"\"\n        vital_history = {}\n        for vital_name, value in vital_readings.items():\n            vital_history[vital_name] = [(timestamp, value)]\n        \n        self.patients[patient_id] = {\n            'patient_id': patient_id,\n            'vital_history': vital_history,\n            'family_history': family_history\n        }\n\n        pass\n    \n    def update_patient(self, patient_id, vital_readings, timestamp):\n        \"\"\"\n        Adds new vital readings for an existing patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value}\n        - timestamp: timestamp of the reading (int or float)\n        \"\"\"\n        for vital_name, value in vital_readings.items():\n            self.patients[patient_id]['vital_history'][vital_name].append((timestamp, value))\n        pass\n    \n    def fetch_patient_data(self, patient_id):\n        \"\"\"\n        Returns the patient's stored data and any risk flags.\n        - patient_id: unique identifier for the patient (string)\n        \n        Returns a dict containing:\n        - patient_id: the patient's ID\n        - family_history: list of risk factors\n        - vital_history: dict of {vital_name: [(timestamp, value), ...]}\n        - risk_flags: list of concerning trends or flags (e.g., [\"heart_rate_increasing\", \"high_priority_family_history\"])\n        \"\"\"\n        return self.patients[patient_id]\n        pass",
-    "audioFileName": "sub-1765736324101-lk6w834eq.webm"
+    "finalCode": "class PatientSystem:\n    def __init__(self):\n        # initialize internal data structures\n        pass\n\n    im gonna look away \n\n    \n    \n    def new_patient(self, patient_id, vital_readings, timestamp, family_history):\n        \"\"\"\n        Registers a new patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value} (e.g., {\"heart_rate\": 72, \"blood_pressure\": 120})\n        - timestamp: timestamp of the reading (int or float)\n        - family_history: list of risk factors (e.g. [\"diabetes\", \"cardiac\"])\n        \"\"\"\n        pass\n    \n    def update_patient(self, patient_id, vital_readings, timestamp):\n        \"\"\"\n        Adds new vital readings for an existing patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value}\n        - timestamp: timestamp of the reading (int or float)\n        \"\"\"\n        pass\n    \n    def fetch_patient_data(self, patient_id):\n        \"\"\"\n        Returns the patient's stored data.\n        - patient_id: unique identifier for the patient (string)\n        \n        Returns a dict containing:\n        - patient_id: the patient's ID\n        - family_history: list of risk factors\n        - vital_history: dict of {vital_name: [(timestamp, value), ...]}\n        \"\"\"\n        pass",
+    "audioFileName": "sub-1765958315139-ju0x0hj0f.webm"
   }
 ]
