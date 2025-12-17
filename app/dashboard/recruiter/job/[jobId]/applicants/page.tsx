@@ -455,7 +455,7 @@ export default function JobApplicantsPage() {
         toolFit: {
           score: toolFitScore,
           total: requiredTools.length,
-          level: toolFitLevel as 'High' | 'Medium' | 'Low',
+          level: toolFitLevel as 'High' | 'Medium' | 'Low' | 'None',
           matchedTools,
           allTools: candidateTools,
         },
@@ -470,20 +470,20 @@ export default function JobApplicantsPage() {
   }, [applicants, performanceWeights, requiredTools, availableTools, availableIndustries, industryDomains, totalChallenges])
 
   // Filter by integrity and experience/fit
-  const integrityThresholds = {
+  const integrityThresholds = useMemo(() => ({
     strict: 90,
     standard: 75,
     lenient: 60,
-  }
+  }), [])
 
   const filteredCandidates = useMemo(() => {
-    let filtered = processedCandidates.filter(candidate => {
+    const filtered = processedCandidates.filter(candidate => {
       // Integrity filter
       if (candidate.integrityPercentage < integrityThresholds[integrityLevel]) {
         return false
       }
       
-      // Auto-exclude severe violations
+      // Auto-exclude severe violations (only if enabled and below threshold)
       if (autoExcludeSevere && candidate.integrityPercentage < 60) {
         return false
       }
@@ -622,6 +622,7 @@ export default function JobApplicantsPage() {
   }, [
     processedCandidates, 
     integrityLevel, 
+    integrityThresholds,
     autoExcludeSevere, 
     flagMediumRisk,
     groupingOption,
@@ -807,9 +808,9 @@ export default function JobApplicantsPage() {
         </Card>
 
         {/* Two Panel Layout */}
-        <div className="flex gap-6 h-[calc(100vh-200px)]">
+        <div className="flex gap-6">
           {/* LEFT PANEL - Configuration Controls */}
-          <div className="w-1/3 border-r border-border/50 pr-6 overflow-y-auto">
+          <div className="w-1/3 border-r border-border/50 pr-6">
             {/* Global Control Bar */}
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/50">
             <div className="flex items-center gap-2">
@@ -1205,7 +1206,7 @@ export default function JobApplicantsPage() {
           </div>
 
           {/* RIGHT PANEL - Candidate Results */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1">
             <div className="space-y-6">
               {Object.entries(rankedCandidates).map(([groupName, candidates]) => {
                 const isCollapsed = collapsedGroups.has(groupName)
@@ -1243,7 +1244,7 @@ export default function JobApplicantsPage() {
                               key={candidate.id}
                               className="hover:border-primary/50 transition-colors"
                             >
-                              <CardContent className="p-5">
+                              <CardContent className="p-5 relative">
                                 <div className="flex items-start justify-between gap-6">
                                   <div 
                                     className="flex-1 space-y-4 cursor-pointer"
@@ -1321,7 +1322,7 @@ export default function JobApplicantsPage() {
                                       {candidate.industryFit.level}
                                     </p>
                         </div>
-                                </div>
+                      </div>
                                 
                                 {/* Communication */}
                                 <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/30">
@@ -1339,12 +1340,12 @@ export default function JobApplicantsPage() {
                                     )}>
                                       {candidate.communication.overall}
                                     </p>
-                                  </div>
+                    </div>
                                 </div>
                               </div>
-                                  </div>
+                        </div>
                                   
-                                  {/* Performance Score and Shortlist Button - Right Side */}
+                                  {/* Performance Score - Right Side */}
                                   <div className="flex items-start gap-4 shrink-0">
                                     <div className="text-right">
                                       <div className="flex items-center gap-2 justify-end mb-1">
@@ -1354,28 +1355,30 @@ export default function JobApplicantsPage() {
                                       <p className="text-3xl font-bold">{candidate.performanceScore.toFixed(1)}</p>
                                       <p className="text-xs text-muted-foreground mt-1">out of 10.0</p>
                                     </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className={cn(
-                                        "h-10 w-10 shrink-0",
-                                        isShortlisted && "text-yellow-500 hover:text-yellow-600"
-                                      )}
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        const newShortlisted = new Set(shortlistedCandidates)
-                                        if (isShortlisted) {
-                                          newShortlisted.delete(candidate.id)
-                                        } else {
-                                          newShortlisted.add(candidate.id)
-                                        }
-                                        setShortlistedCandidates(newShortlisted)
-                                      }}
-                                    >
-                                      <Star className={cn("h-5 w-5", isShortlisted && "fill-yellow-500")} />
-                                    </Button>
                       </div>
                     </div>
+                                  
+                                  {/* Star Button - Absolute Bottom Right */}
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className={cn(
+                                      "absolute bottom-2 right-2 h-8 w-8 shrink-0",
+                                      isShortlisted && "text-yellow-500 hover:text-yellow-600"
+                                    )}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      const newShortlisted = new Set(shortlistedCandidates)
+                                      if (isShortlisted) {
+                                        newShortlisted.delete(candidate.id)
+                                      } else {
+                                        newShortlisted.add(candidate.id)
+                                      }
+                                      setShortlistedCandidates(newShortlisted)
+                                    }}
+                                  >
+                                    <Star className={cn("h-5 w-5", isShortlisted && "fill-yellow-500")} />
+                                  </Button>
                   </CardContent>
                 </Card>
               )
@@ -1610,26 +1613,6 @@ export default function JobApplicantsPage() {
                       </Card>
                     )
                   })}
-                </div>
-              </div>
-
-              {/* Interview Replay */}
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Interview Replay</h3>
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <Play className="h-4 w-4" />
-                      Play Recording
-                    </Button>
-                    <div className="text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4 inline mr-1" />
-                      Total duration: ~45 minutes
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Interview replay and flagged moments will be available here. Click play to review the candidate's interview session.
-                  </div>
                 </div>
               </div>
 

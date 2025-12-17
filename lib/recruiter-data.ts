@@ -955,7 +955,7 @@ function generateDummyApplicants(jobId: string): JobApplicant[] {
   const requiredChallenges = getJobRequiredChallenges(jobId)
   const totalChallenges = requiredChallenges.length
   
-  // Generate 35-40 applicants with varied data to demonstrate filtering and grouping
+  // Generate 80 applicants with varied data to demonstrate filtering and grouping
   const applicantNames = [
     'Alex Thompson', 'Sarah Chen', 'Michael Rodriguez', 'Emily Johnson', 'David Kim',
     'Jessica Martinez', 'Ryan Patel', 'Olivia Brown', 'James Wilson', 'Sophia Lee',
@@ -964,12 +964,21 @@ function generateDummyApplicants(jobId: string): JobApplicant[] {
     'Noah Martinez', 'Lily Chen', 'Ethan Williams', 'Grace Kim', 'Lucas Anderson',
     'Zoe Patel', 'Benjamin Lee', 'Chloe Garcia', 'Mason Brown', 'Harper Davis',
     'Logan Wilson', 'Amelia Rodriguez', 'Jackson Moore', 'Ella Thompson', 'Aiden Johnson',
-    'Scarlett Martinez', 'Carter Kim', 'Luna Chen', 'Henry Patel', 'Nora Williams'
+    'Scarlett Martinez', 'Carter Kim', 'Luna Chen', 'Henry Patel', 'Nora Williams',
+    'Oliver Taylor', 'Victoria Smith', 'Sebastian Jones', 'Penelope Wilson', 'Gabriel Brown',
+    'Hannah Davis', 'Nathan Garcia', 'Madison Martinez', 'Samuel Anderson', 'Avery Johnson',
+    'Liam White', 'Sofia Rodriguez', 'Caleb Lee', 'Natalie Kim', 'Isaac Patel',
+    'Addison Chen', 'Owen Thompson', 'Aubrey Williams', 'Levi Moore', 'Layla Davis',
+    'Wyatt Taylor', 'Stella Brown', 'Jack Anderson', 'Hazel Garcia', 'Luke Martinez',
+    'Aria Johnson', 'Grayson Lee', 'Lillian Patel', 'Julian Chen', 'Nova Thompson',
+    'Maya Williams', 'Eli Moore', 'Willow Davis', 'Lincoln Taylor', 'Riley Brown',
+    'Aurora Anderson', 'Hudson Garcia', 'Savannah Martinez', 'Elena Johnson', 'Parker Lee',
+    'Clara Patel', 'Brayden Chen', 'Violet Thompson', 'Nolan Williams', 'Ivy Moore'
   ]
   
   const applicants: JobApplicant[] = []
   
-  // Generate all applicants (40 total)
+  // Generate all applicants (80 total)
   for (let i = 0; i < applicantNames.length; i++) {
     const name = applicantNames[i]
     const email = name.toLowerCase().replace(/\s+/g, '.') + '@email.com'
