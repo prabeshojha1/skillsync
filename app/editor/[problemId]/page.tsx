@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Editor from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import { Button } from '@/components/ui/button'
-import { Play, Loader2, CheckCircle2, XCircle, Circle, Pause, ArrowLeft } from 'lucide-react'
+import { Play, Loader2, CheckCircle2, XCircle, Circle, Pause, ArrowLeft, EyeOff } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getProblemById } from '@/lib/problems'
@@ -127,6 +127,21 @@ export default function EditorPage() {
   const audioChunksRef = useRef<Blob[]>([])
   const audioStreamRef = useRef<MediaStream | null>(null)
   const hasAudioRecordingStartedRef = useRef(false)
+  const isIntentionallyStoppingRef = useRef(false)
+  
+  // Gaze detection refs and state
+  const [lookedAwayCount, setLookedAwayCount] = useState(0)
+  const [lookedAwayTimestamps, setLookedAwayTimestamps] = useState<number[]>([]) // Relative timestamps in ms
+  const exerciseStartTimeRef = useRef<number>(0)
+  const gazeVideoRef = useRef<HTMLVideoElement | null>(null)
+  const gazeCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const gazeWebSocketRef = useRef<WebSocket | null>(null)
+  const gazeFrameCaptureIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const gazeVideoStreamRef = useRef<MediaStream | null>(null)
+  const isLookingAwayRef = useRef(false) // Track current state for debouncing
+  const lastLookAwayTimeRef = useRef<number>(0) // Track last event time for debouncing
+  const gazeInitializedRef = useRef(false)
+  
   const [isLoadingPyodide, setIsLoadingPyodide] = useState(false)
   const [isPyodideReady, setIsPyodideReady] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
@@ -180,6 +195,7 @@ export default function EditorPage() {
       
       // Reset audio recording
       hasAudioRecordingStartedRef.current = false
+      isIntentionallyStoppingRef.current = true
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop()
       }
@@ -189,6 +205,27 @@ export default function EditorPage() {
       }
       mediaRecorderRef.current = null
       audioChunksRef.current = []
+      isIntentionallyStoppingRef.current = false
+      
+      // Reset gaze detection
+      setLookedAwayCount(0)
+      setLookedAwayTimestamps([])
+      exerciseStartTimeRef.current = 0
+      isLookingAwayRef.current = false
+      lastLookAwayTimeRef.current = 0
+      gazeInitializedRef.current = false
+      if (gazeFrameCaptureIntervalRef.current) {
+        clearInterval(gazeFrameCaptureIntervalRef.current)
+        gazeFrameCaptureIntervalRef.current = null
+      }
+      if (gazeWebSocketRef.current) {
+        gazeWebSocketRef.current.close()
+        gazeWebSocketRef.current = null
+      }
+      if (gazeVideoStreamRef.current) {
+        gazeVideoStreamRef.current.getTracks().forEach(track => track.stop())
+        gazeVideoStreamRef.current = null
+      }
       
       // Clear any replay timeouts
       replayTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout))
@@ -200,20 +237,170 @@ export default function EditorPage() {
     }
   }, [problemId, problemData])
 
-  // Request camera permission for patient-monitoring-system (but don't use it)
-  useEffect(() => {
-    if (problemId === 'patient-monitoring-system' && typeof window !== 'undefined' && navigator.mediaDevices) {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then((stream) => {
-          // Immediately stop all tracks - we just wanted permission
-          stream.getTracks().forEach(track => track.stop())
-        })
-        .catch((error) => {
-          // Permission denied or error - that's okay, we're not using it anyway
-          console.log('Camera permission not granted:', error)
-        })
+  // Initialize gaze detection for patient-monitoring-system
+  const initializeGazeDetection = useCallback(async () => {
+    // Only initialize for patient-monitoring-system and only once
+    if (problemId !== 'patient-monitoring-system' || gazeInitializedRef.current) {
+      return
+    }
+
+    if (typeof window === 'undefined' || !navigator.mediaDevices) {
+      console.log('MediaDevices not available')
+      return
+    }
+
+    try {
+      // Set exercise start time
+      exerciseStartTimeRef.current = Date.now()
+      
+      // Request camera access
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: 'user'
+        } 
+      })
+      gazeVideoStreamRef.current = stream
+
+      // Create hidden video element
+      const video = document.createElement('video')
+      video.srcObject = stream
+      video.autoplay = true
+      video.playsInline = true
+      video.muted = true
+      gazeVideoRef.current = video
+
+      // Create canvas for frame capture
+      const canvas = document.createElement('canvas')
+      canvas.width = 640
+      canvas.height = 480
+      gazeCanvasRef.current = canvas
+
+      // Wait for video to be ready
+      await new Promise<void>((resolve) => {
+        video.onloadedmetadata = () => {
+          video.play()
+          resolve()
+        }
+      })
+
+      // Connect to WebSocket
+      const ws = new WebSocket('ws://localhost:8000/ws/gaze')
+      gazeWebSocketRef.current = ws
+
+      ws.onopen = () => {
+        console.log('Gaze detection WebSocket connected')
+        gazeInitializedRef.current = true
+
+        // Start frame capture interval (every 200ms = 5fps)
+        gazeFrameCaptureIntervalRef.current = setInterval(() => {
+          if (!gazeVideoRef.current || !gazeCanvasRef.current || !gazeWebSocketRef.current) {
+            return
+          }
+
+          if (gazeWebSocketRef.current.readyState !== WebSocket.OPEN) {
+            return
+          }
+
+          const video = gazeVideoRef.current
+          const canvas = gazeCanvasRef.current
+          const ctx = canvas.getContext('2d')
+
+          if (!ctx || video.readyState < 2) {
+            return
+          }
+
+          // Draw video frame to canvas
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+          // Convert to base64 JPEG
+          const frameData = canvas.toDataURL('image/jpeg', 0.8)
+
+          // Send to WebSocket
+          gazeWebSocketRef.current.send(JSON.stringify({ frame: frameData }))
+        }, 200)
+      }
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          
+          if (data.error) {
+            console.error('Gaze detection error:', data.error)
+            return
+          }
+
+          const isLookingAway = data.is_looking_away === true
+          const reason = data.reason || 'unknown'
+          const now = Date.now()
+
+          // Debouncing: only count as a new event if:
+          // 1. User was previously looking at screen (state changed to looking away)
+          // 2. At least 2 seconds since last event
+          const DEBOUNCE_TIME = 2000 // 2 seconds
+
+          if (isLookingAway && !isLookingAwayRef.current) {
+            // State changed from looking -> looking away
+            if (now - lastLookAwayTimeRef.current >= DEBOUNCE_TIME) {
+              // This is a new look-away event
+              const relativeTimestamp = now - exerciseStartTimeRef.current
+              setLookedAwayCount(prev => prev + 1)
+              setLookedAwayTimestamps(prev => [...prev, relativeTimestamp])
+              lastLookAwayTimeRef.current = now
+              console.log(`Look away detected at ${relativeTimestamp}ms - reason: ${reason}`)
+            }
+          }
+
+          // Update current state
+          isLookingAwayRef.current = isLookingAway
+        } catch (e) {
+          console.error('Error parsing gaze detection response:', e)
+        }
+      }
+
+      ws.onerror = (error) => {
+        console.error('Gaze detection WebSocket error:', error)
+      }
+
+      ws.onclose = () => {
+        console.log('Gaze detection WebSocket closed')
+        // Stop frame capture
+        if (gazeFrameCaptureIntervalRef.current) {
+          clearInterval(gazeFrameCaptureIntervalRef.current)
+          gazeFrameCaptureIntervalRef.current = null
+        }
+      }
+
+    } catch (error) {
+      console.error('Error initializing gaze detection:', error)
+      // Continue without gaze detection if there's an error
     }
   }, [problemId])
+
+  // Initialize gaze detection when page loads for patient-monitoring-system
+  useEffect(() => {
+    if (problemId === 'patient-monitoring-system') {
+      initializeGazeDetection()
+    }
+
+    return () => {
+      // Cleanup on unmount or problem change
+      if (gazeFrameCaptureIntervalRef.current) {
+        clearInterval(gazeFrameCaptureIntervalRef.current)
+        gazeFrameCaptureIntervalRef.current = null
+      }
+      if (gazeWebSocketRef.current) {
+        gazeWebSocketRef.current.close()
+        gazeWebSocketRef.current = null
+      }
+      if (gazeVideoStreamRef.current) {
+        gazeVideoStreamRef.current.getTracks().forEach(track => track.stop())
+        gazeVideoStreamRef.current = null
+      }
+      gazeInitializedRef.current = false
+    }
+  }, [problemId, initializeGazeDetection])
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -246,7 +433,8 @@ export default function EditorPage() {
         mimeType: 'audio/webm',
       })
       mediaRecorderRef.current = mediaRecorder
-      audioChunksRef.current = []
+      // Don't clear chunks here - preserve them if this is a restart after unexpected stop
+      // Chunks are only cleared when intentionally resetting (e.g., when problem changes)
 
       // Collect audio chunks
       mediaRecorder.ondataavailable = (event) => {
@@ -255,8 +443,47 @@ export default function EditorPage() {
         }
       }
 
-      // Start recording
-      mediaRecorder.start()
+      // Handle errors - restart recording if it stops unexpectedly
+      mediaRecorder.onerror = (event) => {
+        console.error('MediaRecorder error:', event)
+        // Try to restart recording if it's still supposed to be recording
+        if (isRecordingRef.current && hasAudioRecordingStartedRef.current) {
+          console.log('Attempting to restart MediaRecorder after error')
+          // Clear the current recorder
+          mediaRecorderRef.current = null
+          hasAudioRecordingStartedRef.current = false
+          // Restart recording
+          setTimeout(() => {
+            startAudioRecording()
+          }, 100)
+        }
+      }
+
+      // Handle unexpected stops - restart if still recording
+      mediaRecorder.onstop = () => {
+        // Only restart if we're still supposed to be recording and this wasn't an intentional stop
+        // Check if this recorder is still the current one (not replaced by a restart)
+        if (!isIntentionallyStoppingRef.current && isRecordingRef.current && hasAudioRecordingStartedRef.current && mediaRecorderRef.current === mediaRecorder) {
+          console.log('MediaRecorder stopped unexpectedly, restarting...')
+          // Mark that we're restarting to prevent the new recorder from being cleared
+          const wasRecording = isRecordingRef.current
+          // Clear the current recorder reference
+          mediaRecorderRef.current = null
+          hasAudioRecordingStartedRef.current = false
+          // Restart recording after a short delay
+          setTimeout(() => {
+            // Double-check we're still supposed to be recording
+            if (wasRecording && isRecordingRef.current) {
+              startAudioRecording()
+            }
+          }, 100)
+        }
+      }
+
+      // Start recording with timeslice to periodically collect data chunks
+      // This helps ensure data is collected even if the recorder stops unexpectedly
+      // 1000ms = collect data every second
+      mediaRecorder.start(1000)
       hasAudioRecordingStartedRef.current = true
       console.log('Audio recording started')
     } catch (error) {
@@ -277,6 +504,9 @@ export default function EditorPage() {
         resolve(null)
         return
       }
+
+      // Mark as intentional stop to prevent restart
+      isIntentionallyStoppingRef.current = true
 
       // Stop recording
       mediaRecorder.onstop = async () => {
@@ -312,6 +542,7 @@ export default function EditorPage() {
           }
           mediaRecorderRef.current = null
           audioChunksRef.current = []
+          isIntentionallyStoppingRef.current = false
         }
       }
 
@@ -324,6 +555,7 @@ export default function EditorPage() {
           audioStreamRef.current.getTracks().forEach(track => track.stop())
           audioStreamRef.current = null
         }
+        isIntentionallyStoppingRef.current = false
         resolve(null)
       }
     })
@@ -526,23 +758,20 @@ export default function EditorPage() {
     // Clear editor content
     modelRef.current.setValue('')
 
-    // Start replay with current speed
-    const speed = parseFloat(replaySpeed)
-    startReplay(speed)
-  }, [recordedChanges, replaySpeed, startReplay])
+    // Start replay at 1x (real-time) speed
+    startReplay(1)
+  }, [recordedChanges, startReplay])
 
   // Handle pause/resume replay
   const handlePauseResumeReplay = useCallback(() => {
     if (!isReplaying) return
 
     if (isReplayPaused) {
-      // Resume - restart from current position in original timeline
-      const speed = parseFloat(replaySpeed)
-      // Calculate elapsed replay time from tracked original timeline position
+      // Resume - restart from current position in original timeline at 1x speed
       const elapsedReplayTime = lastAppliedChangeTimeRef.current > 0
-        ? lastAppliedChangeTimeRef.current / speed / 1000
+        ? lastAppliedChangeTimeRef.current / 1000 // Always 1x speed
         : replayProgressElapsedRef.current
-      startReplay(speed, elapsedReplayTime)
+      startReplay(1, elapsedReplayTime)
       setIsReplayPaused(false)
     } else {
       // Pause - clear timeouts and stop progress tracking
@@ -551,22 +780,7 @@ export default function EditorPage() {
       replayTimeoutsRef.current = []
       setIsReplayPaused(true)
     }
-  }, [isReplaying, isReplayPaused, replaySpeed, startReplay])
-
-  // Handle speed change during replay
-  useEffect(() => {
-    if (isReplaying && !isReplayPaused) {
-      // Restart replay with new speed from current position in original timeline
-      const speed = parseFloat(replaySpeed)
-      // Calculate elapsed replay time from tracked original timeline position
-      const elapsedReplayTime = lastAppliedChangeTimeRef.current > 0
-        ? lastAppliedChangeTimeRef.current / speed / 1000
-        : replayProgressElapsedRef.current
-      startReplay(speed, elapsedReplayTime)
-    }
-    // Only depend on replaySpeed, isReplaying, and isReplayPaused - NOT replayProgress or startReplay
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [replaySpeed, isReplaying, isReplayPaused])
+  }, [isReplaying, isReplayPaused, startReplay])
 
   const handleReset = useCallback(() => {
     // Clear all timeouts
@@ -643,25 +857,39 @@ export default function EditorPage() {
       timestamp: change.timestamp,
     }))
 
-    // Create submission with hardcoded flags
+    // Stop gaze detection
+    if (gazeFrameCaptureIntervalRef.current) {
+      clearInterval(gazeFrameCaptureIntervalRef.current)
+      gazeFrameCaptureIntervalRef.current = null
+    }
+    if (gazeWebSocketRef.current) {
+      gazeWebSocketRef.current.close()
+      gazeWebSocketRef.current = null
+    }
+    if (gazeVideoStreamRef.current) {
+      gazeVideoStreamRef.current.getTracks().forEach(track => track.stop())
+      gazeVideoStreamRef.current = null
+    }
+
+    // Create cheating flags from actual look-away events
     const currentTime = new Date().toISOString()
-    const cheatingFlags: CheatingFlag[] = [
-      {
-        type: 'tab_switch',
-        timestamp: currentTime,
-        details: 'Switched to another browser tab during the assessment.',
-      },
-      {
+    const cheatingFlags: CheatingFlag[] = []
+
+    // Add look-away flags with actual timestamps
+    // Store relative timestamps in the details field for replay synchronization
+    const firstChangeTimestamp = recordedChanges.length > 0 ? recordedChanges[0].timestamp : exerciseStartTimeRef.current
+    
+    lookedAwayTimestamps.forEach((relativeTs, index) => {
+      // Calculate absolute timestamp for display purposes
+      const absoluteTime = new Date(exerciseStartTimeRef.current + relativeTs).toISOString()
+      
+      cheatingFlags.push({
         type: 'looked_away',
-        timestamp: currentTime,
-        details: 'Face not detected in webcam for more than 10 seconds.',
-      },
-      {
-        type: 'copy_paste',
-        timestamp: currentTime,
-        details: 'Large amount of code was copy pasted.',
-      },
-    ]
+        timestamp: absoluteTime,
+        // Store relative timestamp in details for replay synchronization
+        details: `Face not detected in webcam at ${formatTime(relativeTs / 1000)} (relative_ms:${relativeTs})`,
+      })
+    })
 
     // Stop audio recording and upload
     let audioFileName: string | null = null
@@ -695,7 +923,7 @@ export default function EditorPage() {
 
     // Navigate to dashboard
     router.push('/dashboard/applicant')
-  }, [problemData, router, recordedChanges, stopAudioRecordingAndUpload])
+  }, [problemData, router, recordedChanges, stopAudioRecordingAndUpload, lookedAwayTimestamps, formatTime])
 
   // Suppress Pyodide stackframe loading errors (non-critical)
   useEffect(() => {
@@ -1249,12 +1477,27 @@ except:
         disposableRef.current.dispose()
       }
       // Clean up audio recording
+      isIntentionallyStoppingRef.current = true
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop()
       }
       if (audioStreamRef.current) {
         audioStreamRef.current.getTracks().forEach(track => track.stop())
         audioStreamRef.current = null
+      }
+      isIntentionallyStoppingRef.current = false
+      // Clean up gaze detection
+      if (gazeFrameCaptureIntervalRef.current) {
+        clearInterval(gazeFrameCaptureIntervalRef.current)
+        gazeFrameCaptureIntervalRef.current = null
+      }
+      if (gazeWebSocketRef.current) {
+        gazeWebSocketRef.current.close()
+        gazeWebSocketRef.current = null
+      }
+      if (gazeVideoStreamRef.current) {
+        gazeVideoStreamRef.current.getTracks().forEach(track => track.stop())
+        gazeVideoStreamRef.current = null
       }
     }
   }, [])
@@ -1378,8 +1621,24 @@ except:
             )}
           </div>
           
-          {/* Right section - Complete Assessment button */}
-          <div className="flex items-center justify-end flex-shrink-0">
+          {/* Right section - Look-away counter and Complete Assessment button */}
+          <div className="flex items-center justify-end gap-4 flex-shrink-0">
+            {/* Look-away counter - only show for patient-monitoring-system */}
+            {problemId === 'patient-monitoring-system' && (
+              <div className="flex items-center gap-2 text-sm">
+                <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md ${
+                  lookedAwayCount > 0 ? 'bg-orange-500/10 text-orange-500' : 'bg-muted text-muted-foreground'
+                }`}>
+                  <EyeOff className="h-3.5 w-3.5" />
+                  <span className="font-medium">Looked Away: {lookedAwayCount}</span>
+                </div>
+                {lookedAwayTimestamps.length > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    (at {lookedAwayTimestamps.slice(-3).map(ts => formatTime(ts / 1000)).join(', ')}{lookedAwayTimestamps.length > 3 ? '...' : ''})
+                  </span>
+                )}
+              </div>
+            )}
             <Button 
               onClick={handleCompleteAssessment} 
               size="sm"
