@@ -955,19 +955,24 @@ function generateDummyApplicants(jobId: string): JobApplicant[] {
   const requiredChallenges = getJobRequiredChallenges(jobId)
   const totalChallenges = requiredChallenges.length
   
-  // Generate 15-20 applicants with varied data
+  // Generate 35-40 applicants with varied data to demonstrate filtering and grouping
   const applicantNames = [
     'Alex Thompson', 'Sarah Chen', 'Michael Rodriguez', 'Emily Johnson', 'David Kim',
     'Jessica Martinez', 'Ryan Patel', 'Olivia Brown', 'James Wilson', 'Sophia Lee',
     'Daniel Garcia', 'Emma Davis', 'Matthew Taylor', 'Isabella Anderson', 'Christopher Moore',
-    'Ava Jackson', 'Andrew White', 'Mia Harris', 'Joshua Martin', 'Charlotte Thompson'
+    'Ava Jackson', 'Andrew White', 'Mia Harris', 'Joshua Martin', 'Charlotte Thompson',
+    'Noah Martinez', 'Lily Chen', 'Ethan Williams', 'Grace Kim', 'Lucas Anderson',
+    'Zoe Patel', 'Benjamin Lee', 'Chloe Garcia', 'Mason Brown', 'Harper Davis',
+    'Logan Wilson', 'Amelia Rodriguez', 'Jackson Moore', 'Ella Thompson', 'Aiden Johnson',
+    'Scarlett Martinez', 'Carter Kim', 'Luna Chen', 'Henry Patel', 'Nora Williams'
   ]
   
   const applicants: JobApplicant[] = []
   
-  for (let i = 0; i < Math.min(applicantNames.length, 18); i++) {
+  // Generate all applicants (40 total)
+  for (let i = 0; i < applicantNames.length; i++) {
     const name = applicantNames[i]
-    const email = name.toLowerCase().replace(' ', '.') + '@email.com'
+    const email = name.toLowerCase().replace(/\s+/g, '.') + '@email.com'
     
     // Varied completion rates (some complete all, some partial)
     const completionRate = Math.random()
