@@ -13,7 +13,7 @@ import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Logo } from '@/components/logo'
-import { ArrowLeft, Users, CheckCircle2, XCircle, RotateCcw, Star, AlertTriangle, MessageSquare, X, Play, Clock, Shield, Wrench, Building2, Award, TrendingUp } from 'lucide-react'
+import { ArrowLeft, Users, CheckCircle2, RotateCcw, Star, AlertTriangle, MessageSquare, X, Play, Clock, Shield, Wrench, Building2, TrendingUp, Monitor, Clipboard, EyeOff, ChevronDown, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
@@ -38,7 +38,7 @@ type CandidateMetrics = {
   toolFit: {
     score: number
     total: number
-    level: 'High' | 'Medium' | 'Low'
+    level: 'High' | 'Medium' | 'Low' | 'None'
     matchedTools: string[]
   }
   industryFit: {
@@ -72,6 +72,42 @@ const hashString = (str: string): number => {
     hash = hash & hash // Convert to 32-bit integer
   }
   return Math.abs(hash)
+}
+
+// Helper to generate violation types deterministically
+const generateViolationTypes = (candidateId: string, challengeId: string, violationCount: number): Array<'tab_switch' | 'copy_paste' | 'looked_away'> => {
+  if (violationCount === 0) return []
+  const seed = hashString(candidateId + challengeId)
+  const types: Array<'tab_switch' | 'copy_paste' | 'looked_away'> = ['tab_switch', 'copy_paste', 'looked_away']
+  const result: Array<'tab_switch' | 'copy_paste' | 'looked_away'> = []
+  for (let i = 0; i < violationCount; i++) {
+    result.push(types[(seed + i) % types.length])
+  }
+  return result
+}
+
+// Helper to get violation icon
+const getViolationIcon = (type: 'tab_switch' | 'copy_paste' | 'looked_away') => {
+  switch (type) {
+    case 'tab_switch':
+      return Monitor
+    case 'copy_paste':
+      return Clipboard
+    case 'looked_away':
+      return EyeOff
+  }
+}
+
+// Helper to get violation color (matching the integrity warning popup colors)
+const getViolationColor = (type: 'tab_switch' | 'copy_paste' | 'looked_away') => {
+  switch (type) {
+    case 'tab_switch':
+      return 'text-orange-500 bg-orange-500/10 border-orange-500/20'
+    case 'copy_paste':
+      return 'text-red-500 bg-red-500/10 border-red-500/20'
+    case 'looked_away':
+      return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20'
+  }
 }
 
 // Mock tool usage data for candidates (deterministic)
@@ -147,8 +183,11 @@ export default function JobApplicantsPage() {
   const [industryExperienceLevel, setIndustryExperienceLevel] = useState<'any' | '1-2' | '3-5' | '5+'>('any')
   const [groupingOption, setGroupingOption] = useState<GroupingOption>('tool-familiarity')
   const [useCommunicationTiebreaker, setUseCommunicationTiebreaker] = useState(true)
-  const [selectedCandidate, setSelectedCandidate] = useState<JobApplicant | null>(null)
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null)
   const [isPresetChange, setIsPresetChange] = useState(false)
+  const [shortlistedCandidates, setShortlistedCandidates] = useState<Set<string>>(new Set())
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
+  const [hasLoadedShortlisted, setHasLoadedShortlisted] = useState(false)
   
   const job = useMemo(() => {
     const jobs = getRecruiterJobs()
@@ -177,6 +216,21 @@ export default function JobApplicantsPage() {
     // Initialize required tools from job skills if job exists
     if (job && job.skills && job.skills.length > 0) {
       setRequiredTools(job.skills)
+    }
+    
+    // Load shortlisted candidates from localStorage
+    if (typeof window !== 'undefined') {
+      const storageKey = `shortlisted-candidates-${jobId}`
+      const saved = localStorage.getItem(storageKey)
+      if (saved) {
+        try {
+          const candidateIds = JSON.parse(saved) as string[]
+          setShortlistedCandidates(new Set(candidateIds))
+        } catch (e) {
+          console.error('Failed to load shortlisted candidates:', e)
+        }
+      }
+      setHasLoadedShortlisted(true)
     }
     
     setLoading(false)
@@ -227,6 +281,15 @@ export default function JobApplicantsPage() {
       setRankingPreset(currentPreset)
     }
   }, [performanceWeights, rankingPreset, isPresetChange])
+
+  // Save shortlisted candidates to localStorage whenever they change (but only after initial load)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && jobId && hasLoadedShortlisted) {
+      const storageKey = `shortlisted-candidates-${jobId}`
+      const candidateIds = Array.from(shortlistedCandidates)
+      localStorage.setItem(storageKey, JSON.stringify(candidateIds))
+    }
+  }, [shortlistedCandidates, jobId, hasLoadedShortlisted])
 
   const handleWeightChange = (key: keyof PerformanceWeights, value: number[]) => {
     const newValue = value[0]
@@ -583,6 +646,21 @@ export default function JobApplicantsPage() {
     return result
   }, [filteredCandidates])
 
+  // Find the selected candidate from processed candidates
+  const selectedCandidate = useMemo(() => {
+    if (!selectedCandidateId) return null
+    const allCandidates = Object.values(rankedCandidates).flat()
+    return allCandidates.find(c => c.id === selectedCandidateId) || null
+  }, [selectedCandidateId, rankedCandidates])
+
+  // Get shortlisted candidates (from all processed candidates, not just filtered ones)
+  const shortlistedCandidatesList = useMemo(() => {
+    if (shortlistedCandidates.size === 0) return []
+    return processedCandidates
+      .filter(c => shortlistedCandidates.has(c.id))
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [shortlistedCandidates, processedCandidates])
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -624,9 +702,11 @@ export default function JobApplicantsPage() {
         {/* Top Section - Job Information */}
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="space-y-4">
-              {/* Job Title with Back Arrow */}
-              <div className="flex items-center gap-3">
+            <div className="flex gap-6">
+              {/* Left Side - Job Description */}
+              <div className="flex-1 space-y-4">
+                {/* Job Title with Back Arrow */}
+                <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -635,37 +715,90 @@ export default function JobApplicantsPage() {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-                <h1 className="text-3xl font-bold">{job.role}</h1>
-              </div>
-
-              {/* Job Description */}
-              <div>
-                <h2 className="text-sm font-semibold text-muted-foreground mb-2">Job Description</h2>
-                <p className="text-base leading-relaxed">{job.description}</p>
-              </div>
-
-              {/* Role Expectations / Tools / Domain Context */}
-              <div className="pt-4 border-t border-border/50">
-                <h2 className="text-sm font-semibold text-muted-foreground mb-3">Role Expectations</h2>
-                <div className="space-y-3">
-                  {/* Tools */}
-          <div>
-                    <h3 className="text-xs font-medium text-muted-foreground mb-2">Required Tools & Technologies</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {job.skills.map((skill, idx) => (
-                        <Badge key={idx} variant="outline" className="text-sm">
-                          {skill}
-                        </Badge>
-                      ))}
+            <h1 className="text-3xl font-bold">{job.role}</h1>
           </div>
+
+                {/* Job Description */}
+                <div>
+                  <h2 className="text-sm font-semibold text-muted-foreground mb-2">Job Description</h2>
+                  <p className="text-base leading-relaxed">{job.description}</p>
         </div>
 
-                  {/* Domain Context */}
-                  {job.composition && (
+                {/* Role Expectations / Tools / Domain Context */}
+                <div className="pt-4 border-t border-border/50">
+                  <h2 className="text-sm font-semibold text-muted-foreground mb-3">Role Expectations</h2>
+                  <div className="space-y-3">
+                    {/* Tools */}
                     <div>
-                      <h3 className="text-xs font-medium text-muted-foreground mb-2">Assessment Composition</h3>
-                      <p className="text-sm text-muted-foreground">{job.composition}</p>
+                      <h3 className="text-xs font-medium text-muted-foreground mb-2">Required Tools & Technologies</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {job.skills.map((skill, idx) => (
+                          <Badge key={idx} variant="outline" className="text-sm">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
+
+                    {/* Domain Context */}
+                    {job.composition && (
+                      <div>
+                        <h3 className="text-xs font-medium text-muted-foreground mb-2">Assessment Composition</h3>
+                        <p className="text-sm text-muted-foreground">{job.composition}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side - Shortlisted Candidates */}
+              <div className="w-80 shrink-0 border-l border-border/50 pl-6" onClick={(e) => e.stopPropagation()}>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      Shortlisted Candidates
+                    </h3>
+                    {shortlistedCandidatesList.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No candidates shortlisted yet. Click the star icon on candidate cards to shortlist them.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {shortlistedCandidatesList.map((candidate) => (
+                          <div
+                            key={candidate.id}
+                            className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setSelectedCandidateId(candidate.id)
+                            }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                          >
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                                {candidate.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{candidate.name}</p>
+                              <p className="text-xs text-muted-foreground">#{candidate.candidateNumber}</p>
+                            </div>
+                            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 shrink-0" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {shortlistedCandidatesList.length > 0 && (
+                    <Button
+                      variant="default"
+                      className="w-full"
+                      onClick={() => {
+                        // TODO: Implement comparison functionality
+                      }}
+                    >
+                      Compare Shortlisted ({shortlistedCandidatesList.length})
+                    </Button>
                   )}
                 </div>
               </div>
@@ -840,7 +973,7 @@ export default function JobApplicantsPage() {
                       Normalize
                     </Button>
                             )}
-                          </div>
+            </div>
               </CardContent>
             </Card>
 
@@ -875,13 +1008,13 @@ export default function JobApplicantsPage() {
                   <Label className="text-sm font-medium mb-3 block">Violation Handling</Label>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
-                      <Checkbox
+              <Checkbox
                         id="auto-exclude"
                         checked={autoExcludeSevere}
                         onCheckedChange={(checked) => setAutoExcludeSevere(checked === true)}
                       />
                       <Label htmlFor="auto-exclude" className="cursor-pointer">Auto-exclude severe violations</Label>
-                    </div>
+            </div>
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="flag-medium"
@@ -889,7 +1022,7 @@ export default function JobApplicantsPage() {
                         onCheckedChange={(checked) => setFlagMediumRisk(checked === true)}
                       />
                       <Label htmlFor="flag-medium" className="cursor-pointer">Flag medium-risk behavior for review</Label>
-                    </div>
+          </div>
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="ignore-minor"
@@ -898,8 +1031,8 @@ export default function JobApplicantsPage() {
                       />
                       <Label htmlFor="ignore-minor" className="cursor-pointer">Ignore minor violations</Label>
                     </div>
-                  </div>
-                </div>
+          </div>
+        </div>
 
                 <p className="text-xs text-muted-foreground pt-2 border-t border-border/50">
                   Integrity affects eligibility before ranking. Candidates below the threshold are excluded or flagged.
@@ -1074,38 +1207,60 @@ export default function JobApplicantsPage() {
           {/* RIGHT PANEL - Candidate Results */}
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-6">
-              {Object.entries(rankedCandidates).map(([groupName, candidates]) => (
-                <div key={groupName}>
-                  <div className="flex items-center gap-2 mb-4">
-                    <h3 className="text-lg font-semibold">{groupName}</h3>
-                    <Badge variant="outline" className="text-xs">
-                      {candidates.length}
-                    </Badge>
-        </div>
+              {Object.entries(rankedCandidates).map(([groupName, candidates]) => {
+                const isCollapsed = collapsedGroups.has(groupName)
+                return (
+                  <div key={groupName}>
+                    <div 
+                      className="flex items-center gap-2 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => {
+                        const newCollapsed = new Set(collapsedGroups)
+                        if (isCollapsed) {
+                          newCollapsed.delete(groupName)
+                        } else {
+                          newCollapsed.add(groupName)
+                        }
+                        setCollapsedGroups(newCollapsed)
+                      }}
+                    >
+                      {isCollapsed ? (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <h3 className="text-lg font-semibold">{groupName}</h3>
+                      <Badge variant="outline" className="text-xs">
+                        {candidates.length}
+                      </Badge>
+                    </div>
                   
-                  <div className="space-y-3">
-                    {candidates.map((candidate) => (
-          <Card 
-                        key={candidate.id}
-                        className="cursor-pointer hover:border-primary/50 transition-colors"
-                        onClick={() => setSelectedCandidate(candidate)}
-                      >
-                        <CardContent className="p-5">
-                          <div className="flex items-start justify-between gap-6">
-                            <div className="flex-1 space-y-4">
-                              {/* Header: Candidate Number and Rank */}
-                              <div className="flex items-center gap-3 flex-wrap">
-                                <div className="flex items-center gap-2">
-                                  <Users className="h-4 w-4 text-muted-foreground" />
-                                  <span className="text-base font-semibold">
-                                    Candidate #{candidate.candidateNumber}
-                                  </span>
-                                </div>
-                                <Badge variant="outline" className="text-xs font-medium">
-                                  <Award className="h-3 w-3 mr-1" />
-                                  Rank: #{candidate.rank}
-                                </Badge>
-                              </div>
+                    {!isCollapsed && (
+                      <div className="space-y-3">
+                        {candidates.map((candidate) => {
+                          const isShortlisted = shortlistedCandidates.has(candidate.id)
+              return (
+                            <Card 
+                              key={candidate.id}
+                              className="hover:border-primary/50 transition-colors"
+                            >
+                              <CardContent className="p-5">
+                                <div className="flex items-start justify-between gap-6">
+                                  <div 
+                                    className="flex-1 space-y-4 cursor-pointer"
+                                    onClick={() => setSelectedCandidateId(candidate.id)}
+                                  >
+                                    {/* Header: Candidate Name and Number */}
+                                    <div className="flex items-center gap-3 flex-wrap">
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-base font-semibold">
+                                          {candidate.name}
+                                        </span>
+                                        <span className="text-sm text-muted-foreground">
+                                          (#{candidate.candidateNumber})
+                              </span>
+                            </div>
+                                    </div>
                               
                               {/* Metrics Grid */}
                               <div className="grid grid-cols-2 gap-4">
@@ -1127,8 +1282,8 @@ export default function JobApplicantsPage() {
                                     )}>
                                       {candidate.integrityPercentage}% ({candidate.integrityStatus})
                                     </p>
-                                  </div>
-                                </div>
+                            </div>
+                            </div>
                                 
                                 {/* Tool Fit */}
                                 <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/30">
@@ -1146,8 +1301,8 @@ export default function JobApplicantsPage() {
                                     )}>
                                       {candidate.toolFit.level} ({candidate.toolFit.score}/{candidate.toolFit.total})
                                     </p>
-                                  </div>
-                                </div>
+                              </div>
+                          </div>
                                 
                                 {/* Industry Fit */}
                                 <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/30">
@@ -1165,7 +1320,7 @@ export default function JobApplicantsPage() {
                                     )}>
                                       {candidate.industryFit.level}
                                     </p>
-                                  </div>
+                        </div>
                                 </div>
                                 
                                 {/* Communication */}
@@ -1187,24 +1342,49 @@ export default function JobApplicantsPage() {
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                            
-                            {/* Performance Score - Right Side */}
-                            <div className="text-right shrink-0">
-                              <div className="flex items-center gap-2 justify-end mb-1">
-                                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                                <p className="text-xs text-muted-foreground">Performance</p>
-                              </div>
-                              <p className="text-3xl font-bold">{candidate.performanceScore.toFixed(1)}</p>
-                              <p className="text-xs text-muted-foreground mt-1">out of 10.0</p>
-                            </div>
-                          </div>
-                        </CardContent>
-          </Card>
-                    ))}
+                                  </div>
+                                  
+                                  {/* Performance Score and Shortlist Button - Right Side */}
+                                  <div className="flex items-start gap-4 shrink-0">
+                                    <div className="text-right">
+                                      <div className="flex items-center gap-2 justify-end mb-1">
+                                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                                        <p className="text-xs text-muted-foreground">Performance</p>
+                                      </div>
+                                      <p className="text-3xl font-bold">{candidate.performanceScore.toFixed(1)}</p>
+                                      <p className="text-xs text-muted-foreground mt-1">out of 10.0</p>
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className={cn(
+                                        "h-10 w-10 shrink-0",
+                                        isShortlisted && "text-yellow-500 hover:text-yellow-600"
+                                      )}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        const newShortlisted = new Set(shortlistedCandidates)
+                                        if (isShortlisted) {
+                                          newShortlisted.delete(candidate.id)
+                                        } else {
+                                          newShortlisted.add(candidate.id)
+                                        }
+                                        setShortlistedCandidates(newShortlisted)
+                                      }}
+                                    >
+                                      <Star className={cn("h-5 w-5", isShortlisted && "fill-yellow-500")} />
+                                    </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+                        })}
+                      </div>
+          )}
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
@@ -1214,22 +1394,31 @@ export default function JobApplicantsPage() {
       {selectedCandidate && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
-          onClick={() => setSelectedCandidate(null)}
+          onClick={() => setSelectedCandidateId(null)}
         >
           <Card 
             className="w-full max-w-4xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Candidate #{selectedCandidate.candidateNumber}</CardTitle>
-                  <CardDescription>{selectedCandidate.name} • {selectedCandidate.email}</CardDescription>
+            <CardHeader className="border-b pb-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-2xl font-semibold mb-3 break-words text-foreground leading-tight">
+                    {selectedCandidate.name}
+                  </h2>
+                  <div className="text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span>Candidate #{selectedCandidate.candidateNumber}</span>
+                      <span>•</span>
+                      <span className="break-all">{selectedCandidate.email}</span>
+                    </div>
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setSelectedCandidate(null)}
+                  className="shrink-0"
+                  onClick={() => setSelectedCandidateId(null)}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -1238,30 +1427,73 @@ export default function JobApplicantsPage() {
             <CardContent className="space-y-6">
               {/* Score Breakdown */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">Score Breakdown</h3>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Score Breakdown
+                </h3>
                 <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="p-4 border rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-1">Overall Performance</div>
-                    <div className="text-2xl font-bold">{selectedCandidate.performanceScore.toFixed(1)}/10</div>
-                    <div className="text-xs text-muted-foreground mt-1">Weighted by current preset</div>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-1">Integrity Score</div>
-                    <div className="text-2xl font-bold">{selectedCandidate.integrityPercentage}%</div>
-                    <div className="text-xs text-muted-foreground mt-1">{selectedCandidate.integrityStatus}</div>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-1">Tool Fit</div>
-                    <div className="text-xl font-semibold">{selectedCandidate.toolFit.level}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{selectedCandidate.toolFit.score}/{selectedCandidate.toolFit.total} tools matched</div>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-1">Industry Fit</div>
-                    <div className="text-xl font-semibold">{selectedCandidate.industryFit.level}</div>
-                    {selectedCandidate.industryFit.yearsExperience && (
-                      <div className="text-xs text-muted-foreground mt-1">{selectedCandidate.industryFit.yearsExperience} years experience</div>
-                    )}
-                  </div>
+                  <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+                    <CardContent className="p-4">
+                      <div className="text-xs text-muted-foreground mb-1">Overall Performance</div>
+                      <div className="text-3xl font-bold text-primary">{selectedCandidate.performanceScore.toFixed(1)}/10</div>
+                      <div className="text-xs text-muted-foreground mt-1">Weighted by current preset</div>
+            </CardContent>
+          </Card>
+                  <Card className={cn(
+                    "border-2",
+                    selectedCandidate.integrityStatus === 'Clean' ? "bg-green-500/10 border-green-500/20" :
+                    selectedCandidate.integrityStatus === 'Good' ? "bg-blue-500/10 border-blue-500/20" :
+                    selectedCandidate.integrityStatus === 'Fair' ? "bg-yellow-500/10 border-yellow-500/20" : "bg-red-500/10 border-red-500/20"
+                  )}>
+                    <CardContent className="p-4">
+                      <div className="text-xs text-muted-foreground mb-1">Integrity Score</div>
+                      <div className={cn(
+                        "text-3xl font-bold",
+                        selectedCandidate.integrityStatus === 'Clean' ? "text-green-600 dark:text-green-400" :
+                        selectedCandidate.integrityStatus === 'Good' ? "text-blue-600 dark:text-blue-400" :
+                        selectedCandidate.integrityStatus === 'Fair' ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"
+                      )}>
+                        {selectedCandidate.integrityPercentage}%
+        </div>
+                      <div className="text-xs text-muted-foreground mt-1">{selectedCandidate.integrityStatus}</div>
+                    </CardContent>
+                  </Card>
+                  <Card className={cn(
+                    "border-2",
+                    selectedCandidate.toolFit.level === 'High' ? "bg-green-500/10 border-green-500/20" :
+                    selectedCandidate.toolFit.level === 'Medium' ? "bg-yellow-500/10 border-yellow-500/20" : "bg-red-500/10 border-red-500/20"
+                  )}>
+                    <CardContent className="p-4">
+                      <div className="text-xs text-muted-foreground mb-1">Tool Fit</div>
+                      <div className={cn(
+                        "text-2xl font-bold",
+                        selectedCandidate.toolFit.level === 'High' ? "text-green-600 dark:text-green-400" :
+                        selectedCandidate.toolFit.level === 'Medium' ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"
+                      )}>
+                        {selectedCandidate.toolFit.level}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">{selectedCandidate.toolFit.score}/{selectedCandidate.toolFit.total} tools matched</div>
+                    </CardContent>
+                  </Card>
+                  <Card className={cn(
+                    "border-2",
+                    selectedCandidate.industryFit.level === 'High' ? "bg-green-500/10 border-green-500/20" :
+                    selectedCandidate.industryFit.level === 'Medium' ? "bg-yellow-500/10 border-yellow-500/20" : "bg-red-500/10 border-red-500/20"
+                  )}>
+                    <CardContent className="p-4">
+                      <div className="text-xs text-muted-foreground mb-1">Industry Fit</div>
+                      <div className={cn(
+                        "text-2xl font-bold",
+                        selectedCandidate.industryFit.level === 'High' ? "text-green-600 dark:text-green-400" :
+                        selectedCandidate.industryFit.level === 'Medium' ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"
+                      )}>
+                        {selectedCandidate.industryFit.level}
+                      </div>
+                      {selectedCandidate.industryFit.yearsExperience && (
+                        <div className="text-xs text-muted-foreground mt-1">{selectedCandidate.industryFit.yearsExperience} years experience</div>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
                 
                 {/* Performance Metrics Breakdown */}
@@ -1300,31 +1532,84 @@ export default function JobApplicantsPage() {
                 </div>
               </div>
 
-              {/* Integrity Timeline */}
+              {/* Challenges Attempted */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">Integrity Timeline</h3>
-                <div className="space-y-2">
-                  {selectedCandidate.submissions.map((submission, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg">
-                      <div className={cn(
-                        "flex items-center justify-center w-8 h-8 rounded-full",
-                        submission.violations === 0 ? "bg-green-500/10 text-green-500" :
-                        submission.violations < 3 ? "bg-yellow-500/10 text-yellow-500" : "bg-red-500/10 text-red-500"
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  Challenges Attempted
+                </h3>
+                <div className="space-y-3">
+                  {selectedCandidate.submissions.map((submission, idx) => {
+                    const violationTypes = generateViolationTypes(selectedCandidate.id, submission.challengeId, submission.violations)
+                    const durationMinutes = 15 + (hashString(selectedCandidate.id + submission.challengeId) % 30) // 15-45 minutes
+                    return (
+                      <Card key={idx} className={cn(
+                        "border-2",
+                        submission.violations === 0 ? "border-green-500/20 bg-green-500/5" :
+                        submission.violations < 3 ? "border-yellow-500/20 bg-yellow-500/5" : "border-red-500/20 bg-red-500/5"
                       )}>
-                        {submission.violations === 0 ? (
-                          <CheckCircle2 className="h-4 w-4" />
-                        ) : (
-                          <XCircle className="h-4 w-4" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium">Challenge {idx + 1}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Score: {submission.score}/10 • Violations: {submission.violations}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <div className={cn(
+                                  "flex items-center justify-center w-10 h-10 rounded-lg font-bold text-sm",
+                                  submission.violations === 0 ? "bg-green-500 text-white" :
+                                  submission.violations < 3 ? "bg-yellow-500 text-white" : "bg-red-500 text-white"
+                                )}>
+                                  {submission.score.toFixed(1)}
+                                </div>
+                                <div>
+                                  <div className="font-semibold text-base">{submission.challengeId}</div>
+                                  <div className="text-sm text-muted-foreground">
+                                    Score: {submission.score}/10
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {violationTypes.length > 0 && (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {violationTypes.map((type, vIdx) => {
+                                    const Icon = getViolationIcon(type)
+                                    const color = getViolationColor(type)
+                                    return (
+                                      <div key={vIdx} className={cn("flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium border", color)}>
+                                        <Icon className="h-4 w-4 shrink-0" />
+                                        <span>
+                                          {type === 'tab_switch' ? 'Tab Switching' : type === 'copy_paste' ? 'Code Pasted' : 'Looked Away'}
+                                        </span>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                              {violationTypes.length === 0 && (
+                                <div className="mt-2 flex items-center gap-1.5 text-green-600 dark:text-green-400 text-sm">
+                                  <CheckCircle2 className="h-4 w-4" />
+                                  <span>No violations detected</span>
+                                </div>
+                              )}
+                            </div>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2 shrink-0"
+                            >
+                              <Play className="h-4 w-4" />
+                              <div className="text-left">
+                                <div className="text-xs font-medium">Play Recording</div>
+                                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {durationMinutes} min
+                                </div>
+                              </div>
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
                 </div>
               </div>
 
