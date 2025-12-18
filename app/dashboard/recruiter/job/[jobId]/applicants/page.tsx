@@ -1270,7 +1270,7 @@ export default function JobApplicantsPage() {
               return (
                             <Card 
                               key={candidate.id}
-                              className="hover:border-primary/50 transition-colors"
+                              className="hover:border-primary/50 transition-colors bg-gradient-to-br from-card via-card/90 to-muted/30"
                             >
                               <CardContent className="p-5 relative">
                                 <div className="flex items-start justify-between gap-6">
@@ -1389,9 +1389,8 @@ export default function JobApplicantsPage() {
                                   {/* UserStar Button - Absolute Bottom Right */}
                                   <Button
                                     variant="ghost"
-                                    size="icon"
                                     className={cn(
-                                      "absolute bottom-2 right-2 h-16 w-16 shrink-0",
+                                      "absolute bottom-2 right-2 h-24 w-24 shrink-0 p-0 flex items-center justify-center",
                                       isShortlisted && "text-yellow-500 hover:text-yellow-600"
                                     )}
                                     onClick={(e) => {
@@ -1405,7 +1404,10 @@ export default function JobApplicantsPage() {
                                       setShortlistedCandidates(newShortlisted)
                                     }}
                                   >
-                                    <UserStar className={cn("h-10 w-10", isShortlisted && "fill-yellow-500")} />
+                                    <UserStar 
+                                      className={cn(isShortlisted && "fill-yellow-500")} 
+                                      style={{ width: '36px', height: '36px' }}
+                                    />
                                   </Button>
                   </CardContent>
                 </Card>
@@ -1771,7 +1773,7 @@ export default function JobApplicantsPage() {
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                   Challenges Attempted
                 </h3>
-                <div className="flex gap-5 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">
+                <div className="flex gap-5 overflow-x-auto pb-6 -mx-6 px-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'thin' }}>
                   {requiredChallenges.map((challenge) => {
                     // Get all shortlisted candidates who attempted this challenge
                     const candidatesWhoAttempted = shortlistedCandidatesList
@@ -1782,7 +1784,7 @@ export default function JobApplicantsPage() {
                       .filter(Boolean) as Array<{ candidate: typeof shortlistedCandidatesList[0], submission: { challengeId: string, score: number, violations: number } }>
                     
                     return (
-                      <Card key={challenge.id} className="min-w-[380px] border-2">
+                      <Card key={challenge.id} className="min-w-[380px] border-2 snap-start flex-shrink-0">
                         <CardContent className="p-6">
                           <div className="space-y-4">
                             <div>
@@ -1827,6 +1829,9 @@ export default function JobApplicantsPage() {
                               variant="default" 
                               className="w-full"
                               disabled={candidatesWhoAttempted.length === 0}
+                              onClick={() => {
+                                router.push(`/dashboard/recruiter/job/${jobId}/applicants/replay/${challenge.id}`)
+                              }}
                             >
                               <Play className="h-4 w-4 mr-2" />
                               Replay Submissions

@@ -940,7 +940,7 @@ export function getCheatingFlagLabel(type: CheatingFlagType): string {
  */
 export function getJobRequiredChallenges(jobId: string): string[] {
   const mapping: Record<string, string[]> = {
-    'cliniq-frontend-dev': ['two-sum', 'merge-intervals', 'patient-monitoring-system'],
+    'cliniq-frontend-dev': ['two-sum', 'merge-intervals', 'binary-tree-max-path-sum', 'patient-monitoring-system'],
     'cliniq-backend-dev': ['two-sum', 'merge-intervals', 'binary-tree-max-path-sum', 'patient-monitoring-system'],
     'cliniq-senior-frontend': ['two-sum', 'merge-intervals', 'binary-tree-max-path-sum', 'patient-monitoring-system'],
     'cliniq-backend-engineer': ['two-sum', 'merge-intervals', 'patient-monitoring-system'],
@@ -1008,11 +1008,8 @@ function generateDummyApplicants(jobId: string): JobApplicant[] {
     // Use deterministic seed based on applicant ID
     const baseSeed = hashString(applicantId)
     
-    // Varied completion rates (some complete all, some partial) - deterministic
-    const completionRate = seededRandom(baseSeed)
-    const numCompleted = completionRate > 0.3 
-      ? totalChallenges 
-      : Math.floor(seededRandom(baseSeed + 1) * (totalChallenges - 1)) + 1
+    // Ensure all applicants complete all challenges (100% completion rate)
+    const numCompleted = totalChallenges
     
     // Varied violation counts (0-5 per applicant total) - deterministic
     const totalViolations = Math.floor(seededRandom(baseSeed + 2) * 6)
