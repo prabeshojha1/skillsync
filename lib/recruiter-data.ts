@@ -950,12 +950,30 @@ export function getJobRequiredChallenges(jobId: string): string[] {
   return mapping[jobId] || []
 }
 
+// Helper to generate a consistent hash from a string (for deterministic data)
+function hashString(str: string): number {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash |= 0 // Convert to 32bit integer
+  }
+  return Math.abs(hash)
+}
+
+// Helper to generate a pseudo-random number between 0 and 1 based on a seed
+function seededRandom(seed: number): number {
+  // Simple seeded random number generator
+  const x = Math.sin(seed) * 10000
+  return x - Math.floor(x)
+}
+
 // Generate dummy applicant data for all jobs
 function generateDummyApplicants(jobId: string): JobApplicant[] {
   const requiredChallenges = getJobRequiredChallenges(jobId)
   const totalChallenges = requiredChallenges.length
   
-  // Generate 80 applicants with varied data to demonstrate filtering and grouping
+  // Generate 100 applicants with varied data to demonstrate filtering and grouping
   const applicantNames = [
     'Alex Thompson', 'Sarah Chen', 'Michael Rodriguez', 'Emily Johnson', 'David Kim',
     'Jessica Martinez', 'Ryan Patel', 'Olivia Brown', 'James Wilson', 'Sophia Lee',
@@ -973,7 +991,10 @@ function generateDummyApplicants(jobId: string): JobApplicant[] {
     'Aria Johnson', 'Grayson Lee', 'Lillian Patel', 'Julian Chen', 'Nova Thompson',
     'Maya Williams', 'Eli Moore', 'Willow Davis', 'Lincoln Taylor', 'Riley Brown',
     'Aurora Anderson', 'Hudson Garcia', 'Savannah Martinez', 'Elena Johnson', 'Parker Lee',
-    'Clara Patel', 'Brayden Chen', 'Violet Thompson', 'Nolan Williams', 'Ivy Moore'
+    'Clara Patel', 'Brayden Chen', 'Violet Thompson', 'Nolan Williams', 'Ivy Moore',
+    'Zoe Martinez', 'Ethan Brown', 'Lily Garcia', 'Mason Wilson', 'Sophia Chen',
+    'Oliver Davis', 'Emma Rodriguez', 'Noah Kim', 'Ava Patel', 'Lucas Thompson',
+    'Isabella White', 'Mia Anderson', 'Charlotte Lee', 'James Martinez', 'Olivia Taylor'
   ]
   
   const applicants: JobApplicant[] = []
@@ -982,33 +1003,40 @@ function generateDummyApplicants(jobId: string): JobApplicant[] {
   for (let i = 0; i < applicantNames.length; i++) {
     const name = applicantNames[i]
     const email = name.toLowerCase().replace(/\s+/g, '.') + '@email.com'
+    const applicantId = `applicant-${jobId}-${i + 1}`
     
-    // Varied completion rates (some complete all, some partial)
-    const completionRate = Math.random()
+    // Use deterministic seed based on applicant ID
+    const baseSeed = hashString(applicantId)
+    
+    // Varied completion rates (some complete all, some partial) - deterministic
+    const completionRate = seededRandom(baseSeed)
     const numCompleted = completionRate > 0.3 
       ? totalChallenges 
-      : Math.floor(Math.random() * (totalChallenges - 1)) + 1
+      : Math.floor(seededRandom(baseSeed + 1) * (totalChallenges - 1)) + 1
     
-    // Varied violation counts (0-5 per applicant total)
-    const totalViolations = Math.floor(Math.random() * 6)
+    // Varied violation counts (0-5 per applicant total) - deterministic
+    const totalViolations = Math.floor(seededRandom(baseSeed + 2) * 6)
     
-    // Varied scores (5.0-10.0)
-    const baseScore = 5 + Math.random() * 5
+    // Varied scores (5.0-10.0) - deterministic
+    const baseScore = 5 + seededRandom(baseSeed + 3) * 5
     
-    // Varied resume fitness (4-10)
-    const resumeFitness = 4 + Math.random() * 6
+    // Varied resume fitness (4-10) - deterministic
+    const resumeFitness = 4 + seededRandom(baseSeed + 4) * 6
     
     // Create submissions for completed challenges
     let violationsRemaining = totalViolations
     const submissions = requiredChallenges.slice(0, numCompleted).map((challengeId, idx) => {
-      // Distribute violations across submissions (randomly assign)
+      // Use deterministic seed for each challenge submission
+      const challengeSeed = hashString(applicantId + challengeId)
+      
+      // Distribute violations across submissions (deterministic)
       let violationsForThis = 0
-      if (violationsRemaining > 0 && Math.random() > 0.5) {
-        violationsForThis = Math.min(violationsRemaining, Math.floor(Math.random() * 3) + 1)
+      if (violationsRemaining > 0 && seededRandom(challengeSeed) > 0.5) {
+        violationsForThis = Math.min(violationsRemaining, Math.floor(seededRandom(challengeSeed + 1) * 3) + 1)
         violationsRemaining -= violationsForThis
       }
-      // Slight score variation per challenge
-      const score = Math.max(5, Math.min(10, baseScore + (Math.random() - 0.5) * 2))
+      // Slight score variation per challenge - deterministic
+      const score = Math.max(5, Math.min(10, baseScore + (seededRandom(challengeSeed + 2) - 0.5) * 2))
       
       return {
         challengeId,
@@ -1017,17 +1045,17 @@ function generateDummyApplicants(jobId: string): JobApplicant[] {
       }
     })
     
-    // Ensure total violations match (distribute any remaining)
+    // Ensure total violations match (distribute any remaining) - deterministic
     const actualTotal = submissions.reduce((sum, sub) => sum + sub.violations, 0)
     if (actualTotal < totalViolations && submissions.length > 0) {
       const diff = totalViolations - actualTotal
-      for (let i = 0; i < diff && i < submissions.length; i++) {
-        submissions[i].violations += 1
+      for (let j = 0; j < diff && j < submissions.length; j++) {
+        submissions[j].violations += 1
       }
     }
     
     applicants.push({
-      id: `applicant-${jobId}-${i + 1}`,
+      id: applicantId,
       name,
       email,
       resumeFitness: Math.round(resumeFitness * 10) / 10,

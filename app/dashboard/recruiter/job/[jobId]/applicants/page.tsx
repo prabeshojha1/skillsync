@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { getCurrentUser, type User } from '@/lib/auth'
-import { getJobApplicants, getJobRequiredChallenges, getRecruiterJobs, type JobApplicant } from '@/lib/recruiter-data'
+import { getJobApplicants, getJobRequiredChallenges, getRecruiterJobs, getRecruiterChallenges, type JobApplicant } from '@/lib/recruiter-data'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -13,7 +13,7 @@ import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Logo } from '@/components/logo'
-import { ArrowLeft, Users, CheckCircle2, RotateCcw, Star, AlertTriangle, MessageSquare, X, Play, Clock, Shield, Wrench, Building2, TrendingUp, Monitor, Clipboard, EyeOff, ChevronDown, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Users, CheckCircle2, RotateCcw, Star, UserStar, AlertTriangle, MessageSquare, X, Play, Clock, Shield, Wrench, Building2, TrendingUp, Monitor, Clipboard, EyeOff, ChevronDown, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
@@ -188,13 +188,18 @@ export default function JobApplicantsPage() {
   const [shortlistedCandidates, setShortlistedCandidates] = useState<Set<string>>(new Set())
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
   const [hasLoadedShortlisted, setHasLoadedShortlisted] = useState(false)
+  const [showComparison, setShowComparison] = useState(false)
   
   const job = useMemo(() => {
     const jobs = getRecruiterJobs()
     return jobs.find(j => j.id === jobId)
   }, [jobId])
   
-  const requiredChallenges = useMemo(() => getJobRequiredChallenges(jobId), [jobId])
+  const requiredChallengeIds = useMemo(() => getJobRequiredChallenges(jobId), [jobId])
+  const allChallenges = useMemo(() => getRecruiterChallenges(), [])
+  const requiredChallenges = useMemo(() => {
+    return requiredChallengeIds.map(id => allChallenges.find(c => c.id === id)).filter(Boolean) as typeof allChallenges
+  }, [requiredChallengeIds, allChallenges])
   const totalChallenges = requiredChallenges.length
 
   useEffect(() => {
@@ -243,6 +248,29 @@ export default function JobApplicantsPage() {
       setPerformanceWeights(PRESET_WEIGHTS[rankingPreset])
     }
   }, [rankingPreset])
+
+  // Prevent body scroll when compare modal is open
+  useEffect(() => {
+    if (showComparison) {
+      // Save current scroll position
+      const scrollY = window.scrollY
+      // Prevent scrolling
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.width = '100%'
+      document.body.style.overflow = 'hidden'
+      
+      return () => {
+        // Restore scrolling
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.width = ''
+        document.body.style.overflow = ''
+        // Restore scroll position
+        window.scrollTo(0, scrollY)
+      }
+    }
+  }, [showComparison])
 
   // Check if weights match a preset (only when weights change manually, not from preset selection)
   useEffect(() => {
@@ -353,7 +381,7 @@ export default function JobApplicantsPage() {
   const processedCandidates = useMemo(() => {
     return applicants.map((applicant) => {
       // Calculate integrity percentage
-      const totalViolations = applicant.submissions.reduce((sum, sub) => sum + sub.violations, 0)
+        const totalViolations = applicant.submissions.reduce((sum, sub) => sum + sub.violations, 0)
       const integrityPercentage = Math.max(0, 100 - (totalViolations * 10))
       
       // Calculate detailed performance metrics
@@ -466,7 +494,7 @@ export default function JobApplicantsPage() {
         },
         communication,
       }
-    })
+      })
   }, [applicants, performanceWeights, requiredTools, availableTools, availableIndustries, industryDomains, totalChallenges])
 
   // Filter by integrity and experience/fit
@@ -757,7 +785,7 @@ export default function JobApplicantsPage() {
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                      <Star className="h-4 w-4 text-yellow-500" />
+                      <UserStar className="h-4 w-4 text-yellow-500" />
                       Shortlisted Candidates
                     </h3>
                     {shortlistedCandidatesList.length === 0 ? (
@@ -783,7 +811,7 @@ export default function JobApplicantsPage() {
                               <p className="text-sm font-medium truncate">{candidate.name}</p>
                               <p className="text-xs text-muted-foreground">#{candidate.candidateNumber}</p>
                             </div>
-                            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 shrink-0" />
+                            <UserStar className="h-4 w-4 text-yellow-500 fill-yellow-500 shrink-0" />
                           </div>
                         ))}
                       </div>
@@ -795,7 +823,7 @@ export default function JobApplicantsPage() {
                       variant="default"
                       className="w-full"
                       onClick={() => {
-                        // TODO: Implement comparison functionality
+                        setShowComparison(true)
                       }}
                     >
                       Compare Shortlisted ({shortlistedCandidatesList.length})
@@ -1013,7 +1041,7 @@ export default function JobApplicantsPage() {
                         id="auto-exclude"
                         checked={autoExcludeSevere}
                         onCheckedChange={(checked) => setAutoExcludeSevere(checked === true)}
-                      />
+              />
                       <Label htmlFor="auto-exclude" className="cursor-pointer">Auto-exclude severe violations</Label>
             </div>
                     <div className="flex items-center space-x-2">
@@ -1280,7 +1308,7 @@ export default function JobApplicantsPage() {
                                       candidate.integrityStatus === 'Clean' ? "text-green-600 dark:text-green-400" :
                                       candidate.integrityStatus === 'Good' ? "text-blue-600 dark:text-blue-400" :
                                       candidate.integrityStatus === 'Fair' ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"
-                                    )}>
+                              )}>
                                       {candidate.integrityPercentage}% ({candidate.integrityStatus})
                                     </p>
                             </div>
@@ -1358,12 +1386,12 @@ export default function JobApplicantsPage() {
                       </div>
                     </div>
                                   
-                                  {/* Star Button - Absolute Bottom Right */}
+                                  {/* UserStar Button - Absolute Bottom Right */}
                                   <Button
                                     variant="ghost"
                                     size="icon"
                                     className={cn(
-                                      "absolute bottom-2 right-2 h-8 w-8 shrink-0",
+                                      "absolute bottom-2 right-2 h-16 w-16 shrink-0",
                                       isShortlisted && "text-yellow-500 hover:text-yellow-600"
                                     )}
                                     onClick={(e) => {
@@ -1377,7 +1405,7 @@ export default function JobApplicantsPage() {
                                       setShortlistedCandidates(newShortlisted)
                                     }}
                                   >
-                                    <Star className={cn("h-5 w-5", isShortlisted && "fill-yellow-500")} />
+                                    <UserStar className={cn("h-10 w-10", isShortlisted && "fill-yellow-500")} />
                                   </Button>
                   </CardContent>
                 </Card>
@@ -1457,7 +1485,7 @@ export default function JobApplicantsPage() {
                         selectedCandidate.integrityStatus === 'Fair' ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"
                       )}>
                         {selectedCandidate.integrityPercentage}%
-        </div>
+                            </div>
                       <div className="text-xs text-muted-foreground mt-1">{selectedCandidate.integrityStatus}</div>
                     </CardContent>
                   </Card>
@@ -1505,14 +1533,14 @@ export default function JobApplicantsPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Correctness & Completeness</span>
-                      <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">{selectedCandidate.metrics?.correctness.toFixed(1)}/10</span>
                         <span className="text-xs text-muted-foreground">({performanceWeights.correctness}%)</span>
-                      </div>
+                            </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Time Efficiency</span>
-                      <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">{selectedCandidate.metrics?.timeEfficiency.toFixed(1)}/10</span>
                         <span className="text-xs text-muted-foreground">({performanceWeights.timeEfficiency}%)</span>
                       </div>
@@ -1584,15 +1612,15 @@ export default function JobApplicantsPage() {
                                       </div>
                                     )
                                   })}
-                                </div>
-                              )}
+                              </div>
+                            )}
                               {violationTypes.length === 0 && (
                                 <div className="mt-2 flex items-center gap-1.5 text-green-600 dark:text-green-400 text-sm">
                                   <CheckCircle2 className="h-4 w-4" />
                                   <span>No violations detected</span>
-                                </div>
+                          </div>
                               )}
-                            </div>
+                        </div>
                             
                             <Button
                               variant="outline"
@@ -1605,13 +1633,13 @@ export default function JobApplicantsPage() {
                                 <div className="text-xs text-muted-foreground flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
                                   {durationMinutes} min
-                                </div>
+                      </div>
                               </div>
                             </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )
+                    </div>
+                  </CardContent>
+                </Card>
+              )
                   })}
                 </div>
               </div>
@@ -1659,8 +1687,8 @@ export default function JobApplicantsPage() {
                           ))}
                       </div>
                     </div>
-                  )}
-                </div>
+          )}
+        </div>
                 <div>
                   <h4 className="text-sm font-semibold mb-2">Industry Experience</h4>
                   <div className="space-y-1">
@@ -1676,6 +1704,554 @@ export default function JobApplicantsPage() {
                     )}
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Compare Shortlisted Modal */}
+      {showComparison && shortlistedCandidatesList.length > 0 && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 overflow-hidden"
+          onClick={() => setShowComparison(false)}
+        >
+          <Card 
+            className="w-full max-w-7xl h-[95vh] flex flex-col my-4 overflow-hidden p-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CardHeader className="border-b pb-4 bg-black pt-6 px-6 shrink-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">Compare Shortlisted Candidates ({shortlistedCandidatesList.length})</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Visualize tradeoffs and make informed hiring decisions</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">
+                    Export Comparison
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Share with Team
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowComparison(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-8 overflow-y-auto flex-1">
+              {/* Candidate Selector - Header Row */}
+              <div className="grid gap-4 mb-6" style={{ gridTemplateColumns: `repeat(${shortlistedCandidatesList.length}, minmax(180px, 1fr))` }}>
+                {shortlistedCandidatesList.map((candidate) => (
+                  <Card key={candidate.id} className="text-center border-2">
+                    <CardContent className="p-4">
+                      <div className="flex flex-col items-center gap-2">
+                        <Avatar className="h-12 w-12">
+                          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                            {candidate.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-semibold text-sm">{candidate.name}</p>
+                          <p className="text-xs text-muted-foreground">#{candidate.candidateNumber}</p>
+                        </div>
+                      </div>
+            </CardContent>
+          </Card>
+                ))}
+        </div>
+
+              {/* Challenges Attempted Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  Challenges Attempted
+                </h3>
+                <div className="flex gap-5 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">
+                  {requiredChallenges.map((challenge) => {
+                    // Get all shortlisted candidates who attempted this challenge
+                    const candidatesWhoAttempted = shortlistedCandidatesList
+                      .map(candidate => {
+                        const submission = candidate.submissions?.find(sub => sub.challengeId === challenge.id)
+                        return submission ? { candidate, submission } : null
+                      })
+                      .filter(Boolean) as Array<{ candidate: typeof shortlistedCandidatesList[0], submission: { challengeId: string, score: number, violations: number } }>
+                    
+                    return (
+                      <Card key={challenge.id} className="min-w-[380px] border-2">
+                        <CardContent className="p-6">
+                          <div className="space-y-4">
+                            <div>
+                              <h4 className="font-semibold text-lg mb-2">{challenge.title}</h4>
+                              <p className="text-sm text-muted-foreground mb-4">{challenge.description}</p>
+                            </div>
+                            
+                            {/* List of candidates who attempted */}
+                            <div className="space-y-3">
+                              {candidatesWhoAttempted.length > 0 ? (
+                                <div className="space-y-2">
+                                  {candidatesWhoAttempted.map(({ candidate, submission }) => (
+                                    <div 
+                                      key={candidate.id} 
+                                      className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border"
+                                    >
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <Avatar className="h-8 w-8">
+                                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                                            {candidate.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm font-medium truncate">{candidate.name}</p>
+                                          <p className="text-xs text-muted-foreground">#{candidate.candidateNumber}</p>
+                                        </div>
+                                      </div>
+                                      <div className="text-right min-w-[70px]">
+                                        <div className="text-xs text-muted-foreground mb-1">Score</div>
+                                        <div className="text-sm font-semibold">{submission.score.toFixed(1)}/10</div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-sm text-muted-foreground italic">No shortlisted candidates have attempted this challenge</p>
+      )}
+    </div>
+                            
+                            {/* Replay Submissions Button */}
+                            <Button 
+                              variant="default" 
+                              className="w-full"
+                              disabled={candidatesWhoAttempted.length === 0}
+                            >
+                              <Play className="h-4 w-4 mr-2" />
+                              Replay Submissions
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Section 1: Performance Comparison */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Performance Comparison
+                </h3>
+                
+                {/* Radar Chart */}
+                <Card className="mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-base">Performance Radar Chart</CardTitle>
+                    <CardDescription>Compare performance across all metrics</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-center min-h-[500px] py-4">
+                      <svg width="500" height="500" viewBox="0 0 500 500" className="max-w-full" style={{ overflow: 'visible' }}>
+                        {/* Grid circles */}
+                        {[1, 2, 3, 4, 5].map((level) => (
+                          <circle
+                            key={level}
+                            cx="250"
+                            cy="250"
+                            r={level * 35}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1"
+                            className="text-muted"
+                            opacity={0.2}
+                          />
+                        ))}
+                        
+                        {/* Axis lines and labels */}
+                        {['Correctness', 'Time Efficiency', 'Code Quality', 'Problem Solving'].map((metric, idx) => {
+                          const angle = (idx * Math.PI * 2) / 4 - Math.PI / 2
+                          const x = 250 + 175 * Math.cos(angle)
+                          const y = 250 + 175 * Math.sin(angle)
+                          // Move labels closer to the chart but within bounds
+                          const labelX = 250 + 195 * Math.cos(angle)
+                          const labelY = 250 + 195 * Math.sin(angle)
+                          
+                          // Adjust text anchor and position based on angle for better visibility
+                          let textAnchor: 'start' | 'middle' | 'end' = 'middle'
+                          let dx = 0
+                          let dy = 0
+                          
+                          if (idx === 0) { // Top - Correctness
+                            textAnchor = 'middle'
+                            dy = -8
+                          } else if (idx === 1) { // Right - Time Efficiency
+                            textAnchor = 'start'
+                            dx = 8
+                          } else if (idx === 2) { // Bottom - Code Quality
+                            textAnchor = 'middle'
+                            dy = 8
+                          } else { // Left - Problem Solving
+                            textAnchor = 'end'
+                            dx = -8
+                          }
+                          
+                          return (
+                            <g key={metric}>
+                              <line
+                                x1="250"
+                                y1="250"
+                                x2={x}
+                                y2={y}
+                                stroke="currentColor"
+                                strokeWidth="1"
+                                className="text-muted"
+                                opacity={0.3}
+                              />
+                              <text
+                                x={labelX + dx}
+                                y={labelY + dy}
+                                textAnchor={textAnchor}
+                                dominantBaseline="middle"
+                                className="text-sm fill-foreground font-medium"
+                              >
+                                {metric}
+                              </text>
+                            </g>
+                          )
+                        })}
+                        
+                        {/* Candidate polygons */}
+                        {shortlistedCandidatesList.map((candidate, candidateIdx) => {
+                          const colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4']
+                          const color = colors[candidateIdx % colors.length]
+                          const metrics = [
+                            candidate.metrics.correctness,
+                            candidate.metrics.timeEfficiency,
+                            candidate.metrics.codeQuality,
+                            candidate.metrics.problemSolving,
+                          ]
+                          
+                          const points = metrics.map((value, idx) => {
+                            const angle = (idx * Math.PI * 2) / 4 - Math.PI / 2
+                            const radius = (value / 10) * 175
+                            const x = 250 + radius * Math.cos(angle)
+                            const y = 250 + radius * Math.sin(angle)
+                            return `${x},${y}`
+                          }).join(' ')
+                          
+                          return (
+                            <g key={candidate.id}>
+                              <polygon
+                                points={points}
+                                fill={color}
+                                fillOpacity="0.2"
+                                stroke={color}
+                                strokeWidth="2"
+                              />
+                            </g>
+                          )
+                        })}
+                      </svg>
+                    </div>
+                    {/* Legend */}
+                    <div className="flex flex-wrap gap-4 justify-center mt-4">
+                      {shortlistedCandidatesList.map((candidate, idx) => {
+                        const colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4']
+                        const color = colors[idx % colors.length]
+                        return (
+                          <div key={candidate.id} className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded" style={{ backgroundColor: color }} />
+                            <span className="text-sm font-medium">{candidate.name} (#{candidate.candidateNumber})</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Supporting Bar Chart - Per Metric Breakdown */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Performance Breakdown by Metric</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {['Correctness', 'Time Efficiency', 'Code Quality', 'Problem Solving'].map((metric) => {
+                        const metricKey = metric.toLowerCase().replace(' ', '') as 'correctness' | 'timeefficiency' | 'codequality' | 'problemsolving'
+                        const key = metricKey === 'timeefficiency' ? 'timeEfficiency' : metricKey === 'codequality' ? 'codeQuality' : metricKey === 'problemsolving' ? 'problemSolving' : 'correctness'
+                        return (
+                          <div key={metric}>
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm font-medium">{metric}</span>
+                              <span className="text-xs text-muted-foreground">/10</span>
+                            </div>
+                            <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${shortlistedCandidatesList.length}, 1fr)` }}>
+                              {shortlistedCandidatesList.map((candidate, idx) => {
+                                const value = candidate.metrics[key as keyof typeof candidate.metrics]
+                                const colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4']
+                                const color = colors[idx % colors.length]
+                                return (
+                                  <div key={candidate.id} className="space-y-1">
+                                    <div className="text-xs text-center font-medium mb-1">{candidate.name.split(' ')[0]}</div>
+                                    <div className="h-8 bg-muted rounded relative overflow-hidden">
+                                      <div 
+                                        className="h-full rounded"
+                                        style={{ 
+                                          width: `${(value / 10) * 100}%`,
+                                          backgroundColor: color
+                                        }}
+                                      />
+                                    </div>
+                                    <p className="text-xs text-center font-medium">{value.toFixed(1)}</p>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Total Performance Score - Column Layout */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Total Performance Score</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${shortlistedCandidatesList.length}, minmax(200px, 1fr))` }}>
+                      {shortlistedCandidatesList.map((candidate) => (
+                        <Card key={candidate.id} className="text-center">
+                          <CardContent className="p-4">
+                            <div className="space-y-2">
+                              <p className="text-sm font-semibold">{candidate.name}</p>
+                              <p className="text-xs text-muted-foreground">#{candidate.candidateNumber}</p>
+                              <div className="pt-2">
+                                <p className="text-3xl font-bold">{candidate.performanceScore.toFixed(1)}</p>
+                                <p className="text-xs text-muted-foreground">/ 10.0</p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Section 2: Integrity & Risk Profile */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  Integrity & Risk Profile
+                </h3>
+                <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${shortlistedCandidatesList.length}, minmax(200px, 1fr))` }}>
+                  {shortlistedCandidatesList.map((candidate) => {
+                    const totalViolations = candidate.submissions?.reduce((sum, sub) => sum + sub.violations, 0) || 0
+                    return (
+                      <Card key={candidate.id}>
+                        <CardContent className="p-4">
+                          <div className="text-center space-y-3">
+                            <div>
+                              <p className="font-semibold text-sm">{candidate.name}</p>
+                              <p className="text-xs text-muted-foreground">#{candidate.candidateNumber}</p>
+                            </div>
+                            <div className={cn(
+                              "mx-auto w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold",
+                              candidate.integrityStatus === 'Clean' ? "bg-green-500/10 text-green-600 dark:text-green-400" :
+                              candidate.integrityStatus === 'Good' ? "bg-blue-500/10 text-blue-600 dark:text-blue-400" :
+                              candidate.integrityStatus === 'Fair' ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" : "bg-red-500/10 text-red-600 dark:text-red-400"
+                            )}>
+                              {candidate.integrityPercentage}%
+                            </div>
+                            <div>
+                              <p className="font-semibold text-sm">{candidate.integrityStatus}</p>
+                              <p className="text-sm text-muted-foreground">{totalViolations} violation{totalViolations !== 1 ? 's' : ''}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Section 3: Experience & Fit Comparison */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Wrench className="h-5 w-5 text-primary" />
+                  Experience & Fit Comparison
+                </h3>
+                
+                {/* Tool Familiarity Matrix */}
+                <Card className="mb-4">
+                  <CardHeader>
+                    <CardTitle className="text-base">Tool Familiarity</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr>
+                            <th className="text-left p-2 font-semibold">Tool</th>
+                            {shortlistedCandidatesList.map((candidate) => (
+                              <th key={candidate.id} className="text-center p-2 text-sm font-medium">
+                                <div>
+                                  <div>{candidate.name}</div>
+                                  <div className="text-xs text-muted-foreground font-normal">#{candidate.candidateNumber}</div>
+                                </div>
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {requiredTools.map((tool) => (
+                            <tr key={tool} className="border-b">
+                              <td className="p-2 font-medium">{tool}</td>
+                              {shortlistedCandidatesList.map((candidate) => (
+                                <td key={candidate.id} className="p-2 text-center">
+                                  {candidate.toolFit.allTools.includes(tool) ? (
+                                    <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto" />
+                                  ) : (
+                                    <X className="h-5 w-5 text-muted-foreground mx-auto" />
+                                  )}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Fit Badges */}
+                <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${shortlistedCandidatesList.length}, minmax(200px, 1fr))` }}>
+                  {shortlistedCandidatesList.map((candidate) => (
+                    <Card key={candidate.id}>
+                      <CardContent className="p-4 space-y-3">
+                        <div className="text-center mb-3 pb-3 border-b">
+                          <p className="font-semibold text-sm">{candidate.name}</p>
+                          <p className="text-xs text-muted-foreground">#{candidate.candidateNumber}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Wrench className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Tool Fit:</span>
+                          <Badge 
+                            variant="outline"
+                            className={cn(
+                              candidate.toolFit.level === 'High' ? "bg-green-500/10 text-green-600 border-green-500/20" :
+                              candidate.toolFit.level === 'Medium' ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" :
+                              "bg-red-500/10 text-red-600 border-red-500/20"
+                            )}
+                          >
+                            {candidate.toolFit.level} ({candidate.toolFit.score}/{candidate.toolFit.total})
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Industry Fit:</span>
+                          <Badge 
+                            variant="outline"
+                            className={cn(
+                              candidate.industryFit.level === 'High' ? "bg-green-500/10 text-green-600 border-green-500/20" :
+                              candidate.industryFit.level === 'Medium' ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" :
+                              "bg-red-500/10 text-red-600 border-red-500/20"
+                            )}
+                          >
+                            {candidate.industryFit.level}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 4: Interview Quality Signals */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-primary" />
+                  Interview Quality Signals
+                </h3>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr>
+                            <th className="text-left p-3 font-semibold">Signal</th>
+                            {shortlistedCandidatesList.map((candidate) => (
+                              <th key={candidate.id} className="text-center p-3 text-sm font-medium">
+                                <div>
+                                  <div>{candidate.name}</div>
+                                  <div className="text-xs text-muted-foreground font-normal">#{candidate.candidateNumber}</div>
+                                </div>
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b">
+                            <td className="p-3 font-medium">Explanation Clarity</td>
+                            {shortlistedCandidatesList.map((candidate) => (
+                              <td key={candidate.id} className="p-3 text-center">
+                                <Badge 
+                                  variant="outline"
+                                  className={cn(
+                                    candidate.communication.explanationClarity === 'High' ? "bg-green-500/10 text-green-600 border-green-500/20" :
+                                    candidate.communication.explanationClarity === 'Medium' ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" :
+                                    "bg-red-500/10 text-red-600 border-red-500/20"
+                                  )}
+                                >
+                                  {candidate.communication.explanationClarity}
+                                </Badge>
+                              </td>
+                            ))}
+                          </tr>
+                          <tr className="border-b">
+                            <td className="p-3 font-medium">Structured Thinking</td>
+                            {shortlistedCandidatesList.map((candidate) => (
+                              <td key={candidate.id} className="p-3 text-center">
+                                <Badge 
+                                  variant="outline"
+                                  className={cn(
+                                    candidate.communication.structuredThinking === 'High' ? "bg-green-500/10 text-green-600 border-green-500/20" :
+                                    candidate.communication.structuredThinking === 'Medium' ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" :
+                                    "bg-red-500/10 text-red-600 border-red-500/20"
+                                  )}
+                                >
+                                  {candidate.communication.structuredThinking}
+                                </Badge>
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="p-3 font-medium">Confidence Under Pressure</td>
+                            {shortlistedCandidatesList.map((candidate) => (
+                              <td key={candidate.id} className="p-3 text-center">
+                                <Badge 
+                                  variant="outline"
+                                  className={cn(
+                                    candidate.communication.confidenceUnderPressure === 'High' ? "bg-green-500/10 text-green-600 border-green-500/20" :
+                                    candidate.communication.confidenceUnderPressure === 'Medium' ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" :
+                                    "bg-red-500/10 text-red-600 border-red-500/20"
+                                  )}
+                                >
+                                  {candidate.communication.confidenceUnderPressure}
+                                </Badge>
+                              </td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>
