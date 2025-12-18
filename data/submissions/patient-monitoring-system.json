@@ -432,5 +432,113 @@
     ],
     "finalCode": "class PatientSystem:\n    def __init__(self):\n        # initialize internal data structures\n        pass\n\n    im gonna look away \n\n    \n    \n    def new_patient(self, patient_id, vital_readings, timestamp, family_history):\n        \"\"\"\n        Registers a new patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value} (e.g., {\"heart_rate\": 72, \"blood_pressure\": 120})\n        - timestamp: timestamp of the reading (int or float)\n        - family_history: list of risk factors (e.g. [\"diabetes\", \"cardiac\"])\n        \"\"\"\n        pass\n    \n    def update_patient(self, patient_id, vital_readings, timestamp):\n        \"\"\"\n        Adds new vital readings for an existing patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value}\n        - timestamp: timestamp of the reading (int or float)\n        \"\"\"\n        pass\n    \n    def fetch_patient_data(self, patient_id):\n        \"\"\"\n        Returns the patient's stored data.\n        - patient_id: unique identifier for the patient (string)\n        \n        Returns a dict containing:\n        - patient_id: the patient's ID\n        - family_history: list of risk factors\n        - vital_history: dict of {vital_name: [(timestamp, value), ...]}\n        \"\"\"\n        pass",
     "audioFileName": "sub-1765958315139-ju0x0hj0f.webm"
+  },
+  {
+    "id": "sub-1766041645801-hilp2uz0w",
+    "applicantName": "Lily Garcia",
+    "applicantEmail": "lily.garcia@email.com",
+    "score": 8,
+    "submittedAt": "2025-12-18T07:07:25.801Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [],
+    "recordedChanges": [],
+    "finalCode": "",
+    "audioFileName": "sub-1766041645099-ek1ceggop.webm"
+  },
+  {
+    "id": "sub-1766041645874-4795rcvxc",
+    "applicantName": "Isabella White",
+    "applicantEmail": "isabella.white@email.com",
+    "score": 8,
+    "submittedAt": "2025-12-18T07:07:25.874Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [],
+    "recordedChanges": [],
+    "finalCode": "",
+    "audioFileName": "sub-1766041645832-2xx8elwfl.webm"
+  },
+  {
+    "id": "sub-1766041645946-581ubl6tf",
+    "applicantName": "Charlotte Lee",
+    "applicantEmail": "charlotte.lee@email.com",
+    "score": 8,
+    "submittedAt": "2025-12-18T07:07:25.946Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [],
+    "recordedChanges": [],
+    "finalCode": "",
+    "audioFileName": "sub-1766041645923-wo5wlym9q.webm"
+  },
+  {
+    "id": "sub-1766041645801-hilp2uz0w",
+    "applicantName": "Lily Garcia",
+    "applicantEmail": "lily.garcia@email.com",
+    "score": 8,
+    "submittedAt": "2025-12-18T07:12:38.072Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [],
+    "recordedChanges": [],
+    "finalCode": "",
+    "audioFileName": "sub-1766041645801-hilp2uz0w.webm"
+  },
+  {
+    "id": "sub-1766041645874-4795rcvxc",
+    "applicantName": "Isabella White",
+    "applicantEmail": "isabella.white@email.com",
+    "score": 8,
+    "submittedAt": "2025-12-18T07:12:38.135Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [],
+    "recordedChanges": [],
+    "finalCode": "",
+    "audioFileName": "sub-1766041645874-4795rcvxc.webm"
+  },
+  {
+    "id": "sub-1766041645946-581ubl6tf",
+    "applicantName": "Charlotte Lee",
+    "applicantEmail": "charlotte.lee@email.com",
+    "score": 8,
+    "submittedAt": "2025-12-18T07:12:38.184Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [],
+    "recordedChanges": [],
+    "finalCode": "",
+    "audioFileName": "sub-1766041645946-581ubl6tf.webm"
+  },
+  {
+    "id": "sub-1766041645801-hilp2uz0w",
+    "applicantName": "Lily Garcia",
+    "applicantEmail": "lily.garcia@email.com",
+    "score": 8,
+    "submittedAt": "2025-12-18T07:22:10.090Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [],
+    "recordedChanges": [],
+    "finalCode": "",
+    "audioFileName": "sub-1766041645801-hilp2uz0w.webm"
+  },
+  {
+    "id": "sub-1766041645874-4795rcvxc",
+    "applicantName": "Isabella White",
+    "applicantEmail": "isabella.white@email.com",
+    "score": 8,
+    "submittedAt": "2025-12-18T07:22:10.123Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [],
+    "recordedChanges": [],
+    "finalCode": "",
+    "audioFileName": "sub-1766041645874-4795rcvxc.webm"
+  },
+  {
+    "id": "sub-1766041645946-581ubl6tf",
+    "applicantName": "Charlotte Lee",
+    "applicantEmail": "charlotte.lee@email.com",
+    "score": 8,
+    "submittedAt": "2025-12-18T07:22:10.150Z",
+    "timeSpent": "<1m",
+    "cheatingFlags": [],
+    "recordedChanges": [],
+    "finalCode": "",
+    "audioFileName": "sub-1766041645946-581ubl6tf.webm"
   }
 ]

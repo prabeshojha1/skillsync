@@ -1,0 +1,3940 @@
+{
+  "challengeId": "binary-tree-max-path-sum",
+  "recordings": [
+    {
+      "editorIndex": 0,
+      "submissionId": "recruiter-recording-1766046335726-0",
+      "audioFileName": "recruiter-recording-1766046335726-0",
+      "recordedChanges": [
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 8,
+                "endLineNumber": 9,
+                "endColumn": 9
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 196,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046459512
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 7,
+                "endLineNumber": 9,
+                "endColumn": 8
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 195,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046460405
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 6,
+                "endLineNumber": 9,
+                "endColumn": 7
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 194,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046460410
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 6
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046460416
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 1,
+                "endLineNumber": 9,
+                "endColumn": 5
+              },
+              "rangeLength": 4,
+              "text": "",
+              "rangeOffset": 189,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046460422
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 1,
+                "endLineNumber": 9,
+                "endColumn": 1
+              },
+              "rangeLength": 0,
+              "text": "    ",
+              "rangeOffset": 189,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046461070
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 5
+              },
+              "rangeLength": 0,
+              "text": "m",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046461541
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 6,
+                "endLineNumber": 9,
+                "endColumn": 6
+              },
+              "rangeLength": 0,
+              "text": "a",
+              "rangeOffset": 194,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046462197
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 7,
+                "endLineNumber": 9,
+                "endColumn": 7
+              },
+              "rangeLength": 0,
+              "text": "x",
+              "rangeOffset": 195,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046462417
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 8,
+                "endLineNumber": 9,
+                "endColumn": 8
+              },
+              "rangeLength": 0,
+              "text": "_",
+              "rangeOffset": 196,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046462900
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 9,
+                "endLineNumber": 9,
+                "endColumn": 9
+              },
+              "rangeLength": 0,
+              "text": "v",
+              "rangeOffset": 197,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046463132
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 10,
+                "endLineNumber": 9,
+                "endColumn": 10
+              },
+              "rangeLength": 0,
+              "text": "a",
+              "rangeOffset": 198,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046463187
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 11,
+                "endLineNumber": 9,
+                "endColumn": 11
+              },
+              "rangeLength": 0,
+              "text": "l",
+              "rangeOffset": 199,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046463541
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 12,
+                "endLineNumber": 9,
+                "endColumn": 12
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 200,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046470498
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 13,
+                "endLineNumber": 9,
+                "endColumn": 13
+              },
+              "rangeLength": 0,
+              "text": "=",
+              "rangeOffset": 201,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046470714
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 14,
+                "endLineNumber": 9,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 202,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046470967
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 15,
+                "endLineNumber": 9,
+                "endColumn": 15
+              },
+              "rangeLength": 0,
+              "text": "f",
+              "rangeOffset": 203,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046471996
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 16,
+                "endLineNumber": 9,
+                "endColumn": 16
+              },
+              "rangeLength": 0,
+              "text": "l",
+              "rangeOffset": 204,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046472114
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 17,
+                "endLineNumber": 9,
+                "endColumn": 17
+              },
+              "rangeLength": 0,
+              "text": "o",
+              "rangeOffset": 205,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046472365
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 18,
+                "endLineNumber": 9,
+                "endColumn": 18
+              },
+              "rangeLength": 0,
+              "text": "a",
+              "rangeOffset": 206,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046472563
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 19,
+                "endLineNumber": 9,
+                "endColumn": 19
+              },
+              "rangeLength": 0,
+              "text": "t",
+              "rangeOffset": 207,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046472688
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 20,
+                "endLineNumber": 9,
+                "endColumn": 20
+              },
+              "rangeLength": 0,
+              "text": "()",
+              "rangeOffset": 208,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046473204
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 21,
+                "endLineNumber": 9,
+                "endColumn": 21
+              },
+              "rangeLength": 0,
+              "text": "''",
+              "rangeOffset": 209,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046473922
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 22,
+                "endLineNumber": 9,
+                "endColumn": 22
+              },
+              "rangeLength": 0,
+              "text": "-",
+              "rangeOffset": 210,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046474432
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 23,
+                "endLineNumber": 9,
+                "endColumn": 23
+              },
+              "rangeLength": 0,
+              "text": "i",
+              "rangeOffset": 211,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046474854
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 24,
+                "endLineNumber": 9,
+                "endColumn": 24
+              },
+              "rangeLength": 0,
+              "text": "n",
+              "rangeOffset": 212,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046474965
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 25,
+                "endLineNumber": 9,
+                "endColumn": 25
+              },
+              "rangeLength": 0,
+              "text": "f",
+              "rangeOffset": 213,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046475232
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 28,
+                "endLineNumber": 9,
+                "endColumn": 28
+              },
+              "rangeLength": 0,
+              "text": "\n    ",
+              "rangeOffset": 216,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046479475
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 5,
+                "endLineNumber": 10,
+                "endColumn": 5
+              },
+              "rangeLength": 0,
+              "text": "d",
+              "rangeOffset": 221,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046488839
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 6,
+                "endLineNumber": 10,
+                "endColumn": 6
+              },
+              "rangeLength": 0,
+              "text": "e",
+              "rangeOffset": 222,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046489056
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 7,
+                "endLineNumber": 10,
+                "endColumn": 7
+              },
+              "rangeLength": 0,
+              "text": "f",
+              "rangeOffset": 223,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046489312
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 8,
+                "endLineNumber": 10,
+                "endColumn": 8
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 224,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046489429
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 9,
+                "endLineNumber": 10,
+                "endColumn": 9
+              },
+              "rangeLength": 0,
+              "text": "g",
+              "rangeOffset": 225,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046490129
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 10,
+                "endLineNumber": 10,
+                "endColumn": 10
+              },
+              "rangeLength": 0,
+              "text": "e",
+              "rangeOffset": 226,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046490364
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 11,
+                "endLineNumber": 10,
+                "endColumn": 11
+              },
+              "rangeLength": 0,
+              "text": "t",
+              "rangeOffset": 227,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046490413
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 12,
+                "endLineNumber": 10,
+                "endColumn": 12
+              },
+              "rangeLength": 0,
+              "text": "_",
+              "rangeOffset": 228,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046491605
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 13,
+                "endLineNumber": 10,
+                "endColumn": 13
+              },
+              "rangeLength": 0,
+              "text": "g",
+              "rangeOffset": 229,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046492032
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": "e",
+              "rangeOffset": 230,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046492157
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 230,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046492482
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": "a",
+              "rangeOffset": 230,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046492566
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 15,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 0,
+              "text": "i",
+              "rangeOffset": 231,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046492680
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 16,
+                "endLineNumber": 10,
+                "endColumn": 16
+              },
+              "rangeLength": 0,
+              "text": "n",
+              "rangeOffset": 232,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046492747
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 17,
+                "endLineNumber": 10,
+                "endColumn": 17
+              },
+              "rangeLength": 0,
+              "text": "()",
+              "rangeOffset": 233,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046493024
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 18,
+                "endLineNumber": 10,
+                "endColumn": 18
+              },
+              "rangeLength": 0,
+              "text": "n",
+              "rangeOffset": 234,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046493279
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 19,
+                "endLineNumber": 10,
+                "endColumn": 19
+              },
+              "rangeLength": 0,
+              "text": "o",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046493386
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 20,
+                "endLineNumber": 10,
+                "endColumn": 20
+              },
+              "rangeLength": 0,
+              "text": "d",
+              "rangeOffset": 236,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046493557
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 21,
+                "endLineNumber": 10,
+                "endColumn": 21
+              },
+              "rangeLength": 0,
+              "text": "e",
+              "rangeOffset": 237,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046493738
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 23,
+                "endLineNumber": 10,
+                "endColumn": 23
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 239,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046494323
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 23,
+                "endLineNumber": 10,
+                "endColumn": 24
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 239,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046494697
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 23,
+                "endLineNumber": 10,
+                "endColumn": 23
+              },
+              "rangeLength": 0,
+              "text": ":",
+              "rangeOffset": 239,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046494956
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 24,
+                "endLineNumber": 10,
+                "endColumn": 24
+              },
+              "rangeLength": 0,
+              "text": "\n        ",
+              "rangeOffset": 240,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046495173
+        }
+      ],
+      "candidateId": null
+    },
+    {
+      "editorIndex": 1,
+      "submissionId": "recruiter-recording-1766046335726-1",
+      "audioFileName": "recruiter-recording-1766046335726-1",
+      "recordedChanges": [
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 9
+              },
+              "rangeLength": 4,
+              "text": "",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046507447
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 5
+              },
+              "rangeLength": 0,
+              "text": "\n    ",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046508413
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 1,
+                "endLineNumber": 10,
+                "endColumn": 5
+              },
+              "rangeLength": 4,
+              "text": "",
+              "rangeOffset": 194,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046510512
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 10,
+                "endColumn": 1
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046510761
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 5
+              },
+              "rangeLength": 0,
+              "text": "r",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046512568
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 6,
+                "endLineNumber": 9,
+                "endColumn": 6
+              },
+              "rangeLength": 0,
+              "text": "e",
+              "rangeOffset": 194,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046512650
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 7,
+                "endLineNumber": 9,
+                "endColumn": 7
+              },
+              "rangeLength": 0,
+              "text": "t",
+              "rangeOffset": 195,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046512826
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 8,
+                "endLineNumber": 9,
+                "endColumn": 8
+              },
+              "rangeLength": 0,
+              "text": "u",
+              "rangeOffset": 196,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046512894
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 9,
+                "endLineNumber": 9,
+                "endColumn": 9
+              },
+              "rangeLength": 0,
+              "text": "r",
+              "rangeOffset": 197,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046513020
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 10,
+                "endLineNumber": 9,
+                "endColumn": 10
+              },
+              "rangeLength": 0,
+              "text": "n",
+              "rangeOffset": 198,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046513086
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 11,
+                "endLineNumber": 9,
+                "endColumn": 11
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 199,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046513268
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 12,
+                "endLineNumber": 9,
+                "endColumn": 12
+              },
+              "rangeLength": 0,
+              "text": "1",
+              "rangeOffset": 200,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046513803
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 13,
+                "endLineNumber": 9,
+                "endColumn": 13
+              },
+              "rangeLength": 0,
+              "text": "\n    ",
+              "rangeOffset": 201,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046526293
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 1,
+                "endLineNumber": 10,
+                "endColumn": 5
+              },
+              "rangeLength": 4,
+              "text": "",
+              "rangeOffset": 202,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046533035
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 13,
+                "endLineNumber": 10,
+                "endColumn": 1
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 201,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046533504
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 12,
+                "endLineNumber": 9,
+                "endColumn": 13
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 200,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046534011
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 12
+              },
+              "rangeLength": 7,
+              "text": "",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046534195
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 5
+              },
+              "rangeLength": 0,
+              "text": "r",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046535737
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 6,
+                "endLineNumber": 9,
+                "endColumn": 6
+              },
+              "rangeLength": 0,
+              "text": "e",
+              "rangeOffset": 194,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046535818
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 6,
+                "endLineNumber": 9,
+                "endColumn": 7
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 194,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046536402
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 6
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046536586
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 5
+              },
+              "rangeLength": 0,
+              "text": "m",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046538176
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 6,
+                "endLineNumber": 9,
+                "endColumn": 6
+              },
+              "rangeLength": 0,
+              "text": "a",
+              "rangeOffset": 194,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046538759
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 7,
+                "endLineNumber": 9,
+                "endColumn": 7
+              },
+              "rangeLength": 0,
+              "text": "x",
+              "rangeOffset": 195,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046540033
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 8,
+                "endLineNumber": 9,
+                "endColumn": 8
+              },
+              "rangeLength": 0,
+              "text": "_",
+              "rangeOffset": 196,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046540767
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 9,
+                "endLineNumber": 9,
+                "endColumn": 9
+              },
+              "rangeLength": 0,
+              "text": "v",
+              "rangeOffset": 197,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046541120
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 10,
+                "endLineNumber": 9,
+                "endColumn": 10
+              },
+              "rangeLength": 0,
+              "text": "a",
+              "rangeOffset": 198,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046541176
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 11,
+                "endLineNumber": 9,
+                "endColumn": 11
+              },
+              "rangeLength": 0,
+              "text": "l",
+              "rangeOffset": 199,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046541350
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 12,
+                "endLineNumber": 9,
+                "endColumn": 12
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 200,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046541845
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 13,
+                "endLineNumber": 9,
+                "endColumn": 13
+              },
+              "rangeLength": 0,
+              "text": "=",
+              "rangeOffset": 201,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046548704
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 13,
+                "endLineNumber": 9,
+                "endColumn": 14
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 201,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046549034
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 13,
+                "endLineNumber": 9,
+                "endColumn": 13
+              },
+              "rangeLength": 0,
+              "text": "=",
+              "rangeOffset": 201,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046549702
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 14,
+                "endLineNumber": 9,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 202,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046549795
+        }
+      ],
+      "candidateId": null
+    },
+    {
+      "editorIndex": 2,
+      "submissionId": "recruiter-recording-1766046335726-2",
+      "audioFileName": "recruiter-recording-1766046335726-2",
+      "recordedChanges": [
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 9,
+                "endLineNumber": 9,
+                "endColumn": 9
+              },
+              "rangeLength": 0,
+              "text": "\n    ",
+              "rangeOffset": 197,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046557058
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 1,
+                "endLineNumber": 10,
+                "endColumn": 5
+              },
+              "rangeLength": 4,
+              "text": "",
+              "rangeOffset": 198,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046557573
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 9,
+                "endLineNumber": 10,
+                "endColumn": 1
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 197,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046557855
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 9
+              },
+              "rangeLength": 4,
+              "text": "",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046558088
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 5,
+                "endLineNumber": 9,
+                "endColumn": 5
+              },
+              "rangeLength": 0,
+              "text": "m",
+              "rangeOffset": 193,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046559226
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 6,
+                "endLineNumber": 9,
+                "endColumn": 6
+              },
+              "rangeLength": 0,
+              "text": "a",
+              "rangeOffset": 194,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046560941
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 7,
+                "endLineNumber": 9,
+                "endColumn": 7
+              },
+              "rangeLength": 0,
+              "text": "x",
+              "rangeOffset": 195,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046561113
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 8,
+                "endLineNumber": 9,
+                "endColumn": 8
+              },
+              "rangeLength": 0,
+              "text": "i",
+              "rangeOffset": 196,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046561204
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 9,
+                "endLineNumber": 9,
+                "endColumn": 9
+              },
+              "rangeLength": 0,
+              "text": "m",
+              "rangeOffset": 197,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046561415
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 10,
+                "endLineNumber": 9,
+                "endColumn": 10
+              },
+              "rangeLength": 0,
+              "text": "u",
+              "rangeOffset": 198,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046561688
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 11,
+                "endLineNumber": 9,
+                "endColumn": 11
+              },
+              "rangeLength": 0,
+              "text": "m",
+              "rangeOffset": 199,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046561863
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 12,
+                "endLineNumber": 9,
+                "endColumn": 12
+              },
+              "rangeLength": 0,
+              "text": "v",
+              "rangeOffset": 200,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046563004
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 13,
+                "endLineNumber": 9,
+                "endColumn": 13
+              },
+              "rangeLength": 0,
+              "text": "a",
+              "rangeOffset": 201,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046563063
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 14,
+                "endLineNumber": 9,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": "l",
+              "rangeOffset": 202,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046563149
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 15,
+                "endLineNumber": 9,
+                "endColumn": 15
+              },
+              "rangeLength": 0,
+              "text": "u",
+              "rangeOffset": 203,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046563286
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 16,
+                "endLineNumber": 9,
+                "endColumn": 16
+              },
+              "rangeLength": 0,
+              "text": "e",
+              "rangeOffset": 204,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046563471
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 17,
+                "endLineNumber": 9,
+                "endColumn": 17
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 205,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046563849
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 18,
+                "endLineNumber": 9,
+                "endColumn": 18
+              },
+              "rangeLength": 0,
+              "text": "=",
+              "rangeOffset": 206,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046564980
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 19,
+                "endLineNumber": 9,
+                "endColumn": 19
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 207,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046565079
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 20,
+                "endLineNumber": 9,
+                "endColumn": 20
+              },
+              "rangeLength": 0,
+              "text": "f",
+              "rangeOffset": 208,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046565366
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 21,
+                "endLineNumber": 9,
+                "endColumn": 21
+              },
+              "rangeLength": 0,
+              "text": "l",
+              "rangeOffset": 209,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046565499
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 22,
+                "endLineNumber": 9,
+                "endColumn": 22
+              },
+              "rangeLength": 0,
+              "text": "o",
+              "rangeOffset": 210,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046565822
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 23,
+                "endLineNumber": 9,
+                "endColumn": 23
+              },
+              "rangeLength": 0,
+              "text": "a",
+              "rangeOffset": 211,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046566623
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 24,
+                "endLineNumber": 9,
+                "endColumn": 24
+              },
+              "rangeLength": 0,
+              "text": "t",
+              "rangeOffset": 212,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046566865
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 25,
+                "endLineNumber": 9,
+                "endColumn": 25
+              },
+              "rangeLength": 0,
+              "text": "()",
+              "rangeOffset": 213,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046567155
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 26,
+                "endLineNumber": 9,
+                "endColumn": 26
+              },
+              "rangeLength": 0,
+              "text": "-",
+              "rangeOffset": 214,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046567705
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 26,
+                "endLineNumber": 9,
+                "endColumn": 27
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 214,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046568098
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 26,
+                "endLineNumber": 9,
+                "endColumn": 26
+              },
+              "rangeLength": 0,
+              "text": "''",
+              "rangeOffset": 214,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046568296
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 27,
+                "endLineNumber": 9,
+                "endColumn": 27
+              },
+              "rangeLength": 0,
+              "text": "p",
+              "rangeOffset": 215,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046568655
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 27,
+                "endLineNumber": 9,
+                "endColumn": 28
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 215,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046569064
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 27,
+                "endLineNumber": 9,
+                "endColumn": 27
+              },
+              "rangeLength": 0,
+              "text": "-",
+              "rangeOffset": 215,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046569282
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 28,
+                "endLineNumber": 9,
+                "endColumn": 28
+              },
+              "rangeLength": 0,
+              "text": "i",
+              "rangeOffset": 216,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046569782
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 29,
+                "endLineNumber": 9,
+                "endColumn": 29
+              },
+              "rangeLength": 0,
+              "text": "n",
+              "rangeOffset": 217,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046569873
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 30,
+                "endLineNumber": 9,
+                "endColumn": 30
+              },
+              "rangeLength": 0,
+              "text": "f",
+              "rangeOffset": 218,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046570048
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 9,
+                "startColumn": 33,
+                "endLineNumber": 9,
+                "endColumn": 33
+              },
+              "rangeLength": 0,
+              "text": "\n    ",
+              "rangeOffset": 221,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046571642
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 5,
+                "endLineNumber": 10,
+                "endColumn": 5
+              },
+              "rangeLength": 0,
+              "text": "#",
+              "rangeOffset": 226,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046574923
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 6,
+                "endLineNumber": 10,
+                "endColumn": 6
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 227,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046575115
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 7,
+                "endLineNumber": 10,
+                "endColumn": 7
+              },
+              "rangeLength": 0,
+              "text": "W",
+              "rangeOffset": 228,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046575753
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 8,
+                "endLineNumber": 10,
+                "endColumn": 8
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 229,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046576006
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 8,
+                "endLineNumber": 10,
+                "endColumn": 9
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 229,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046576238
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 8,
+                "endLineNumber": 10,
+                "endColumn": 8
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 229,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046576389
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 9,
+                "endLineNumber": 10,
+                "endColumn": 9
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 230,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046576456
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 10,
+                "endLineNumber": 10,
+                "endColumn": 10
+              },
+              "rangeLength": 0,
+              "text": "N",
+              "rangeOffset": 231,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046576637
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 11,
+                "endLineNumber": 10,
+                "endColumn": 11
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 232,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046576747
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 12,
+                "endLineNumber": 10,
+                "endColumn": 12
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 233,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046576896
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 13,
+                "endLineNumber": 10,
+                "endColumn": 13
+              },
+              "rangeLength": 0,
+              "text": "D",
+              "rangeOffset": 234,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046577047
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046577112
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 15,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 0,
+              "text": "T",
+              "rangeOffset": 236,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046577224
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 16,
+                "endLineNumber": 10,
+                "endColumn": 16
+              },
+              "rangeLength": 0,
+              "text": "O",
+              "rangeOffset": 237,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046577290
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 17,
+                "endLineNumber": 10,
+                "endColumn": 17
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 238,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046577338
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 18,
+                "endLineNumber": 10,
+                "endColumn": 18
+              },
+              "rangeLength": 0,
+              "text": "R",
+              "rangeOffset": 239,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046582201
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 19,
+                "endLineNumber": 10,
+                "endColumn": 19
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 240,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046582280
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 20,
+                "endLineNumber": 10,
+                "endColumn": 20
+              },
+              "rangeLength": 0,
+              "text": "C",
+              "rangeOffset": 241,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046582557
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 21,
+                "endLineNumber": 10,
+                "endColumn": 21
+              },
+              "rangeLength": 0,
+              "text": "U",
+              "rangeOffset": 242,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046582730
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 22,
+                "endLineNumber": 10,
+                "endColumn": 22
+              },
+              "rangeLength": 0,
+              "text": "R",
+              "rangeOffset": 243,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046582864
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 23,
+                "endLineNumber": 10,
+                "endColumn": 23
+              },
+              "rangeLength": 0,
+              "text": "I",
+              "rangeOffset": 244,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046583024
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 24,
+                "endLineNumber": 10,
+                "endColumn": 24
+              },
+              "rangeLength": 0,
+              "text": "S",
+              "rangeOffset": 245,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046583039
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 24,
+                "endLineNumber": 10,
+                "endColumn": 25
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 245,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046583438
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 23,
+                "endLineNumber": 10,
+                "endColumn": 24
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 244,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046583572
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 23,
+                "endLineNumber": 10,
+                "endColumn": 23
+              },
+              "rangeLength": 0,
+              "text": "I",
+              "rangeOffset": 244,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046583725
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 24,
+                "endLineNumber": 10,
+                "endColumn": 24
+              },
+              "rangeLength": 0,
+              "text": "S",
+              "rangeOffset": 245,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046583739
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 25,
+                "endLineNumber": 10,
+                "endColumn": 25
+              },
+              "rangeLength": 0,
+              "text": "V",
+              "rangeOffset": 246,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046583932
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 26,
+                "endLineNumber": 10,
+                "endColumn": 26
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 247,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046584047
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 27,
+                "endLineNumber": 10,
+                "endColumn": 27
+              },
+              "rangeLength": 0,
+              "text": "L",
+              "rangeOffset": 248,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046584080
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 28,
+                "endLineNumber": 10,
+                "endColumn": 28
+              },
+              "rangeLength": 0,
+              "text": "Y",
+              "rangeOffset": 249,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046584306
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 29,
+                "endLineNumber": 10,
+                "endColumn": 29
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 250,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046584514
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 30,
+                "endLineNumber": 10,
+                "endColumn": 30
+              },
+              "rangeLength": 0,
+              "text": "G",
+              "rangeOffset": 251,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046585922
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 31,
+                "endLineNumber": 10,
+                "endColumn": 31
+              },
+              "rangeLength": 0,
+              "text": "O",
+              "rangeOffset": 252,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046585988
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 32,
+                "endLineNumber": 10,
+                "endColumn": 32
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 253,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046586097
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 33,
+                "endLineNumber": 10,
+                "endColumn": 33
+              },
+              "rangeLength": 0,
+              "text": "D",
+              "rangeOffset": 254,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046586272
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 34,
+                "endLineNumber": 10,
+                "endColumn": 34
+              },
+              "rangeLength": 0,
+              "text": "O",
+              "rangeOffset": 255,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046586388
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 35,
+                "endLineNumber": 10,
+                "endColumn": 35
+              },
+              "rangeLength": 0,
+              "text": "W",
+              "rangeOffset": 256,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046586537
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 36,
+                "endLineNumber": 10,
+                "endColumn": 36
+              },
+              "rangeLength": 0,
+              "text": "N",
+              "rangeOffset": 257,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046586597
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 37,
+                "endLineNumber": 10,
+                "endColumn": 37
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 258,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046586715
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 37,
+                "endLineNumber": 10,
+                "endColumn": 38
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 258,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046589721
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 36,
+                "endLineNumber": 10,
+                "endColumn": 37
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 257,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046589921
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 33,
+                "endLineNumber": 10,
+                "endColumn": 36
+              },
+              "rangeLength": 3,
+              "text": "",
+              "rangeOffset": 254,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046590282
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 30,
+                "endLineNumber": 10,
+                "endColumn": 33
+              },
+              "rangeLength": 3,
+              "text": "",
+              "rangeOffset": 251,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046590431
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 18,
+                "endLineNumber": 10,
+                "endColumn": 30
+              },
+              "rangeLength": 12,
+              "text": "",
+              "rangeOffset": 239,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046590612
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 17,
+                "endLineNumber": 10,
+                "endColumn": 18
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 238,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046590816
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 16,
+                "endLineNumber": 10,
+                "endColumn": 17
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 237,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046591247
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 15,
+                "endLineNumber": 10,
+                "endColumn": 16
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 236,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046591422
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046591599
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": "O",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046591792
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046592014
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046592238
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046592462
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": "O",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046592964
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 15,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 0,
+              "text": "T",
+              "rangeOffset": 236,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046592988
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 16,
+                "endLineNumber": 10,
+                "endColumn": 16
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 237,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046593164
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 16,
+                "endLineNumber": 10,
+                "endColumn": 17
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 237,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046593270
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 15,
+                "endLineNumber": 10,
+                "endColumn": 16
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 236,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046593397
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046593545
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046593689
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 15,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 0,
+              "text": "T",
+              "rangeOffset": 236,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046593806
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 16,
+                "endLineNumber": 10,
+                "endColumn": 16
+              },
+              "rangeLength": 0,
+              "text": "O",
+              "rangeOffset": 237,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046593837
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 17,
+                "endLineNumber": 10,
+                "endColumn": 17
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 238,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046593948
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 17,
+                "endLineNumber": 10,
+                "endColumn": 18
+              },
+              "rangeLength": 1,
+              "text": ". ",
+              "rangeOffset": 238,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046594132
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 19,
+                "endLineNumber": 10,
+                "endColumn": 19
+              },
+              "rangeLength": 0,
+              "text": "P",
+              "rangeOffset": 240,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046594413
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 20,
+                "endLineNumber": 10,
+                "endColumn": 20
+              },
+              "rangeLength": 0,
+              "text": "A",
+              "rangeOffset": 241,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046594463
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 21,
+                "endLineNumber": 10,
+                "endColumn": 21
+              },
+              "rangeLength": 0,
+              "text": "G",
+              "rangeOffset": 242,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046594645
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 22,
+                "endLineNumber": 10,
+                "endColumn": 22
+              },
+              "rangeLength": 0,
+              "text": "A",
+              "rangeOffset": 243,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046594664
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 23,
+                "endLineNumber": 10,
+                "endColumn": 23
+              },
+              "rangeLength": 0,
+              "text": "A",
+              "rangeOffset": 244,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046595206
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 19,
+                "endLineNumber": 10,
+                "endColumn": 24
+              },
+              "rangeLength": 5,
+              "text": "",
+              "rangeOffset": 240,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046595628
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 17,
+                "endLineNumber": 10,
+                "endColumn": 19
+              },
+              "rangeLength": 2,
+              "text": "",
+              "rangeOffset": 238,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046595770
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 15,
+                "endLineNumber": 10,
+                "endColumn": 17
+              },
+              "rangeLength": 2,
+              "text": "",
+              "rangeOffset": 236,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046595936
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046596338
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 10,
+                "endLineNumber": 10,
+                "endColumn": 14
+              },
+              "rangeLength": 4,
+              "text": "",
+              "rangeOffset": 231,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046596691
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 7,
+                "endLineNumber": 10,
+                "endColumn": 10
+              },
+              "rangeLength": 3,
+              "text": "",
+              "rangeOffset": 228,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046596854
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 7,
+                "endLineNumber": 10,
+                "endColumn": 7
+              },
+              "rangeLength": 0,
+              "text": "L",
+              "rangeOffset": 228,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597155
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 8,
+                "endLineNumber": 10,
+                "endColumn": 8
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 229,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597247
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 9,
+                "endLineNumber": 10,
+                "endColumn": 9
+              },
+              "rangeLength": 0,
+              "text": "T",
+              "rangeOffset": 230,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597331
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 10,
+                "endLineNumber": 10,
+                "endColumn": 10
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 231,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597371
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 11,
+                "endLineNumber": 10,
+                "endColumn": 11
+              },
+              "rangeLength": 0,
+              "text": "M",
+              "rangeOffset": 232,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597513
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 12,
+                "endLineNumber": 10,
+                "endColumn": 12
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 233,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597582
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 13,
+                "endLineNumber": 10,
+                "endColumn": 13
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 234,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597664
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 14,
+                "endLineNumber": 10,
+                "endColumn": 14
+              },
+              "rangeLength": 0,
+              "text": "R",
+              "rangeOffset": 235,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597822
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 15,
+                "endLineNumber": 10,
+                "endColumn": 15
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 236,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597870
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 16,
+                "endLineNumber": 10,
+                "endColumn": 16
+              },
+              "rangeLength": 0,
+              "text": "A",
+              "rangeOffset": 237,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046597929
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 17,
+                "endLineNumber": 10,
+                "endColumn": 17
+              },
+              "rangeLength": 0,
+              "text": "D",
+              "rangeOffset": 238,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598114
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 18,
+                "endLineNumber": 10,
+                "endColumn": 18
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 239,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598161
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 19,
+                "endLineNumber": 10,
+                "endColumn": 19
+              },
+              "rangeLength": 0,
+              "text": "T",
+              "rangeOffset": 240,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598313
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 20,
+                "endLineNumber": 10,
+                "endColumn": 20
+              },
+              "rangeLength": 0,
+              "text": "H",
+              "rangeOffset": 241,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598369
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 21,
+                "endLineNumber": 10,
+                "endColumn": 21
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 242,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598445
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 22,
+                "endLineNumber": 10,
+                "endColumn": 22
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 243,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598531
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 23,
+                "endLineNumber": 10,
+                "endColumn": 23
+              },
+              "rangeLength": 0,
+              "text": "S",
+              "rangeOffset": 244,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598603
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 24,
+                "endLineNumber": 10,
+                "endColumn": 24
+              },
+              "rangeLength": 0,
+              "text": "P",
+              "rangeOffset": 245,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598705
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 25,
+                "endLineNumber": 10,
+                "endColumn": 25
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 246,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598764
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 26,
+                "endLineNumber": 10,
+                "endColumn": 26
+              },
+              "rangeLength": 0,
+              "text": "C",
+              "rangeOffset": 247,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046598954
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 27,
+                "endLineNumber": 10,
+                "endColumn": 27
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 248,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046599039
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 28,
+                "endLineNumber": 10,
+                "endColumn": 28
+              },
+              "rangeLength": 0,
+              "text": "R",
+              "rangeOffset": 249,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046599170
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 29,
+                "endLineNumber": 10,
+                "endColumn": 29
+              },
+              "rangeLength": 0,
+              "text": "E",
+              "rangeOffset": 250,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046599223
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 30,
+                "endLineNumber": 10,
+                "endColumn": 30
+              },
+              "rangeLength": 0,
+              "text": "A",
+              "rangeOffset": 251,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046599295
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 31,
+                "endLineNumber": 10,
+                "endColumn": 31
+              },
+              "rangeLength": 0,
+              "text": "L",
+              "rangeOffset": 252,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046599331
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 32,
+                "endLineNumber": 10,
+                "endColumn": 32
+              },
+              "rangeLength": 0,
+              "text": " ",
+              "rangeOffset": 253,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046599457
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 33,
+                "endLineNumber": 10,
+                "endColumn": 33
+              },
+              "rangeLength": 0,
+              "text": "W",
+              "rangeOffset": 254,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046599679
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 34,
+                "endLineNumber": 10,
+                "endColumn": 34
+              },
+              "rangeLength": 0,
+              "text": "U",
+              "rangeOffset": 255,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046599782
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 35,
+                "endLineNumber": 10,
+                "endColumn": 35
+              },
+              "rangeLength": 0,
+              "text": "I",
+              "rangeOffset": 256,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046599904
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 35,
+                "endLineNumber": 10,
+                "endColumn": 36
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 256,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046600039
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 34,
+                "endLineNumber": 10,
+                "endColumn": 35
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 255,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046600182
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 33,
+                "endLineNumber": 10,
+                "endColumn": 34
+              },
+              "rangeLength": 1,
+              "text": "",
+              "rangeOffset": 254,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046600305
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 33,
+                "endLineNumber": 10,
+                "endColumn": 33
+              },
+              "rangeLength": 0,
+              "text": "Q",
+              "rangeOffset": 254,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046600387
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 34,
+                "endLineNumber": 10,
+                "endColumn": 34
+              },
+              "rangeLength": 0,
+              "text": "U",
+              "rangeOffset": 255,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046600471
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 35,
+                "endLineNumber": 10,
+                "endColumn": 35
+              },
+              "rangeLength": 0,
+              "text": "I",
+              "rangeOffset": 256,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046600555
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 36,
+                "endLineNumber": 10,
+                "endColumn": 36
+              },
+              "rangeLength": 0,
+              "text": "C",
+              "rangeOffset": 257,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046600582
+        },
+        {
+          "changes": [
+            {
+              "range": {
+                "startLineNumber": 10,
+                "startColumn": 37,
+                "endLineNumber": 10,
+                "endColumn": 37
+              },
+              "rangeLength": 0,
+              "text": "K",
+              "rangeOffset": 258,
+              "forceMoveMarkers": false
+            }
+          ],
+          "timestamp": 1766046600890
+        }
+      ],
+      "candidateId": null
+    }
+  ],
+  "updatedAt": "2025-12-18T08:30:02.048Z"
+}
