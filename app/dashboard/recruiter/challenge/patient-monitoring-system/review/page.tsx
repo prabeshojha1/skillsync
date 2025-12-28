@@ -108,6 +108,11 @@ export default function ReviewPage() {
   const [lookedAwayEvents, setLookedAwayEvents] = useState<number[]>([])
   const [currentLookAwayIndex, setCurrentLookAwayIndex] = useState(0)
   const lookAwayTimersRef = useRef<NodeJS.Timeout[]>([])
+  
+  // Tab switch event timestamps (relative to first recorded change, in ms)
+  const [tabSwitchEvents, setTabSwitchEvents] = useState<number[]>([])
+  const [currentTabSwitchIndex, setCurrentTabSwitchIndex] = useState(0)
+  const tabSwitchTimersRef = useRef<NodeJS.Timeout[]>([])
 
   // Load submission data
   useEffect(() => {
@@ -178,6 +183,21 @@ export default function ReviewPage() {
         
         setLookedAwayEvents(lookAwayTimestamps)
         console.log(`Loaded ${lookAwayTimestamps.length} look-away events:`, lookAwayTimestamps)
+
+        // Extract tab switch event timestamps from cheatingFlags
+        const tabSwitchFlags = foundSubmission.cheatingFlags.filter(flag => flag.type === 'tab_switch')
+        const tabSwitchTimestamps: number[] = []
+        
+        tabSwitchFlags.forEach(flag => {
+          // Extract relative_ms from details field (format: "... (relative_ms:12345)")
+          const match = flag.details.match(/relative_ms:(\d+)/)
+          if (match) {
+            tabSwitchTimestamps.push(parseInt(match[1], 10))
+          }
+        })
+        
+        setTabSwitchEvents(tabSwitchTimestamps)
+        console.log(`Loaded ${tabSwitchTimestamps.length} tab switch events:`, tabSwitchTimestamps)
         
         setLoading(false)
       } catch (error) {
@@ -484,6 +504,11 @@ export default function ReviewPage() {
       // Clean up warning timers
       warningTimersRef.current.forEach((timeout) => clearTimeout(timeout))
       warningTimersRef.current = []
+      // Clean up look-away and tab switch timers
+      lookAwayTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+      lookAwayTimersRef.current = []
+      tabSwitchTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+      tabSwitchTimersRef.current = []
     }
   }, [audioUrl])
 
@@ -514,11 +539,45 @@ export default function ReviewPage() {
     
     console.log(`Scheduled ${lookAwayTimersRef.current.length} look-away popups (speed: ${speed}x, startFrom: ${startFromMs}ms)`)
   }, [lookedAwayEvents])
+
+  // Schedule tab switch popups based on actual event timestamps
+  const scheduleTabSwitchPopups = useCallback((speed: number, startFromMs: number = 0) => {
+    // Clear any existing tab switch timers
+    tabSwitchTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+    tabSwitchTimersRef.current = []
+    
+    if (tabSwitchEvents.length === 0) return
+    
+    // Schedule popups for events that haven't occurred yet
+    tabSwitchEvents.forEach((relativeMs, index) => {
+      // Skip events that have already passed based on current replay position
+      if (relativeMs <= startFromMs) return
+      
+      // Calculate delay: (eventTime - currentPosition) / speed
+      const delay = (relativeMs - startFromMs) / speed
+      
+      const timer = setTimeout(() => {
+        setCurrentTabSwitchIndex(index)
+        setTabSwitchVisible(true)
+        console.log(`Showing tab switch popup #${index + 1} at ${relativeMs}ms`)
+      }, delay)
+      
+      tabSwitchTimersRef.current.push(timer)
+    })
+    
+    console.log(`Scheduled ${tabSwitchTimersRef.current.length} tab switch popups (speed: ${speed}x, startFrom: ${startFromMs}ms)`)
+  }, [tabSwitchEvents])
   
   // Clear look-away timers when replay is paused
   const clearLookAwayTimers = useCallback(() => {
     lookAwayTimersRef.current.forEach((timeout) => clearTimeout(timeout))
     lookAwayTimersRef.current = []
+  }, [])
+
+  // Clear tab switch timers when replay is paused
+  const clearTabSwitchTimers = useCallback(() => {
+    tabSwitchTimersRef.current.forEach((timeout) => clearTimeout(timeout))
+    tabSwitchTimersRef.current = []
   }, [])
   
   // Schedule look-away popups when replay starts
@@ -536,15 +595,32 @@ export default function ReviewPage() {
       clearLookAwayTimers()
     }
   }, [isReplaying, isReplayPaused, loading, lookedAwayEvents, scheduleLookAwayPopups, clearLookAwayTimers])
+
+  // Schedule tab switch popups when replay starts
+  useEffect(() => {
+    if (!isReplaying || isReplayPaused || loading || tabSwitchEvents.length === 0) {
+      return
+    }
+    
+    // Calculate current position in original timeline (in ms)
+    const currentPositionMs = lastAppliedChangeTimeRef.current
+    
+    scheduleTabSwitchPopups(1, currentPositionMs) // Always use 1x speed
+    
+    return () => {
+      clearTabSwitchTimers()
+    }
+  }, [isReplaying, isReplayPaused, loading, tabSwitchEvents, scheduleTabSwitchPopups, clearTabSwitchTimers])
   
-  // Handle pause/resume for look-away popups
+  // Handle pause/resume for look-away and tab switch popups
   useEffect(() => {
     if (isReplayPaused) {
       // Pause: clear all timers
       clearLookAwayTimers()
+      clearTabSwitchTimers()
     }
     // Resume is handled by the main effect above which re-schedules when isReplayPaused becomes false
-  }, [isReplayPaused, clearLookAwayTimers])
+  }, [isReplayPaused, clearLookAwayTimers, clearTabSwitchTimers])
   
   // Cleanup look-away timers on unmount
   useEffect(() => {

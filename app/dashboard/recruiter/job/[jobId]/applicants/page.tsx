@@ -755,7 +755,6 @@ export default function JobApplicantsPage() {
 
                 {/* Role Expectations / Tools / Domain Context */}
                 <div className="pt-4 border-t border-border/50">
-                  <h2 className="text-sm font-semibold text-muted-foreground mb-3">Role Expectations</h2>
                   <div className="space-y-3">
                     {/* Tools */}
                     <div>
@@ -768,14 +767,6 @@ export default function JobApplicantsPage() {
                         ))}
                       </div>
                     </div>
-
-                    {/* Domain Context */}
-                    {job.composition && (
-                      <div>
-                        <h3 className="text-xs font-medium text-muted-foreground mb-2">Assessment Composition</h3>
-                        <p className="text-sm text-muted-foreground">{job.composition}</p>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -1773,7 +1764,7 @@ export default function JobApplicantsPage() {
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                   Challenges Attempted
                 </h3>
-                <div className="flex gap-5 overflow-x-auto pb-6 -mx-6 px-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'thin' }}>
+                <div className="flex gap-5 overflow-x-auto pb-6 -mx-6 px-6 snap-x snap-mandatory items-stretch" style={{ scrollbarWidth: 'thin' }}>
                   {requiredChallenges.map((challenge) => {
                     // Get all shortlisted candidates who attempted this challenge
                     const candidatesWhoAttempted = shortlistedCandidatesList
@@ -1784,16 +1775,16 @@ export default function JobApplicantsPage() {
                       .filter(Boolean) as Array<{ candidate: typeof shortlistedCandidatesList[0], submission: { challengeId: string, score: number, violations: number } }>
                     
                     return (
-                      <Card key={challenge.id} className="min-w-[380px] border-2 snap-start flex-shrink-0">
-                        <CardContent className="p-6">
-                          <div className="space-y-4">
-                            <div>
+                      <Card key={challenge.id} className="min-w-[380px] max-w-[380px] border-2 snap-start flex-shrink-0 h-full">
+                        <CardContent className="p-6 h-full flex flex-col">
+                          <div className="space-y-4 flex-1 flex flex-col">
+                            <div className="flex-shrink-0">
                               <h4 className="font-semibold text-lg mb-2">{challenge.title}</h4>
-                              <p className="text-sm text-muted-foreground mb-4">{challenge.description}</p>
+                              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{challenge.description}</p>
                             </div>
                             
                             {/* List of candidates who attempted */}
-                            <div className="space-y-3">
+                            <div className="space-y-3 flex-1 min-h-0">
                               {candidatesWhoAttempted.length > 0 ? (
                                 <div className="space-y-2">
                                   {candidatesWhoAttempted.map(({ candidate, submission }) => (
@@ -1821,13 +1812,13 @@ export default function JobApplicantsPage() {
                                 </div>
                               ) : (
                                 <p className="text-sm text-muted-foreground italic">No shortlisted candidates have attempted this challenge</p>
-      )}
-    </div>
+                              )}
+                            </div>
                             
                             {/* Replay Submissions Button */}
                             <Button 
                               variant="default" 
-                              className="w-full"
+                              className="w-full flex-shrink-0"
                               disabled={candidatesWhoAttempted.length === 0}
                               onClick={() => {
                                 router.push(`/dashboard/recruiter/job/${jobId}/applicants/replay/${challenge.id}`)
@@ -2082,98 +2073,6 @@ export default function JobApplicantsPage() {
                       </Card>
                     )
                   })}
-                </div>
-              </div>
-
-              {/* Section 3: Experience & Fit Comparison */}
-              <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Wrench className="h-5 w-5 text-primary" />
-                  Experience & Fit Comparison
-                </h3>
-                
-                {/* Tool Familiarity Matrix */}
-                <Card className="mb-4">
-                  <CardHeader>
-                    <CardTitle className="text-base">Tool Familiarity</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr>
-                            <th className="text-left p-2 font-semibold">Tool</th>
-                            {shortlistedCandidatesList.map((candidate) => (
-                              <th key={candidate.id} className="text-center p-2 text-sm font-medium">
-                                <div>
-                                  <div>{candidate.name}</div>
-                                  <div className="text-xs text-muted-foreground font-normal">#{candidate.candidateNumber}</div>
-                                </div>
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {requiredTools.map((tool) => (
-                            <tr key={tool} className="border-b">
-                              <td className="p-2 font-medium">{tool}</td>
-                              {shortlistedCandidatesList.map((candidate) => (
-                                <td key={candidate.id} className="p-2 text-center">
-                                  {candidate.toolFit.allTools.includes(tool) ? (
-                                    <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto" />
-                                  ) : (
-                                    <X className="h-5 w-5 text-muted-foreground mx-auto" />
-                                  )}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Fit Badges */}
-                <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${shortlistedCandidatesList.length}, minmax(200px, 1fr))` }}>
-                  {shortlistedCandidatesList.map((candidate) => (
-                    <Card key={candidate.id}>
-                      <CardContent className="p-4 space-y-3">
-                        <div className="text-center mb-3 pb-3 border-b">
-                          <p className="font-semibold text-sm">{candidate.name}</p>
-                          <p className="text-xs text-muted-foreground">#{candidate.candidateNumber}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Wrench className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">Tool Fit:</span>
-                          <Badge 
-                            variant="outline"
-                            className={cn(
-                              candidate.toolFit.level === 'High' ? "bg-green-500/10 text-green-600 border-green-500/20" :
-                              candidate.toolFit.level === 'Medium' ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" :
-                              "bg-red-500/10 text-red-600 border-red-500/20"
-                            )}
-                          >
-                            {candidate.toolFit.level} ({candidate.toolFit.score}/{candidate.toolFit.total})
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">Industry Fit:</span>
-                          <Badge 
-                            variant="outline"
-                            className={cn(
-                              candidate.industryFit.level === 'High' ? "bg-green-500/10 text-green-600 border-green-500/20" :
-                              candidate.industryFit.level === 'Medium' ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" :
-                              "bg-red-500/10 text-red-600 border-red-500/20"
-                            )}
-                          >
-                            {candidate.industryFit.level}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
                 </div>
               </div>
 

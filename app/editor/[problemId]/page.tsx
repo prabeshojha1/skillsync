@@ -142,6 +142,11 @@ export default function EditorPage() {
   const lastLookAwayTimeRef = useRef<number>(0) // Track last event time for debouncing
   const gazeInitializedRef = useRef(false)
   
+  // Tab switch detection state
+  const [tabSwitchTimestamps, setTabSwitchTimestamps] = useState<number[]>([]) // Relative timestamps in ms
+  const isPageVisibleRef = useRef(true) // Track current page visibility state
+  const lastTabSwitchTimeRef = useRef<number>(0) // Track last tab switch time for debouncing
+  
   const [isLoadingPyodide, setIsLoadingPyodide] = useState(false)
   const [isPyodideReady, setIsPyodideReady] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
@@ -213,6 +218,11 @@ export default function EditorPage() {
       exerciseStartTimeRef.current = 0
       isLookingAwayRef.current = false
       lastLookAwayTimeRef.current = 0
+      
+      // Reset tab switch detection
+      setTabSwitchTimestamps([])
+      isPageVisibleRef.current = true
+      lastTabSwitchTimeRef.current = 0
       gazeInitializedRef.current = false
       if (gazeFrameCaptureIntervalRef.current) {
         clearInterval(gazeFrameCaptureIntervalRef.current)
@@ -491,6 +501,67 @@ export default function EditorPage() {
       // Continue without audio if permission denied or other error
     }
   }, [problemId])
+
+  // Tab switch detection using Page Visibility API
+  useEffect(() => {
+    if (problemId === 'patient-monitoring-system' && isRecordingRef.current) {
+      const handleVisibilityChange = () => {
+        const now = Date.now()
+        const isPageVisible = !document.hidden
+        
+        // Only record when page becomes hidden (tab switched away)
+        if (!isPageVisible && isPageVisibleRef.current) {
+          // Debouncing: only count as a new event if at least 2 seconds since last event
+          const DEBOUNCE_TIME = 2000 // 2 seconds
+          
+          if (now - lastTabSwitchTimeRef.current >= DEBOUNCE_TIME && exerciseStartTimeRef.current > 0) {
+            const relativeTimestamp = now - exerciseStartTimeRef.current
+            setTabSwitchTimestamps(prev => [...prev, relativeTimestamp])
+            lastTabSwitchTimeRef.current = now
+            console.log(`Tab switch detected at ${relativeTimestamp}ms`)
+          }
+        }
+        
+        // When tab becomes visible again, check if MediaRecorder needs to be restarted
+        if (isPageVisible && !isPageVisibleRef.current) {
+          // Tab became visible again - check if MediaRecorder is still recording
+          if (isRecordingRef.current && hasAudioRecordingStartedRef.current) {
+            const recorder = mediaRecorderRef.current
+            // Check if recorder exists and is not in recording state
+            if (!recorder || recorder.state !== 'recording') {
+              console.log('MediaRecorder not recording after tab became visible, restarting...')
+              // Restart recording
+              if (recorder) {
+                try {
+                  // Try to stop it cleanly if it exists
+                  if (recorder.state !== 'inactive') {
+                    recorder.stop()
+                  }
+                } catch (e) {
+                  console.error('Error stopping MediaRecorder:', e)
+                }
+              }
+              mediaRecorderRef.current = null
+              hasAudioRecordingStartedRef.current = false
+              setTimeout(() => {
+                if (isRecordingRef.current) {
+                  startAudioRecording()
+                }
+              }, 100)
+            }
+          }
+        }
+        
+        isPageVisibleRef.current = isPageVisible
+      }
+      
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+      
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+      }
+    }
+  }, [problemId, startAudioRecording])
 
   // Stop audio recording and upload
   const stopAudioRecordingAndUpload = useCallback(async (submissionId: string, challengeId: string): Promise<string | null> => {
@@ -891,6 +962,19 @@ export default function EditorPage() {
       })
     })
 
+    // Add tab switch flags with actual timestamps
+    tabSwitchTimestamps.forEach((relativeTs) => {
+      // Calculate absolute timestamp for display purposes
+      const absoluteTime = new Date(exerciseStartTimeRef.current + relativeTs).toISOString()
+      
+      cheatingFlags.push({
+        type: 'tab_switch',
+        timestamp: absoluteTime,
+        // Store relative timestamp in details for replay synchronization
+        details: `Tab switched at ${formatTime(relativeTs / 1000)} (relative_ms:${relativeTs})`,
+      })
+    })
+
     // Stop audio recording and upload
     let audioFileName: string | null = null
     if (hasAudioRecordingStartedRef.current) {
@@ -923,7 +1007,7 @@ export default function EditorPage() {
 
     // Navigate to dashboard
     router.push('/dashboard/applicant')
-  }, [problemData, router, recordedChanges, stopAudioRecordingAndUpload, lookedAwayTimestamps, formatTime])
+  }, [problemData, router, recordedChanges, stopAudioRecordingAndUpload, lookedAwayTimestamps, tabSwitchTimestamps, formatTime])
 
   // Suppress Pyodide stackframe loading errors (non-critical)
   useEffect(() => {
