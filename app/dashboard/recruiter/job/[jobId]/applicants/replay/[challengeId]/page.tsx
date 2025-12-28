@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Editor from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import { Button } from '@/components/ui/button'
-import { Play, Pause, ArrowLeft, Circle, Square } from 'lucide-react'
+import { Play, Pause, ArrowLeft, Circle, Square, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getProblemById } from '@/lib/problems'
 import { getCompanyBySlug } from '@/lib/companies'
@@ -51,9 +51,10 @@ export default function ReplayPage() {
   const [candidates, setCandidates] = useState<JobApplicant[]>([])
   const [loading, setLoading] = useState(true)
   const [replaySpeed, setReplaySpeed] = useState('1')
+  const [focusedEditorIndex, setFocusedEditorIndex] = useState<number | null>(null)
 
   // Load stored recordings from API
-  const loadRecordings = useCallback(async () => {
+  const loadRecordings = useCallback(async (initialEditors: EditorState[]) => {
     try {
       const response = await fetch(`/api/submissions/${challengeId}/recruiter-recording`, {
         method: 'GET',
@@ -66,7 +67,7 @@ export default function ReplayPage() {
       }
 
       const data = await response.json()
-      const recordings = Array.isArray(data.recordings) ? data.recordings : (Array.isArray(data) ? data : [])
+      const recordings = Array.isArray(data.recordings) ? data.recordings : []
 
       if (recordings.length === 0) {
         return // No stored recordings
@@ -83,6 +84,7 @@ export default function ReplayPage() {
           audioFileName: string
         }) => {
           if (recording.editorIndex >= 0 && recording.editorIndex < 3) {
+            // Don't add cache-busting when loading - the audio file should be the correct one
             const audioUrl = `/api/submissions/${challengeId}/audio/${recording.submissionId}`
             newEditors[recording.editorIndex] = {
               ...newEditors[recording.editorIndex],
@@ -97,6 +99,64 @@ export default function ReplayPage() {
       })
     } catch (error) {
       console.error('Error loading stored recordings:', error)
+    }
+  }, [challengeId])
+
+  // Save recordings to API
+  const saveRecordings = useCallback(async (editorsState: EditorState[]) => {
+    try {
+      // Collect recordings from all editors that have recordedChanges
+      const recordings = editorsState
+        .map((editor, index) => {
+          if (editor.recordedChanges.length > 0 && editor.submissionId) {
+            // Audio filename is always {submissionId}.webm
+            const audioFileName = `${editor.submissionId}.webm`
+            
+            // Serialize recordedChanges to ensure they're JSON-compatible
+            const serializedChanges = editor.recordedChanges.map(change => ({
+              changes: change.changes.map(delta => ({
+                range: {
+                  startLineNumber: delta.range.startLineNumber,
+                  startColumn: delta.range.startColumn,
+                  endLineNumber: delta.range.endLineNumber,
+                  endColumn: delta.range.endColumn,
+                },
+                text: delta.text,
+              })),
+              timestamp: change.timestamp,
+            }))
+            
+            return {
+              editorIndex: index,
+              submissionId: editor.submissionId,
+              recordedChanges: serializedChanges,
+              audioFileName,
+            }
+          }
+          return null
+        })
+        .filter((recording): recording is NonNullable<typeof recording> => recording !== null)
+
+      if (recordings.length === 0) {
+        return // No recordings to save
+      }
+
+      const response = await fetch(`/api/submissions/${challengeId}/recruiter-recording`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ recordings }),
+      })
+
+      if (!response.ok) {
+        console.error('Failed to save recordings:', await response.text())
+        return
+      }
+
+      console.log(`Saved ${recordings.length} recordings for challenge ${challengeId}`)
+    } catch (error) {
+      console.error('Error saving recordings:', error)
     }
   }, [challengeId])
 
@@ -152,6 +212,7 @@ export default function ReplayPage() {
   const isRecordingRefs = useRef<boolean[]>([false, false, false])
   const isReplayingRefs = useRef<boolean[]>([false, false, false])
   const isReplayPausedRefs = useRef<boolean[]>([false, false, false])
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Load candidates
   useEffect(() => {
@@ -171,13 +232,38 @@ export default function ReplayPage() {
           return
         }
 
-        // Get candidates who attempted this challenge
-        const candidatesWhoAttempted = applicants
+        // Load shortlisted candidates from localStorage
+        let shortlistedCandidateIds = new Set<string>()
+        if (typeof window !== 'undefined') {
+          try {
+            const storageKey = `shortlisted-candidates-${jobId}`
+            const stored = localStorage.getItem(storageKey)
+            if (stored) {
+              shortlistedCandidateIds = new Set(JSON.parse(stored))
+            }
+          } catch (e) {
+            console.error('Failed to load shortlisted candidates:', e)
+          }
+        }
+
+        // Get shortlisted candidates who attempted this challenge
+        let candidatesWhoAttempted = applicants
           .filter(applicant => {
             const submission = applicant.submissions?.find(sub => sub.challengeId === challengeId)
-            return submission !== undefined
+            return submission !== undefined && shortlistedCandidateIds.has(applicant.id)
           })
           .slice(0, 3) // Take first 3
+
+        // If we don't have 3 shortlisted candidates, fall back to any candidates who attempted
+        if (candidatesWhoAttempted.length < 3) {
+          const fallbackCandidates = applicants
+            .filter(applicant => {
+              const submission = applicant.submissions?.find(sub => sub.challengeId === challengeId)
+              return submission !== undefined && !shortlistedCandidateIds.has(applicant.id)
+            })
+            .slice(0, 3 - candidatesWhoAttempted.length)
+          candidatesWhoAttempted = [...candidatesWhoAttempted, ...fallbackCandidates]
+        }
 
         if (candidatesWhoAttempted.length === 0) {
           router.push(`/dashboard/recruiter/job/${jobId}/applicants`)
@@ -185,6 +271,7 @@ export default function ReplayPage() {
         }
 
         // Initialize editors with candidates
+        // Use stable submissionId based on challengeId and editor index (not timestamp)
         const newEditors: EditorState[] = candidatesWhoAttempted.map((candidate, index) => ({
           isRecording: false,
           isReplaying: false,
@@ -193,7 +280,7 @@ export default function ReplayPage() {
           audioUrl: null,
           replayProgress: { elapsed: 0, total: 0 },
           candidate,
-          submissionId: `recruiter-recording-${Date.now()}-${index}`,
+          submissionId: `recruiter-recording-${challengeId}-${index}`,
         }))
 
         // Pad with empty editors if less than 3
@@ -206,19 +293,16 @@ export default function ReplayPage() {
             audioUrl: null,
             replayProgress: { elapsed: 0, total: 0 },
             candidate: null,
-            submissionId: `recruiter-recording-${Date.now()}-${newEditors.length}`,
+            submissionId: `recruiter-recording-${challengeId}-${newEditors.length}`,
           })
         }
 
         setCandidates(candidatesWhoAttempted)
         setEditors(newEditors)
         setLoading(false)
-
-        // Load stored recordings after candidates are loaded
-        // Use setTimeout to ensure editors state is set first
-        setTimeout(() => {
-          loadRecordings()
-        }, 100)
+        
+        // Load stored recordings after editors are initialized
+        loadRecordings(newEditors)
       } catch (error) {
         console.error('Error loading candidates:', error)
         setLoading(false)
@@ -226,7 +310,7 @@ export default function ReplayPage() {
     }
 
     loadCandidates()
-  }, [jobId, challengeId, router, loadRecordings])
+  }, [jobId, challengeId, router])
 
   // Start audio recording for a specific editor
   const startAudioRecording = useCallback(async (editorIndex: number) => {
@@ -309,11 +393,27 @@ export default function ReplayPage() {
 
           if (response.ok) {
             const result = await response.json()
-            const audioUrl = `/api/submissions/${challengeId}/audio/${submissionId}`
+            // Add cache-busting parameter to ensure fresh audio (use timestamp to force reload)
+            const timestamp = Date.now()
+            const audioUrl = `/api/submissions/${challengeId}/audio/${submissionId}?t=${timestamp}`
             
             setEditors(prev => {
               const newEditors = [...prev]
               newEditors[editorIndex] = { ...newEditors[editorIndex], audioUrl }
+              
+              // Clear and reload the audio element to ensure it uses the new file
+              const audioRef = audioRefs.current[editorIndex]
+              if (audioRef) {
+                audioRef.pause()
+                audioRef.src = audioUrl
+                audioRef.load()
+              }
+              
+              // Save recordings after audio is uploaded
+              setTimeout(() => {
+                saveRecordings(newEditors)
+              }, 100)
+              
               return newEditors
             })
 
@@ -389,6 +489,13 @@ export default function ReplayPage() {
                 },
               ],
             }
+            // Save recordings after each change (debounced)
+            if (saveTimeoutRef.current) {
+              clearTimeout(saveTimeoutRef.current)
+            }
+            saveTimeoutRef.current = setTimeout(() => {
+              saveRecordings(newEditors)
+            }, 2000) // Debounce: save 2 seconds after last change
             return newEditors
           })
         }
@@ -396,7 +503,7 @@ export default function ReplayPage() {
 
       disposableRefs.current[editorIndex] = disposable
     }
-  }, [problemData, startAudioRecording])
+  }, [problemData, startAudioRecording, saveRecordings])
 
   // Format time
   const formatTime = useCallback((seconds: number): string => {
@@ -411,53 +518,6 @@ export default function ReplayPage() {
     editorsRef.current = editors
   }, [editors])
 
-  // Save recordings to API
-  const saveRecordings = useCallback(async () => {
-    try {
-      // Use ref to get latest state
-      const currentEditors = editorsRef.current
-      
-      // Collect recordings from all editors that have recordedChanges
-      const recordings = currentEditors
-        .map((editor, index) => {
-          if (editor.recordedChanges.length > 0 && editor.audioUrl && editor.submissionId) {
-            // Audio filename is always {submissionId}.webm
-            const audioFileName = `${editor.submissionId}.webm`
-            
-            return {
-              editorIndex: index,
-              submissionId: editor.submissionId,
-              recordedChanges: editor.recordedChanges,
-              audioFileName,
-            }
-          }
-          return null
-        })
-        .filter((recording): recording is NonNullable<typeof recording> => recording !== null)
-
-      if (recordings.length === 0) {
-        return // No recordings to save
-      }
-
-      const response = await fetch(`/api/submissions/${challengeId}/recruiter-recording`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ recordings }),
-      })
-
-      if (!response.ok) {
-        console.error('Failed to save recordings:', await response.text())
-        return
-      }
-
-      console.log(`Saved ${recordings.length} recordings for challenge ${challengeId}`)
-    } catch (error) {
-      console.error('Error saving recordings:', error)
-    }
-  }, [challengeId])
-
   // Start replay for a specific editor
   const startReplay = useCallback((editorIndex: number, speed: number = 1, startFromElapsed: number = 0) => {
     const editorRef = editorRefs.current[editorIndex]
@@ -470,6 +530,9 @@ export default function ReplayPage() {
 
     // Get editor state from ref to avoid dependency on editors state
     const editorState = editorsRef.current[editorIndex]
+    
+    // Get current focus state - read directly since it's in dependency array
+    const currentFocusedIndex = focusedEditorIndex
     if (!editorState || editorState.recordedChanges.length === 0) {
       return
     }
@@ -487,6 +550,15 @@ export default function ReplayPage() {
       // Always pause and reset audio first to ensure clean start
       audioRef.pause()
       
+      // Set volume based on current focus state
+      if (currentFocusedIndex === editorIndex) {
+        audioRef.volume = 1.0
+      } else if (currentFocusedIndex !== null) {
+        audioRef.volume = 0.1
+      } else {
+        audioRef.volume = 1.0
+      }
+      
       const playAudio = () => {
         // Always reset to start position when starting from beginning
         if (startFromElapsed === 0) {
@@ -495,6 +567,15 @@ export default function ReplayPage() {
           audioRef.currentTime = startFromElapsed
         }
         audioRef.playbackRate = speed
+        
+        // Ensure volume is set correctly before playing
+        if (currentFocusedIndex === editorIndex) {
+          audioRef.volume = 1.0
+        } else if (currentFocusedIndex !== null) {
+          audioRef.volume = 0.1
+        } else {
+          audioRef.volume = 1.0
+        }
         
         // Try to play immediately if ready
         if (audioRef.readyState >= 2) {
@@ -506,6 +587,14 @@ export default function ReplayPage() {
         } else {
           // Wait for audio to be ready
           const onCanPlay = () => {
+            // Ensure volume is set correctly before playing
+            if (currentFocusedIndex === editorIndex) {
+              audioRef.volume = 1.0
+            } else if (currentFocusedIndex !== null) {
+              audioRef.volume = 0.05
+            } else {
+              audioRef.volume = 1.0
+            }
             audioRef.play().catch(error => {
               if (error.name !== 'NotSupportedError') {
                 console.error(`Error playing audio for editor ${editorIndex}:`, error)
@@ -517,6 +606,14 @@ export default function ReplayPage() {
           }
           
           const onLoadedData = () => {
+            // Ensure volume is set correctly before playing
+            if (currentFocusedIndex === editorIndex) {
+              audioRef.volume = 1.0
+            } else if (currentFocusedIndex !== null) {
+              audioRef.volume = 0.1
+            } else {
+              audioRef.volume = 1.0
+            }
             // Audio data is loaded, try to play
             audioRef.play().catch(error => {
               if (error.name !== 'NotSupportedError') {
@@ -574,50 +671,8 @@ export default function ReplayPage() {
       lastAppliedChangeTimeRefs.current[editorIndex] = 0
     }
 
-    // Set total duration
+    // Set total duration (not used for display, but needed for calculations)
     const initialDelay = 100
-    const totalReplayDuration = startFromElapsed === 0 
-      ? (totalDuration / 1000) + (initialDelay / 1000)
-      : totalDuration / 1000
-    
-    setEditors(prev => {
-      const newEditors = [...prev]
-      newEditors[editorIndex] = {
-        ...newEditors[editorIndex],
-        replayProgress: { elapsed: startFromElapsed, total: totalReplayDuration },
-      }
-      return newEditors
-    })
-
-    // Start progress tracking
-    const initialElapsed = startTimeInOriginalTimeline / speed / 1000
-    const adjustedInitialElapsed = startFromElapsed === 0 ? initialDelay / 1000 : initialElapsed
-    replayStartTimeRefs.current[editorIndex] = Date.now() - (adjustedInitialElapsed * 1000)
-    replayProgressElapsedRefs.current[editorIndex] = adjustedInitialElapsed
-    replayProgressIntervalRefs.current[editorIndex] = setInterval(() => {
-      if (!isReplayPausedRefs.current[editorIndex]) {
-        let elapsed: number
-        if (lastAppliedChangeTimeRefs.current[editorIndex] > 0) {
-          elapsed = startFromElapsed === 0
-            ? (initialDelay / 1000) + (lastAppliedChangeTimeRefs.current[editorIndex] / speed / 1000)
-            : startFromElapsed + (lastAppliedChangeTimeRefs.current[editorIndex] / speed / 1000)
-        } else {
-          elapsed = (Date.now() - replayStartTimeRefs.current[editorIndex]) / 1000
-        }
-        replayProgressElapsedRefs.current[editorIndex] = elapsed
-        setEditors(prev => {
-          const newEditors = [...prev]
-          newEditors[editorIndex] = {
-            ...newEditors[editorIndex],
-            replayProgress: { 
-              elapsed: Math.min(elapsed, newEditors[editorIndex].replayProgress.total),
-              total: newEditors[editorIndex].replayProgress.total,
-            },
-          }
-          return newEditors
-        })
-      }
-    }, 100)
 
     // Show boilerplate first
     if (startFromElapsed === 0 && problemData && modelRef) {
@@ -638,22 +693,7 @@ export default function ReplayPage() {
           modelRef.applyEdits(edits)
           lastAppliedChangeTimeRefs.current[editorIndex] = change.relativeTime
 
-          const baseElapsed = change.relativeTime / speed / 1000
-          const currentElapsed = startFromElapsed === 0 
-            ? (initialDelay / 1000) + baseElapsed
-            : startFromElapsed + baseElapsed
-          replayProgressElapsedRefs.current[editorIndex] = currentElapsed
-          setEditors(prev => {
-            const newEditors = [...prev]
-            newEditors[editorIndex] = {
-              ...newEditors[editorIndex],
-              replayProgress: { 
-                elapsed: Math.min(currentElapsed, newEditors[editorIndex].replayProgress.total),
-                total: newEditors[editorIndex].replayProgress.total,
-              },
-            }
-            return newEditors
-          })
+          // Progress tracking removed
 
           // If last change, finish replay after remaining time
           if (index === remainingChanges.length - 1) {
@@ -663,9 +703,7 @@ export default function ReplayPage() {
             const finishDelay = Math.max(remainingTime * 1000 + 100, 100)
             
             setTimeout(() => {
-              if (editorRef && replayProgressIntervalRefs.current[editorIndex]) {
-                clearInterval(replayProgressIntervalRefs.current[editorIndex]!)
-                replayProgressIntervalRefs.current[editorIndex] = null
+              if (editorRef) {
                 editorRef.updateOptions({ readOnly: false })
                 setEditors(prev => {
                   const newEditors = [...prev]
@@ -673,11 +711,9 @@ export default function ReplayPage() {
                     ...newEditors[editorIndex],
                     isReplaying: false,
                     isReplayPaused: false,
-                    replayProgress: { elapsed: 0, total: 0 },
                   }
                   return newEditors
                 })
-                replayProgressElapsedRefs.current[editorIndex] = 0
                 lastAppliedChangeTimeRefs.current[editorIndex] = 0
                 if (audioRef) {
                   audioRef.pause()
@@ -691,12 +727,20 @@ export default function ReplayPage() {
 
       replayTimeoutsRefs.current[editorIndex].push(timeout)
     })
-  }, [problemData])
+  }, [problemData, focusedEditorIndex])
 
   // Handle start recording for an editor
   const handleStartRecording = useCallback((editorIndex: number) => {
     const editorRef = editorRefs.current[editorIndex]
+    const audioRef = audioRefs.current[editorIndex]
     if (!editorRef) return
+
+    // Clear any existing audio
+    if (audioRef) {
+      audioRef.pause()
+      audioRef.src = ''
+      audioRef.load()
+    }
 
     editorRef.updateOptions({ readOnly: false })
     setEditors(prev => {
@@ -705,9 +749,9 @@ export default function ReplayPage() {
         ...newEditors[editorIndex],
         isRecording: true,
         recordedChanges: [],
+        audioUrl: null, // Clear audio URL when starting new recording
         isReplaying: false,
         isReplayPaused: false,
-        replayProgress: { elapsed: 0, total: 0 },
       }
       return newEditors
     })
@@ -727,16 +771,16 @@ export default function ReplayPage() {
         ...newEditors[editorIndex],
         isRecording: false,
       }
+      
+      // Save recordings after stopping recording
+      setTimeout(() => {
+        saveRecordings(newEditors)
+      }, 200)
+      
       return newEditors
     })
 
     await stopAudioRecordingAndUpload(editorIndex)
-    
-    // Save recordings after audio upload completes
-    // Use setTimeout to ensure state is updated
-    setTimeout(() => {
-      saveRecordings()
-    }, 100)
   }, [stopAudioRecordingAndUpload, saveRecordings])
 
   // Handle start replay for an editor
@@ -776,7 +820,6 @@ export default function ReplayPage() {
     })
     isReplayingRefs.current[editorIndex] = true
     lastAppliedChangeTimeRefs.current[editorIndex] = 0
-    replayProgressElapsedRefs.current[editorIndex] = 0
     
     const speed = parseFloat(replaySpeed)
     startReplay(editorIndex, speed, 0)
@@ -790,7 +833,7 @@ export default function ReplayPage() {
     if (editorState.isReplayPaused) {
       const elapsedReplayTime = lastAppliedChangeTimeRefs.current[editorIndex] > 0
         ? lastAppliedChangeTimeRefs.current[editorIndex] / 1000
-        : replayProgressElapsedRefs.current[editorIndex]
+        : 0
       const speed = parseFloat(replaySpeed)
       startReplay(editorIndex, speed, elapsedReplayTime)
       setEditors(prev => {
@@ -829,48 +872,92 @@ export default function ReplayPage() {
     }
   }, [editors, startReplay, replaySpeed])
 
-  // Handle replay all
-  const handleReplayAll = useCallback(() => {
-    // Check if all editors have recorded data
-    const allHaveData = editors.every((editor, index) => 
-      editor.candidate && editor.recordedChanges.length > 0
-    )
-
-    if (!allHaveData) return
-
-    // Prepare all editors first
-    editors.forEach((_, index) => {
-      if (editors[index].candidate && editors[index].recordedChanges.length > 0) {
-        const editorRef = editorRefs.current[index]
-        const modelRef = modelRefs.current[index]
-        if (editorRef && modelRef) {
-          editorRef.updateOptions({ readOnly: true })
-          modelRef.setValue('')
-          
-          setEditors(prev => {
-            const newEditors = [...prev]
-            newEditors[index] = {
-              ...newEditors[index],
-              isReplaying: true,
-              isReplayPaused: false,
-            }
-            return newEditors
-          })
-          isReplayingRefs.current[index] = true
+  // Update audio volumes based on focus
+  const updateAudioVolumes = useCallback((focusedIndex: number | null) => {
+    for (let i = 0; i < 3; i++) {
+      const audioRef = audioRefs.current[i]
+      if (audioRef) {
+        if (focusedIndex === i) {
+          audioRef.volume = 1.0 // Full volume for focused editor
+        } else if (focusedIndex !== null) {
+          audioRef.volume = 0.1 // 10% volume for others
+        } else {
+          audioRef.volume = 1.0 // Default to full volume if no focus
         }
       }
-    })
+    }
+  }, [])
 
-    // Start all replays simultaneously using requestAnimationFrame for better sync
-    requestAnimationFrame(() => {
-      const speed = parseFloat(replaySpeed)
-      editors.forEach((_, index) => {
-        if (editors[index].candidate && editors[index].recordedChanges.length > 0) {
-          startReplay(index, speed, 0)
+  // Handle focus on an editor
+  const handleFocusEditor = useCallback((editorIndex: number) => {
+    const newFocusedIndex = focusedEditorIndex === editorIndex ? null : editorIndex
+    const isFirstTimeFocus = focusedEditorIndex === null && newFocusedIndex !== null
+    
+    setFocusedEditorIndex(newFocusedIndex)
+    
+    // Only start replays if this is the first time setting focus
+    if (isFirstTimeFocus && newFocusedIndex !== null) {
+      // Update volumes first before starting replays
+      updateAudioVolumes(newFocusedIndex)
+      
+      editors.forEach((editor, index) => {
+        if (editor.candidate && editor.recordedChanges.length > 0) {
+          const editorRef = editorRefs.current[index]
+          const modelRef = modelRefs.current[index]
+          if (editorRef && modelRef) {
+            editorRef.updateOptions({ readOnly: true })
+            modelRef.setValue('')
+            
+            setEditors(prev => {
+              const newEditors = [...prev]
+              newEditors[index] = {
+                ...newEditors[index],
+                isReplaying: true,
+                isReplayPaused: false,
+              }
+              return newEditors
+            })
+            isReplayingRefs.current[index] = true
+            
+            const speed = parseFloat(replaySpeed)
+            startReplay(index, speed, 0)
+          }
         }
       })
+    } else {
+      // Update audio volumes when switching focus (without restarting)
+      updateAudioVolumes(newFocusedIndex)
+    }
+  }, [editors, startReplay, replaySpeed, focusedEditorIndex, updateAudioVolumes])
+
+  // Update volumes when focus changes
+  useEffect(() => {
+    updateAudioVolumes(focusedEditorIndex)
+  }, [focusedEditorIndex, updateAudioVolumes])
+
+  // Handle start recording for all editors (replaces Replay All)
+  const handleStartRecordingAll = useCallback(() => {
+    // Reset all editors and start recording
+    editors.forEach((_, index) => {
+      if (editors[index].candidate) {
+        // Stop any ongoing replays
+        if (editors[index].isReplaying) {
+          replayTimeoutsRefs.current[index].forEach((timeout) => clearTimeout(timeout))
+          replayTimeoutsRefs.current[index] = []
+          if (replayProgressIntervalRefs.current[index]) {
+            clearInterval(replayProgressIntervalRefs.current[index]!)
+            replayProgressIntervalRefs.current[index] = null
+          }
+          const audioRef = audioRefs.current[index]
+          if (audioRef) {
+            audioRef.pause()
+          }
+        }
+        handleStartRecording(index)
+      }
     })
-  }, [editors, startReplay, replaySpeed])
+    setFocusedEditorIndex(null)
+  }, [editors, handleStartRecording])
 
   // Handle pause/resume all
   const handlePauseResumeAll = useCallback(() => {
@@ -975,14 +1062,47 @@ export default function ReplayPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button
-            variant="default"
-            onClick={handleReplayAll}
-            disabled={!allHaveRecordedData || editors.some(e => e.candidate && e.isReplaying)}
+            variant="outline"
+            onClick={async () => {
+              if (confirm('Are you sure you want to delete all recordings? This cannot be undone.')) {
+                try {
+                  const response = await fetch(`/api/submissions/${challengeId}/recruiter-recording`, {
+                    method: 'DELETE',
+                  })
+                  if (response.ok) {
+                    // Clear all audio refs
+                    for (let i = 0; i < 3; i++) {
+                      const audioRef = audioRefs.current[i]
+                      if (audioRef) {
+                        audioRef.pause()
+                        audioRef.src = ''
+                        audioRef.load()
+                      }
+                    }
+                    // Reset all editors
+                    setEditors(prev => prev.map(editor => ({
+                      ...editor,
+                      recordedChanges: [],
+                      audioUrl: null,
+                    })))
+                    // Reload page to ensure clean state and clear browser cache
+                    window.location.reload()
+                  } else {
+                    console.error('Failed to delete recordings')
+                    const errorText = await response.text()
+                    console.error('Error response:', errorText)
+                  }
+                } catch (error) {
+                  console.error('Error deleting recordings:', error)
+                }
+              }
+            }}
+            className="text-destructive hover:text-destructive"
           >
-            <Play className="h-4 w-4 mr-2" />
-            Replay All
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete All Recordings
           </Button>
-          {editors.some(e => e.candidate && e.isReplaying) && (
+          {allHaveRecordedData ? (
             <>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Speed:</span>
@@ -1003,31 +1123,36 @@ export default function ReplayPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button
-                variant="outline"
-                onClick={handlePauseResumeAll}
-              >
-                {editors.every((e, i) => !e.candidate || !e.isReplaying || e.isReplayPaused) ? (
-                  <>
-                    <Play className="h-4 w-4 mr-2" />
-                    Resume All
-                  </>
-                ) : (
-                  <>
-                    <Pause className="h-4 w-4 mr-2" />
-                    Pause All
-                  </>
-                )}
-              </Button>
             </>
+          ) : (
+            <Button
+              variant="default"
+              onClick={handleStartRecordingAll}
+              disabled={editors.every(e => !e.candidate || e.isRecording || e.isReplaying)}
+            >
+              <Circle className="h-4 w-4 mr-2" />
+              Start Recording
+            </Button>
           )}
         </div>
       </div>
 
       {/* Three Editor Panels */}
       <div className="flex-1 grid grid-cols-3 gap-4 p-4 overflow-hidden">
-        {editors.map((editorState, index) => (
-          <Card key={index} className="flex flex-col overflow-hidden">
+        {editors.map((editorState, index) => {
+          const isFocused = focusedEditorIndex === index
+          const hasRecording = editorState.recordedChanges.length > 0
+          const showFocusMode = allHaveRecordedData
+          
+          return (
+          <Card 
+            key={index} 
+            className={`flex flex-col overflow-hidden transition-all ${
+              isFocused 
+                ? 'border-lime-500 border-2 shadow-lg shadow-lime-500/20' 
+                : 'border-border'
+            }`}
+          >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -1041,7 +1166,10 @@ export default function ReplayPage() {
                       <div>
                         <CardTitle className="text-sm">{editorState.candidate.name}</CardTitle>
                         <p className="text-xs text-muted-foreground">
-                          #{1800 + (hashString(editorState.candidate.id) % 200) + 1}
+                          #{(() => {
+                            const candidateNumberSeed = hashString(editorState.candidate.id)
+                            return 1800 + (candidateNumberSeed % 200) + 1
+                          })()}
                         </p>
                       </div>
                     </>
@@ -1060,79 +1188,76 @@ export default function ReplayPage() {
             <CardContent className="flex-1 flex flex-col gap-2 overflow-hidden">
               {/* Controls */}
               <div className="flex items-center gap-2 flex-shrink-0">
-                {!editorState.isRecording && !editorState.isReplaying && (
+                {showFocusMode && hasRecording ? (
+                  // Focus mode: show Focus button
                   <Button
                     size="sm"
-                    variant="outline"
-                    onClick={() => handleStartRecording(index)}
-                    disabled={!editorState.candidate}
-                    className="flex-1"
+                    variant={isFocused ? "default" : "outline"}
+                    onClick={() => handleFocusEditor(index)}
+                    className={`flex-1 ${isFocused ? 'bg-lime-500 hover:bg-lime-600 text-white' : ''}`}
                   >
-                    <Circle className="h-3 w-3 mr-2 text-red-500" />
-                    Record
+                    {isFocused ? 'Focused' : 'Focus'}
                   </Button>
-                )}
-                {editorState.isRecording && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleStopRecording(index)}
-                    className="flex-1"
-                  >
-                    <Square className="h-3 w-3 mr-2" />
-                    Stop
-                  </Button>
-                )}
-                {!editorState.isRecording && editorState.recordedChanges.length > 0 && !editorState.isReplaying && (
-                  <Button
-                    size="sm"
-                    variant="default"
-                    onClick={() => handleStartReplay(index)}
-                    className="flex-1"
-                  >
-                    <Play className="h-3 w-3 mr-2" />
-                    Replay
-                  </Button>
-                )}
-                {editorState.isReplaying && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handlePauseResumeReplay(index)}
-                    className="flex-1"
-                  >
-                    {editorState.isReplayPaused ? (
-                      <>
-                        <Play className="h-3 w-3 mr-2" />
-                        Resume
-                      </>
-                    ) : (
-                      <>
-                        <Pause className="h-3 w-3 mr-2" />
-                        Pause
-                      </>
+                ) : (
+                  // Normal mode: show Record/Replay buttons
+                  <>
+                    {!editorState.isRecording && !editorState.isReplaying && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleStartRecording(index)}
+                        disabled={!editorState.candidate}
+                        className="flex-1"
+                      >
+                        <Circle className="h-3 w-3 mr-2 text-red-500" />
+                        Record
+                      </Button>
                     )}
-                  </Button>
+                    {editorState.isRecording && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleStopRecording(index)}
+                        className="flex-1"
+                      >
+                        <Square className="h-3 w-3 mr-2" />
+                        Stop
+                      </Button>
+                    )}
+                    {!editorState.isRecording && editorState.recordedChanges.length > 0 && !editorState.isReplaying && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => handleStartReplay(index)}
+                        className="flex-1"
+                      >
+                        <Play className="h-3 w-3 mr-2" />
+                        Replay
+                      </Button>
+                    )}
+                    {editorState.isReplaying && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handlePauseResumeReplay(index)}
+                        className="flex-1"
+                      >
+                        {editorState.isReplayPaused ? (
+                          <>
+                            <Play className="h-3 w-3 mr-2" />
+                            Resume
+                          </>
+                        ) : (
+                          <>
+                            <Pause className="h-3 w-3 mr-2" />
+                            Pause
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
-
-              {/* Progress */}
-              {editorState.isReplaying && editorState.replayProgress.total > 0 && (
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                    <span>{formatTime(editorState.replayProgress.elapsed)}</span>
-                    <span>{formatTime(editorState.replayProgress.total)}</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-1.5">
-                    <div
-                      className="bg-primary h-1.5 rounded-full transition-all"
-                      style={{
-                        width: `${(editorState.replayProgress.elapsed / editorState.replayProgress.total) * 100}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* Editor */}
               <div className="flex-1 overflow-hidden">
@@ -1157,8 +1282,19 @@ export default function ReplayPage() {
               {/* Hidden audio element */}
               {editorState.audioUrl && (
                 <audio
+                  key={editorState.audioUrl} // Force remount when audioUrl changes
                   ref={(el) => {
                     audioRefs.current[index] = el
+                    if (el) {
+                      // Set initial volume based on focus
+                      if (focusedEditorIndex === index) {
+                        el.volume = 1.0
+                      } else if (focusedEditorIndex !== null) {
+                        el.volume = 0.1
+                      } else {
+                        el.volume = 1.0
+                      }
+                    }
                   }}
                   src={editorState.audioUrl}
                   preload="auto"
@@ -1167,7 +1303,8 @@ export default function ReplayPage() {
               )}
             </CardContent>
           </Card>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

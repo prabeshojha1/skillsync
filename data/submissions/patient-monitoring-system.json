@@ -1,21 +1,26 @@
 [
   {
-    "id": "sub-1765958315139-ju0x0hj0f",
+    "id": "sub-1766130660599-jirauijfv",
     "applicantName": "Prabesh Ojha",
     "applicantEmail": "yo@gmail.com",
     "score": 10,
-    "submittedAt": "2025-12-17T07:58:35.139Z",
+    "submittedAt": "2025-12-19T07:51:00.599Z",
     "timeSpent": "<1m",
     "cheatingFlags": [
       {
         "type": "looked_away",
-        "timestamp": "2025-12-17T07:58:24.170Z",
-        "details": "Face not detected in webcam at 0:06 (relative_ms:6541)"
+        "timestamp": "2025-12-19T07:50:43.878Z",
+        "details": "Face not detected in webcam at 0:05 (relative_ms:5596)"
       },
       {
         "type": "looked_away",
-        "timestamp": "2025-12-17T07:58:32.180Z",
-        "details": "Face not detected in webcam at 0:14 (relative_ms:14551)"
+        "timestamp": "2025-12-19T07:50:52.877Z",
+        "details": "Face not detected in webcam at 0:14 (relative_ms:14595)"
+      },
+      {
+        "type": "tab_switch",
+        "timestamp": "2025-12-19T07:50:47.204Z",
+        "details": "Tab switched at 0:08 (relative_ms:8922)"
       }
     ],
     "recordedChanges": [
@@ -31,7 +36,7 @@
             "text": "\n        "
           }
         ],
-        "timestamp": 1765958299433
+        "timestamp": 1766130641377
       },
       {
         "changes": [
@@ -54,491 +59,24 @@
             "text": ""
           }
         ],
-        "timestamp": 1765958299593
+        "timestamp": 1766130641880
       },
       {
         "changes": [
           {
             "range": {
-              "startLineNumber": 6,
-              "startColumn": 5,
-              "endLineNumber": 6,
-              "endColumn": 9
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765958300002
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 5,
-              "endLineNumber": 6,
-              "endColumn": 5
-            },
-            "text": "i"
-          }
-        ],
-        "timestamp": 1765958301544
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 6,
-              "endLineNumber": 6,
-              "endColumn": 6
-            },
-            "text": "m"
-          }
-        ],
-        "timestamp": 1765958301715
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 7,
-              "endLineNumber": 6,
-              "endColumn": 7
-            },
-            "text": " "
-          }
-        ],
-        "timestamp": 1765958301936
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 8,
-              "endLineNumber": 6,
-              "endColumn": 8
-            },
-            "text": "l"
-          }
-        ],
-        "timestamp": 1765958302274
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 8,
-              "endLineNumber": 6,
-              "endColumn": 9
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765958302602
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 8,
-              "endLineNumber": 6,
-              "endColumn": 8
-            },
-            "text": "g"
-          }
-        ],
-        "timestamp": 1765958302668
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 9,
-              "endLineNumber": 6,
-              "endColumn": 9
-            },
-            "text": "o"
-          }
-        ],
-        "timestamp": 1765958302811
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 10,
-              "endLineNumber": 6,
-              "endColumn": 10
-            },
-            "text": "n"
-          }
-        ],
-        "timestamp": 1765958302867
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 11,
-              "endLineNumber": 6,
-              "endColumn": 11
-            },
-            "text": "n"
-          }
-        ],
-        "timestamp": 1765958302992
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 12,
-              "endLineNumber": 6,
-              "endColumn": 12
-            },
-            "text": "a"
-          }
-        ],
-        "timestamp": 1765958303095
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 13,
-              "endLineNumber": 6,
+              "startLineNumber": 1,
+              "startColumn": 1,
+              "endLineNumber": 37,
               "endColumn": 13
             },
-            "text": " "
+            "text": "class PatientSystem:\n    def __init__(self):\n        # Stores all patients keyed by patient_id\n        # Each patient contains family_history and vital_history\n        self.patients = {}\n\n    def new_patient(self, patient_id, vital_readings, timestamp, family_history):\n        \"\"\"\n        Registers a new patient with initial vital readings.\n        \"\"\"\n        if patient_id in self.patients:\n            raise ValueError(f\"Patient {patient_id} already exists\")\n\n        # Initialize vital history as time-series lists\n        vital_history = {}\n        for vital, value in vital_readings.items():\n            vital_history[vital] = [(timestamp, value)]\n\n        self.patients[patient_id] = {\n            \"family_history\": list(family_history),\n            \"vital_history\": vital_history\n        }\n\n    def update_patient(self, patient_id, vital_readings, timestamp):\n        \"\"\"\n        Adds new vital readings for an existing patient.\n        \"\"\"\n        if patient_id not in self.patients:\n            raise ValueError(f\"Patient {patient_id} not found\")\n\n        patient = self.patients[patient_id]\n        vital_history = patient[\"vital_history\"]\n\n        for vital, value in vital_readings.items():\n            if vital not in vital_history:\n                vital_history[vital] = []\n            vital_history[vital].append((timestamp, value))\n\n    def fetch_patient_data(self, patient_id):\n        \"\"\"\n        Returns the patient's stored data.\n        \"\"\"\n        if patient_id not in self.patients:\n            raise ValueError(f\"Patient {patient_id} not found\")\n\n        patient = self.patients[patient_id]\n\n        return {\n            \"patient_id\": patient_id,\n            \"family_history\": patient[\"family_history\"],\n            \"vital_history\": patient[\"vital_history\"]\n        }\n"
           }
         ],
-        "timestamp": 1765958303136
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 14,
-              "endLineNumber": 6,
-              "endColumn": 14
-            },
-            "text": "l"
-          }
-        ],
-        "timestamp": 1765958303248
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 15,
-              "endLineNumber": 6,
-              "endColumn": 15
-            },
-            "text": "o"
-          }
-        ],
-        "timestamp": 1765958303406
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 16,
-              "endLineNumber": 6,
-              "endColumn": 16
-            },
-            "text": "o"
-          }
-        ],
-        "timestamp": 1765958303562
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 17,
-              "endLineNumber": 6,
-              "endColumn": 17
-            },
-            "text": "k"
-          }
-        ],
-        "timestamp": 1765958303589
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 18,
-              "endLineNumber": 6,
-              "endColumn": 18
-            },
-            "text": " "
-          }
-        ],
-        "timestamp": 1765958303697
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 19,
-              "endLineNumber": 6,
-              "endColumn": 19
-            },
-            "text": "w"
-          }
-        ],
-        "timestamp": 1765958303852
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 19,
-              "endLineNumber": 6,
-              "endColumn": 20
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765958304193
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 19,
-              "endLineNumber": 6,
-              "endColumn": 19
-            },
-            "text": "a"
-          }
-        ],
-        "timestamp": 1765958304267
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 20,
-              "endLineNumber": 6,
-              "endColumn": 20
-            },
-            "text": "w"
-          }
-        ],
-        "timestamp": 1765958304334
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 21,
-              "endLineNumber": 6,
-              "endColumn": 21
-            },
-            "text": "a"
-          }
-        ],
-        "timestamp": 1765958304440
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 22,
-              "endLineNumber": 6,
-              "endColumn": 22
-            },
-            "text": "y"
-          }
-        ],
-        "timestamp": 1765958304527
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 23,
-              "endLineNumber": 6,
-              "endColumn": 23
-            },
-            "text": " "
-          }
-        ],
-        "timestamp": 1765958304665
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 6,
-              "startColumn": 24,
-              "endLineNumber": 6,
-              "endColumn": 24
-            },
-            "text": "\n    "
-          }
-        ],
-        "timestamp": 1765958305305
-      },
-      {
-        "changes": [
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 5,
-              "endLineNumber": 7,
-              "endColumn": 5
-            },
-            "text": "\n    "
-          },
-          {
-            "range": {
-              "startLineNumber": 7,
-              "startColumn": 1,
-              "endLineNumber": 7,
-              "endColumn": 5
-            },
-            "text": ""
-          }
-        ],
-        "timestamp": 1765958305482
+        "timestamp": 1766130650878
       }
     ],
-    "finalCode": "class PatientSystem:\n    def __init__(self):\n        # initialize internal data structures\n        pass\n\n    im gonna look away \n\n    \n    \n    def new_patient(self, patient_id, vital_readings, timestamp, family_history):\n        \"\"\"\n        Registers a new patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value} (e.g., {\"heart_rate\": 72, \"blood_pressure\": 120})\n        - timestamp: timestamp of the reading (int or float)\n        - family_history: list of risk factors (e.g. [\"diabetes\", \"cardiac\"])\n        \"\"\"\n        pass\n    \n    def update_patient(self, patient_id, vital_readings, timestamp):\n        \"\"\"\n        Adds new vital readings for an existing patient.\n        - patient_id: unique identifier for the patient (string)\n        - vital_readings: dict of {vital_name: value}\n        - timestamp: timestamp of the reading (int or float)\n        \"\"\"\n        pass\n    \n    def fetch_patient_data(self, patient_id):\n        \"\"\"\n        Returns the patient's stored data.\n        - patient_id: unique identifier for the patient (string)\n        \n        Returns a dict containing:\n        - patient_id: the patient's ID\n        - family_history: list of risk factors\n        - vital_history: dict of {vital_name: [(timestamp, value), ...]}\n        \"\"\"\n        pass",
-    "audioFileName": "sub-1765958315139-ju0x0hj0f.webm"
-  },
-  {
-    "id": "sub-1766041645801-hilp2uz0w",
-    "applicantName": "Lily Garcia",
-    "applicantEmail": "lily.garcia@email.com",
-    "score": 8,
-    "submittedAt": "2025-12-18T07:07:25.801Z",
-    "timeSpent": "<1m",
-    "cheatingFlags": [],
-    "recordedChanges": [],
-    "finalCode": "",
-    "audioFileName": "sub-1766041645099-ek1ceggop.webm"
-  },
-  {
-    "id": "sub-1766041645874-4795rcvxc",
-    "applicantName": "Isabella White",
-    "applicantEmail": "isabella.white@email.com",
-    "score": 8,
-    "submittedAt": "2025-12-18T07:07:25.874Z",
-    "timeSpent": "<1m",
-    "cheatingFlags": [],
-    "recordedChanges": [],
-    "finalCode": "",
-    "audioFileName": "sub-1766041645832-2xx8elwfl.webm"
-  },
-  {
-    "id": "sub-1766041645946-581ubl6tf",
-    "applicantName": "Charlotte Lee",
-    "applicantEmail": "charlotte.lee@email.com",
-    "score": 8,
-    "submittedAt": "2025-12-18T07:07:25.946Z",
-    "timeSpent": "<1m",
-    "cheatingFlags": [],
-    "recordedChanges": [],
-    "finalCode": "",
-    "audioFileName": "sub-1766041645923-wo5wlym9q.webm"
-  },
-  {
-    "id": "sub-1766041645801-hilp2uz0w",
-    "applicantName": "Lily Garcia",
-    "applicantEmail": "lily.garcia@email.com",
-    "score": 8,
-    "submittedAt": "2025-12-18T07:12:38.072Z",
-    "timeSpent": "<1m",
-    "cheatingFlags": [],
-    "recordedChanges": [],
-    "finalCode": "",
-    "audioFileName": "sub-1766041645801-hilp2uz0w.webm"
-  },
-  {
-    "id": "sub-1766041645874-4795rcvxc",
-    "applicantName": "Isabella White",
-    "applicantEmail": "isabella.white@email.com",
-    "score": 8,
-    "submittedAt": "2025-12-18T07:12:38.135Z",
-    "timeSpent": "<1m",
-    "cheatingFlags": [],
-    "recordedChanges": [],
-    "finalCode": "",
-    "audioFileName": "sub-1766041645874-4795rcvxc.webm"
-  },
-  {
-    "id": "sub-1766041645946-581ubl6tf",
-    "applicantName": "Charlotte Lee",
-    "applicantEmail": "charlotte.lee@email.com",
-    "score": 8,
-    "submittedAt": "2025-12-18T07:12:38.184Z",
-    "timeSpent": "<1m",
-    "cheatingFlags": [],
-    "recordedChanges": [],
-    "finalCode": "",
-    "audioFileName": "sub-1766041645946-581ubl6tf.webm"
-  },
-  {
-    "id": "sub-1766041645801-hilp2uz0w",
-    "applicantName": "Lily Garcia",
-    "applicantEmail": "lily.garcia@email.com",
-    "score": 8,
-    "submittedAt": "2025-12-18T07:22:10.090Z",
-    "timeSpent": "<1m",
-    "cheatingFlags": [],
-    "recordedChanges": [],
-    "finalCode": "",
-    "audioFileName": "sub-1766041645801-hilp2uz0w.webm"
-  },
-  {
-    "id": "sub-1766041645874-4795rcvxc",
-    "applicantName": "Isabella White",
-    "applicantEmail": "isabella.white@email.com",
-    "score": 8,
-    "submittedAt": "2025-12-18T07:22:10.123Z",
-    "timeSpent": "<1m",
-    "cheatingFlags": [],
-    "recordedChanges": [],
-    "finalCode": "",
-    "audioFileName": "sub-1766041645874-4795rcvxc.webm"
-  },
-  {
-    "id": "sub-1766041645946-581ubl6tf",
-    "applicantName": "Charlotte Lee",
-    "applicantEmail": "charlotte.lee@email.com",
-    "score": 8,
-    "submittedAt": "2025-12-18T07:22:10.150Z",
-    "timeSpent": "<1m",
-    "cheatingFlags": [],
-    "recordedChanges": [],
-    "finalCode": "",
-    "audioFileName": "sub-1766041645946-581ubl6tf.webm"
+    "finalCode": "class PatientSystem:\n    def __init__(self):\n        # Stores all patients keyed by patient_id\n        # Each patient contains family_history and vital_history\n        self.patients = {}\n\n    def new_patient(self, patient_id, vital_readings, timestamp, family_history):\n        \"\"\"\n        Registers a new patient with initial vital readings.\n        \"\"\"\n        if patient_id in self.patients:\n            raise ValueError(f\"Patient {patient_id} already exists\")\n\n        # Initialize vital history as time-series lists\n        vital_history = {}\n        for vital, value in vital_readings.items():\n            vital_history[vital] = [(timestamp, value)]\n\n        self.patients[patient_id] = {\n            \"family_history\": list(family_history),\n            \"vital_history\": vital_history\n        }\n\n    def update_patient(self, patient_id, vital_readings, timestamp):\n        \"\"\"\n        Adds new vital readings for an existing patient.\n        \"\"\"\n        if patient_id not in self.patients:\n            raise ValueError(f\"Patient {patient_id} not found\")\n\n        patient = self.patients[patient_id]\n        vital_history = patient[\"vital_history\"]\n\n        for vital, value in vital_readings.items():\n            if vital not in vital_history:\n                vital_history[vital] = []\n            vital_history[vital].append((timestamp, value))\n\n    def fetch_patient_data(self, patient_id):\n        \"\"\"\n        Returns the patient's stored data.\n        \"\"\"\n        if patient_id not in self.patients:\n            raise ValueError(f\"Patient {patient_id} not found\")\n\n        patient = self.patients[patient_id]\n\n        return {\n            \"patient_id\": patient_id,\n            \"family_history\": patient[\"family_history\"],\n            \"vital_history\": patient[\"vital_history\"]\n        }\n",
+    "audioFileName": "sub-1766130660599-jirauijfv.webm"
   }
 ]
